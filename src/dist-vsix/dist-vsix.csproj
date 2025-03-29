@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.5.6">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PublishProjectReference Include="..\IKVM.VisualStudio.VSIX\IKVM.VisualStudio.VSIX.csproj">
+            <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
+            <PublishTargetPath>.</PublishTargetPath>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </PublishProjectReference>
+    </ItemGroup>
+
+</Project>

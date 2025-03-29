@@ -41,6 +41,8 @@
         <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
         <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.13.226" />
         <PackageReference Include="Microsoft.VisualStudio.Language" Version="17.13.226" />
+        <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.13.226" />
+        <PackageReference Include="Microsoft.VisualStudio.Language.StandardClassification" Version="17.13.226" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem" Version="17.9.380" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
@@ -49,6 +51,9 @@
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.13.40008" />
         <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.13.40008" />
+        <PackageReference Include="Microsoft.VisualStudio.Text.Data" Version="17.13.226" />
+        <PackageReference Include="Microsoft.VisualStudio.Text.Logic" Version="17.13.226" />
+        <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="17.13.226" />
         <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.13.40008" />
         <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.13.2126">
             <PrivateAssets>all</PrivateAssets>
