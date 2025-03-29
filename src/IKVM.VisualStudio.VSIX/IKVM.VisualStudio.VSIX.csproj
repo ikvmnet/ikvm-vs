@@ -3,7 +3,6 @@
 
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
-        <LangVersion>13</LangVersion>
         <Nullable>enable</Nullable>
         <IsVsixProject>true</IsVsixProject>
         <IsManagedProjectSystemProject>true</IsManagedProjectSystemProject>

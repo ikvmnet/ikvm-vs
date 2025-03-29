@@ -1,0 +1,39 @@
+<Project>
+    <PropertyGroup>
+        <LangVersion Condition=" '$(LangVersion)' == '' ">13.0</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Authors Include="Jerome Haltom" />
+    </ItemGroup>
+
+    <PropertyGroup Label="Copyright Info">
+        <ProductName>IKVM.VisualStudio</ProductName>
+        <Authors>@(Authors, ',')</Authors>
+        <CurrentYear Condition=" '$(CurrentYear)' == '' ">$([System.DateTime]::UtcNow.Year.ToString())</CurrentYear>
+        <Copyright>Copyright © $(CurrentYear) @(Authors, ', ')</Copyright>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Version Info">
+        <DefaultMajorVersion>1</DefaultMajorVersion>
+        <Version Condition=" '$(Version)' == '' ">$(DefaultMajorVersion).0.0-dev</Version>
+        <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(DefaultMajorVersion).0.0.0</AssemblyVersion>
+        <FileVersion Condition=" '$(FileVersion)' == '' ">$(DefaultMajorVersion).0.0.0</FileVersion>
+        <InformationalVersion Condition=" '$(InformationalVersion)' == '' ">$(DefaultMajorVersion).0.0.0</InformationalVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Package Info">
+        <RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">https://github.com/ikvmnet/ikvm-vs.git</RepositoryUrl>
+        <RepositoryType Condition=" '$(RepositoryType)' == '' ">git</RepositoryType>
+        <PackageProjectUrl  Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/ikvmnet/ikvm-vs</PackageProjectUrl>
+        <PackageVersion Condition=" '$(PackageVersion)' == '' ">$(Version)</PackageVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM.Core.MSBuild" Version="0.1.106">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+</Project>
