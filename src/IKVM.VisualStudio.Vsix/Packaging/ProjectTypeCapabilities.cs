@@ -13,7 +13,6 @@ namespace IKVM.VisualStudio.Vsix.Packaging
             OpenProjectFile + "; " +
             PreserveFormatting + "; " +
             ProjectConfigurationsDeclaredDimensions + "; " +
-            LanguageService + "; " +
             DotNet + "; " +
             SharedImports + "; " +
             UseProjectEvaluationCache;
