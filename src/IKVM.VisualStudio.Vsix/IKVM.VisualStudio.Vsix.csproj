@@ -31,6 +31,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Update="IKVM.VisualStudio.manifest.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="IKVM.VisualStudio.md">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <Reference Include="System" />
         <Reference Include="System.ComponentModel.Composition" />
         <Reference Include="System.Core" />

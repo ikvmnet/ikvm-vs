@@ -10,8 +10,12 @@
 
     <ItemGroup>
         <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>dist%5Cdist-tests:Publish</Targets>
+            <Targets>src%5Cdist%5Cdist-tests:Publish</Targets>
             <Properties>PublishDir=$(DistDir)\tests</Properties>
+        </TargetsForPublish>
+        <TargetsForPublish Include="$(SolutionFile)">
+            <Targets>src%5Cdist%5Cdist-vsix:Publish</Targets>
+            <Properties>PublishDir=$(DistDir)\vsix</Properties>
         </TargetsForPublish>
     </ItemGroup>
 

@@ -1,0 +1,11 @@
+﻿{
+    "$schema": "http://json.schemastore.org/vsix-publish",
+    "publisher": "IKVM",
+    "identity": { "internalName": "ikvm" },
+    "categories": [ "build", "coding" ],
+    "overview": "IKVM.VisualStudio.md",
+    "priceCategory": "free",
+    "private": true,
+    "qna": true,
+    "repo": "https://github.com/ikvmnet/ikvm-vs"
+}
