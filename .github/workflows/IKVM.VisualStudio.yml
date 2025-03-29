@@ -50,16 +50,21 @@ jobs:
         dotnet msbuild /m /bl `
           /p:Configuration="Release" `
           /p:Platform="Any CPU" `
-          /p:PreReleaseLabel="$env:GitVersion_PreReleaseLabel" `
-          /p:PreReleaseNumber="$env:GitVersion_WeightedPreReleaseNumber" `
-          /p:Version="$env:GitVersion_FullSemVer" `
-          /p:AssemblyVersion="$env:GitVersion_AssemblySemVer" `
-          /p:InformationalVersion="$env:GitVersion_InformationalVersion" `
-          /p:FileVersion="$env:GitVersion_AssemblySemFileVer" `
-          /p:PackageVersion="$env:GitVersion_FullSemVer" `
-          /p:RepositoryUrl="$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY.git" `
-          /p:PackageProjectUrl="$env:GITHUB_SERVER_URL/$env:GITHUB_REPOSITORY" `
+          /p:PreReleaseLabel=${env:GitVersion_PreReleaseLabel} `
+          /p:PreReleaseNumber=${env:GitVersion_WeightedPreReleaseNumber} `
+          /p:Version=${env:GitVersion_FullSemVer} `
+          /p:AssemblyVersion=${env:GitVersion_AssemblySemVer} `
+          /p:InformationalVersion=${env:GitVersion_InformationalVersion} `
+          /p:FileVersion=${env:GitVersion_AssemblySemFileVer} `
+          /p:PackageVersion=${env:GitVersion_FullSemVer} `
+          /p:RepositoryUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}.git" `
+          /p:PackageProjectUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}" `
           /p:BuildInParallel=true `
+          /p:CreateHardLinksForAdditionalFilesIfPossible=true `
+          /p:CreateHardLinksForCopyAdditionalFilesIfPossible=true `
+          /p:CreateHardLinksForCopyFilesToOutputDirectoryIfPossible=true `
+          /p:CreateHardLinksForCopyLocalIfPossible=true `
+          /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           IKVM.VisualStudio.dist.msbuildproj
     - name: Upload MSBuild Log
