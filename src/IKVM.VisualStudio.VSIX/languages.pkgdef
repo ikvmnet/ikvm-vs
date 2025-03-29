@@ -1,0 +1,4 @@
+﻿[$RootKey$\TextMate\Repositories]
+"Java"="$PackageFolder$\Grammars"
+[$RootKey$\TextMate\LanguageConfiguration\GrammarMapping]
+"source.java"="$PackageFolder$\java-language-configuration.json"

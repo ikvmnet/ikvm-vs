@@ -1,0 +1,78 @@
+﻿<Project>
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>13</LangVersion>
+        <Nullable>enable</Nullable>
+        <IsVsixProject>true</IsVsixProject>
+        <IsManagedProjectSystemProject>true</IsManagedProjectSystemProject>
+        <GeneratePkgDefFile>true</GeneratePkgDefFile>
+        <CreateVsixContainer>true</CreateVsixContainer>
+        <UseCodebase>true</UseCodebase>
+        <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+        <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
+        <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
+        <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+        <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Grammars\java.tmlanguage.json" />
+        <None Remove="java-language-configuration.json" />
+        <None Remove="languages.pkgdef" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Grammars\java.tmLanguage.json" IncludeInVSIX="true" />
+        <Content Include="java-language-configuration.json" IncludeInVSIX="true" />
+        <Content Include="languages.pkgdef" IncludeInVSIX="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="System" />
+        <Reference Include="System.ComponentModel.Composition" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Xml" />
+        <Reference Include="System.Xml.Linq" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.13.226" />
+        <PackageReference Include="Microsoft.VisualStudio.Language" Version="17.13.226" />
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem" Version="17.9.380" />
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" />
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.13.40008" />
+        <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.13.40008" />
+        <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.13.40008" />
+        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.13.2126">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="VSPackage.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>VSPackage.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="VSPackage.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>VSPackage.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+
+    <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets') And ('$(IsVsixProject)' == 'true' Or '$(GeneratePkgDefFile)' == 'true')" />
+</Project>

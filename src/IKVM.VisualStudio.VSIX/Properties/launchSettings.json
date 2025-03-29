@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "devenv": {
+      "commandName": "Executable",
+      "executablePath": "%ProgramFiles%\\Microsoft Visual Studio\\2022\\Professional\\Common7\\IDE\\devenv.exe",
+      "commandLineArgs": "/RootSuffix Exp"
+    }
+  }
+}
