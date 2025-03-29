@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.ProjectSystem;
 
-namespace IKVM.VisualStudio.VSIX.Packaging
+namespace IKVM.VisualStudio.Vsix.Packaging
 {
 
     static class ProjectTypeCapabilities

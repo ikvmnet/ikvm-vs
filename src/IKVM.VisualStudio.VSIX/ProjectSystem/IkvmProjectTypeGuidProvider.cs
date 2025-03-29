@@ -3,7 +3,7 @@ using System.ComponentModel.Composition;
 
 using Microsoft.VisualStudio.ProjectSystem;
 
-namespace IKVM.VisualStudio.VSIX.ProjectSystem
+namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export(typeof(IItemTypeGuidProvider))]

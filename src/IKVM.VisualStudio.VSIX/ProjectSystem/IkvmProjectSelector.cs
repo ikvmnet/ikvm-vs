@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Threading;
 
-namespace IKVM.VisualStudio.VSIX.ProjectSystem
+namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Guid("D6819451-BBEA-4DF2-BC9F-1AD59B0E8DB3")]

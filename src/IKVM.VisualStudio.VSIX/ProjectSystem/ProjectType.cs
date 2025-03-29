@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IKVM.VisualStudio.VSIX.ProjectSystem
+namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     /// <summary>

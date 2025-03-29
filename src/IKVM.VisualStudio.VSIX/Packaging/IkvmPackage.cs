@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.Shell;
 
 using Task = System.Threading.Tasks.Task;
 
-namespace IKVM.VisualStudio.VSIX.Packaging
+namespace IKVM.VisualStudio.Vsix.Packaging
 {
 
     [Guid(PackageGuid)]

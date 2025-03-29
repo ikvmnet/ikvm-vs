@@ -1,5 +1,5 @@
-﻿using IKVM.VisualStudio.VSIX.Packaging;
-using IKVM.VisualStudio.VSIX.ProjectSystem;
+﻿using IKVM.VisualStudio.Vsix.Packaging;
+using IKVM.VisualStudio.Vsix.ProjectSystem;
 
 using Microsoft.VisualStudio.ProjectSystem.VS;
 

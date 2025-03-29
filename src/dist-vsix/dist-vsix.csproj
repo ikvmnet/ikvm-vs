@@ -1,17 +1,34 @@
-<Project Sdk="Microsoft.Build.NoTargets/3.5.6">
+<Project>
+    <Import Sdk="Microsoft.Build.NoTargets" Version="3.7.0" Project="Sdk.props"/>
+
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     </PropertyGroup>
 
-    <ItemGroup>
-        <PublishProjectReference Include="..\IKVM.VisualStudio.VSIX\IKVM.VisualStudio.VSIX.csproj">
-            <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
-            <PublishTargetPath>.</PublishTargetPath>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </PublishProjectReference>
-    </ItemGroup>
+    <Import Sdk="Microsoft.Build.NoTargets" Version="3.7.0" Project="Sdk.targets"/>
+
+    <PropertyGroup>
+        <GetCopyToOutputDirectoryItemsDependsOn>
+            GetVsixItems;
+            $(GetCopyToOutputDirectoryItemsDependsOn);
+        </GetCopyToOutputDirectoryItemsDependsOn>
+    </PropertyGroup>
+
+    <Target Name="GetVsixItems">
+        <MSBuild Projects="..\IKVM.VisualStudio.Vsix\IKVM.VisualStudio.Vsix.csproj" Targets="Build;CreateVsixContainer;VSIXContainerProjectOutputGroup" RebaseOutputs="true">
+            <Output TaskParameter="TargetOutputs" ItemName="VsixItems" />
+        </MSBuild>
+        <MSBuild Projects="..\IKVM.VisualStudio.Vsix\IKVM.VisualStudio.Vsix.csproj" Targets="GetCopyToOutputDirectoryItems" RebaseOutputs="true">
+            <Output TaskParameter="TargetOutputs" ItemName="VsixItems" />
+        </MSBuild>
+        <ItemGroup>
+            <ContentWithTargetPath Include="@(VsixItems)" Condition=" '%(Extension)' != '.dll' ">
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                <TargetPath>%(FileName)%(Extension)</TargetPath>
+            </ContentWithTargetPath>
+        </ItemGroup>
+    </Target>
 
 </Project>

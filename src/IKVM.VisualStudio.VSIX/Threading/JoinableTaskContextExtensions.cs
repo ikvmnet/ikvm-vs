@@ -4,7 +4,7 @@ using Microsoft;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Threading;
 
-namespace IKVM.VisualStudio.VSIX.Threading
+namespace IKVM.VisualStudio.Vsix.Threading
 {
 
     public static class JoinableTaskContextExtensions

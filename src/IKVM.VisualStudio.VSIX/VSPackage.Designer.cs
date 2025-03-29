@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace IKVM.VisualStudio.VSIX {
+namespace IKVM.VisualStudio.Vsix {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace IKVM.VisualStudio.VSIX {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("IKVM.VisualStudio.VSIX.VSPackage", typeof(VSPackage).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("IKVM.VisualStudio.Vsix.VSPackage", typeof(VSPackage).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
