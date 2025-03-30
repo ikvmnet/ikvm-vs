@@ -4,6 +4,12 @@
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <Nullable>enable</Nullable>
+        <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+        <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <IsVsixProject>true</IsVsixProject>
         <IsManagedProjectSystemProject>true</IsManagedProjectSystemProject>
         <GeneratePkgDefFile>true</GeneratePkgDefFile>
@@ -13,10 +19,14 @@
         <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
         <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
         <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
-        <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
-        <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
-        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <DeployExtension Condition=" '$(MSBuildRuntimeType)' == 'Core' ">false</DeployExtension>
+        <DeployExtension Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">false</DeployExtension>
+        <Experimental>false</Experimental>
+        <Experimental Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">true</Experimental>
+        <AllUsers>false</AllUsers>
+        <AllUsers Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">true</AllUsers>
+        <StartAction>Program</StartAction>
+        <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
+        <StartArguments>/rootSuffix Exp</StartArguments>
     </PropertyGroup>
 
     <ItemGroup>
@@ -90,4 +100,8 @@
     <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
 
     <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets') And ('$(IsVsixProject)' == 'true' Or '$(GeneratePkgDefFile)' == 'true')" />
+
+    <Target Name="GetVsixVersion" Returns="$(FileVersion)" />
+    <Target Name="GetVsixExperimental" Returns="$(Experimental)" />
+    <Target Name="GetVsixAllUsers" Returns="$(AllUsers)" />
 </Project>
