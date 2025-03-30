@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="IKVM.VisualStudio.8bf8ccd4-363a-4a23-a857-b038314c2c9e" Version="1.0" Language="en-US" Publisher="IKVM" />
-        <DisplayName>IKVM VisualStudio Extension</DisplayName>
-        <Description>Visual Studio Extension for IKVM.</Description>
+        <Identity Id="IKVM.VisualStudio.8bf8ccd4-363a-4a23-a857-b038314c2c9e" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="IKVM" />
+        <DisplayName>IKVM Extension for VisualStudio</DisplayName>
+        <Description>Provides support for the .ikvmproj project type.</Description>
     </Metadata>
     <Installation>
         <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 18.0)">
