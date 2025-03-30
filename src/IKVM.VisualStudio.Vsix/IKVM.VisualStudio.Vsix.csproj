@@ -8,7 +8,7 @@
         <IsManagedProjectSystemProject>true</IsManagedProjectSystemProject>
         <GeneratePkgDefFile>true</GeneratePkgDefFile>
         <CreateVsixContainer>true</CreateVsixContainer>
-        <TargetVsixContainerName>IKVM.VisualStudio.vsix</TargetVsixContainerName>
+        <TargetVsixContainerName>IKVM.vsix</TargetVsixContainerName>
         <UseCodebase>true</UseCodebase>
         <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
         <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
