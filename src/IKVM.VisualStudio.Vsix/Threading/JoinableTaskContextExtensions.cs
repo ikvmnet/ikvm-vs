@@ -18,7 +18,6 @@ namespace IKVM.VisualStudio.Vsix.Threading
             {
                 throw new COMException("This method must be called on the UI thread.", HResult.WrongThread);
             }
-
         }
 
     }

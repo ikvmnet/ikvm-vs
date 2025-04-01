@@ -18,7 +18,6 @@ namespace IKVM.VisualStudio.Vsix.Packaging
             UseProjectEvaluationCache;
 
         const string AppDesigner = nameof(AppDesigner);
-        const string AppSettings = nameof(AppSettings);
         const string DependenciesTree = nameof(DependenciesTree);
         const string ProjectImportsTree = nameof(ProjectImportsTree);
         const string EditAndContinue = nameof(EditAndContinue);
@@ -29,14 +28,8 @@ namespace IKVM.VisualStudio.Vsix.Packaging
         const string PackageReferences = ProjectCapabilities.PackageReferences;
         const string PreserveFormatting = nameof(PreserveFormatting);
         const string ProjectConfigurationsDeclaredDimensions = ProjectCapabilities.ProjectConfigurationsDeclaredDimensions;
-        const string LanguageService = nameof(LanguageService);
         const string UseProjectEvaluationCache = ProjectCapabilities.UseProjectEvaluationCache;
-        const string SingleTargetBuildForStartupProjects = nameof(SingleTargetBuildForStartupProjects);
         const string ProjectPropertyInterception = nameof(ProjectPropertyInterception);
-        const string WindowsForms = nameof(WindowsForms);
-        const string WPF = nameof(WPF);
-        const string SupportUniversalAuthentication = nameof(SupportUniversalAuthentication);
-        const string DiagnoseVisualStudioComponents = nameof(DiagnoseVisualStudioComponents);
         const string DotNet = ".NET";
         const string SharedImports = ProjectCapabilities.SharedImports;
 
