@@ -10,7 +10,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export]
-    [AppliesTo(ProjectTypeCapabilities.UniqueCapability)]
+    [AppliesTo(ProjectTypeCapabilities.AppliesTo)]
     [ProjectTypeRegistration(
         projectTypeGuid: ProjectType.Ikvm,
         displayName: "#21",

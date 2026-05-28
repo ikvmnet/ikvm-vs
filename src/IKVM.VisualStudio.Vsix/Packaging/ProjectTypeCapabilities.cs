@@ -8,7 +8,10 @@ namespace IKVM.VisualStudio.Vsix.Packaging
 
         public const string UniqueCapability = "IKVM";
 
+        public const string AppliesTo = "Java & Managed";
+
         public const string Default =
+            UniqueCapability + "; " +
             AppDesigner + "; " +
             EditAndContinue + "; " +
             HandlesOwnReload + "; " +

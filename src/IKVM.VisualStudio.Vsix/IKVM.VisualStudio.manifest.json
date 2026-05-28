@@ -2,7 +2,7 @@
     "$schema": "http://json.schemastore.org/vsix-publish",
     "publisher": "IKVM",
     "identity": { "internalName": "ikvm" },
-    "categories": [ "build", "coding" ],
+    "categories": [ "build", "coding", "languages" ],
     "overview": "IKVM.VisualStudio.md",
     "priceCategory": "free",
     "private": true,

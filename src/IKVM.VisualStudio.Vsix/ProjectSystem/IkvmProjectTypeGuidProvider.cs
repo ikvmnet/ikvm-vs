@@ -1,13 +1,15 @@
 ﻿using System;
 using System.ComponentModel.Composition;
 
+using IKVM.VisualStudio.Vsix.Packaging;
+
 using Microsoft.VisualStudio.ProjectSystem;
 
 namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export(typeof(IItemTypeGuidProvider))]
-    [AppliesTo("IKVM")]
+    [AppliesTo(ProjectTypeCapabilities.AppliesTo)]
     internal class IkvmProjectTypeGuidProvider : IItemTypeGuidProvider
     {
 
