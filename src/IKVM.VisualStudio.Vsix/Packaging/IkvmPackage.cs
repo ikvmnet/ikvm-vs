@@ -24,7 +24,6 @@ namespace IKVM.VisualStudio.Vsix.Packaging
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await base.InitializeAsync(cancellationToken, progress);
-            await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
         }
 
     }

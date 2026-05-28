@@ -6,6 +6,8 @@ namespace IKVM.VisualStudio.Vsix.Packaging
     static class ProjectTypeCapabilities
     {
 
+        public const string UniqueCapability = "IKVM";
+
         public const string Default =
             AppDesigner + "; " +
             EditAndContinue + "; " +
