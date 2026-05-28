@@ -31,12 +31,27 @@
         <None Remove="Grammars\java.tmlanguage.json" />
         <None Remove="java-language-configuration.json" />
         <None Remove="languages.pkgdef" />
+        <None Remove="images.pkgdef" />
+        <None Remove="Images\ikvm.ico" />
+        <None Remove="Images\ikvm.png" />
+        <None Remove="Images\IkvmImages.imagemanifest" />
     </ItemGroup>
 
     <ItemGroup>
         <Content Include="Grammars\java.tmLanguage.json" IncludeInVSIX="true" />
         <Content Include="java-language-configuration.json" IncludeInVSIX="true" />
         <Content Include="languages.pkgdef" IncludeInVSIX="true" />
+        <Content Include="images.pkgdef" IncludeInVSIX="true" />
+        <Content Include="Images\IkvmImages.imagemanifest" IncludeInVSIX="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- ikvm.png must be a WPF pack Resource so the imagemanifest URI resolves -->
+        <Resource Include="Images\ikvm.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Images\ikvm.ico" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,14 +1,12 @@
 using System.ComponentModel.Composition;
 
-using IKVM.VisualStudio.Vsix.Packaging;
-
 using Microsoft.VisualStudio.ProjectSystem;
 
 namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export]
-    [AppliesTo(ProjectTypeCapabilities.AppliesTo)]
+    [AppliesTo(ProjectCapabilities.AppliesTo)]
     internal class IkvmConfiguredProject
     {
 

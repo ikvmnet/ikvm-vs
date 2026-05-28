@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem;
 
-namespace IKVM.VisualStudio.Vsix.Packaging
+namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
-    static class ProjectTypeCapabilities
+    static class ProjectCapabilities
     {
 
         public const string UniqueCapability = "IKVM";
@@ -28,15 +28,15 @@ namespace IKVM.VisualStudio.Vsix.Packaging
         const string EditAndContinue = nameof(EditAndContinue);
         const string LaunchProfiles = nameof(LaunchProfiles);
         const string OpenProjectFile = nameof(OpenProjectFile);
-        const string HandlesOwnReload = ProjectCapabilities.HandlesOwnReload;
+        const string HandlesOwnReload = Microsoft.VisualStudio.ProjectSystem.ProjectCapabilities.HandlesOwnReload;
         const string Pack = nameof(Pack); // Keep this in sync with Microsoft.VisualStudio.Editors.ProjectCapability.Pack
-        const string PackageReferences = ProjectCapabilities.PackageReferences;
+        const string PackageReferences = Microsoft.VisualStudio.ProjectSystem.ProjectCapabilities.PackageReferences;
         const string PreserveFormatting = nameof(PreserveFormatting);
-        const string ProjectConfigurationsDeclaredDimensions = ProjectCapabilities.ProjectConfigurationsDeclaredDimensions;
-        const string UseProjectEvaluationCache = ProjectCapabilities.UseProjectEvaluationCache;
+        const string ProjectConfigurationsDeclaredDimensions = Microsoft.VisualStudio.ProjectSystem.ProjectCapabilities.ProjectConfigurationsDeclaredDimensions;
+        const string UseProjectEvaluationCache = Microsoft.VisualStudio.ProjectSystem.ProjectCapabilities.UseProjectEvaluationCache;
         const string ProjectPropertyInterception = nameof(ProjectPropertyInterception);
         const string DotNet = ".NET";
-        const string SharedImports = ProjectCapabilities.SharedImports;
+        const string SharedImports = Microsoft.VisualStudio.ProjectSystem.ProjectCapabilities.SharedImports;
 
     }
 

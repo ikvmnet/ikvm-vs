@@ -5,6 +5,7 @@
         <DisplayName>IKVM Extension for Visual Studio</DisplayName>
         <Description>Brings Java project support to Visual Studio. Create, build, and manage .ikvmproj projects that compile Java source code to .NET assemblies using the IKVM.NET SDK. Includes Java syntax highlighting, project system integration, and Solution Explorer support for .java, .jar, and .class files.</Description>
         <MoreInfo>https://github.com/ikvmnet/ikvm-vs</MoreInfo>
+        <Icon>Images\ikvm.png</Icon>
         <Tags>ikvm;java;jvm;dotnet;interop;cross-platform</Tags>
     </Metadata>
     <Installation Experimental="|%CurrentProject%;GetVsixExperimental|" InstalledByMsi="false" AllUsers="|%CurrentProject%;GetVsixAllUsers|">
@@ -27,6 +28,7 @@
     <Assets>
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
         <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="languages.pkgdef"/>
+        <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="images.pkgdef"/>
         <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" AssemblyName="|%CurrentProject%;AssemblyName|" />
         <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
     </Assets>
