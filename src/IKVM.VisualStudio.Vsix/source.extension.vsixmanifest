@@ -3,7 +3,7 @@
     <Metadata>
         <Identity Id="IKVM.VisualStudio.8bf8ccd4-363a-4a23-a857-b038314c2c9e" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="IKVM" />
         <DisplayName>IKVM Extension for Visual Studio</DisplayName>
-        <Description>Brings Java project support to Visual Studio. Create, build, and manage .ikvmproj projects that compile Java source code to .NET assemblies using the IKVM.NET SDK. Includes Java syntax highlighting, project system integration, and Solution Explorer support for .java, .jar, and .class files.</Description>
+        <Description>Brings Java project support to Visual Studio. Create, build, and manage .ikvmproj projects that compile Java source code to .NET assemblies using the IKVM.NET SDK. Includes syntax highlighting and Solution Explorer support for .java, .jar, and .class files.</Description>
         <MoreInfo>https://github.com/ikvmnet/ikvm-vs</MoreInfo>
         <License>LICENSE</License>
         <Icon>Images\ikvm.png</Icon>
