@@ -10,7 +10,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export]
-    [AppliesTo(ProjectCapabilities.AppliesTo)]
+    [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
     [ProjectTypeRegistration(
         projectTypeGuid: ProjectType.Ikvm,
         displayName: "#21",
@@ -18,7 +18,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
         defaultProjectExtension: "ikvmproj",
         language: "Java",
         resourcePackageGuid: IkvmPackage.PackageGuid,
-        Capabilities = ProjectCapabilities.Default,
+        Capabilities = IkvmProjectCapabilities.Default,
         DisableAsynchronousProjectTreeLoad = true,
         PossibleProjectExtensions = "ikvmproj",
         NewProjectRequireNewFolderVsTemplate = true,

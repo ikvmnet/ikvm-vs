@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.ProjectSystem;
 namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
-    static class ProjectCapabilities
+    static class IkvmProjectCapabilities
     {
 
         public const string UniqueCapability = "IKVM";

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading;
 
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-
-using Task = System.Threading.Tasks.Task;
 
 namespace IKVM.VisualStudio.Vsix.Packaging
 {
@@ -20,11 +17,6 @@ namespace IKVM.VisualStudio.Vsix.Packaging
     {
 
         public const string PackageGuid = "c3f18b47-662b-4785-a2bf-5fd7bc8c6f69";
-
-        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
-            await base.InitializeAsync(cancellationToken, progress);
-        }
 
     }
 

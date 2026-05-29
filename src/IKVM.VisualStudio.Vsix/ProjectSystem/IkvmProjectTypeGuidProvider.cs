@@ -7,7 +7,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export(typeof(IItemTypeGuidProvider))]
-    [AppliesTo(ProjectCapabilities.AppliesTo)]
+    [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
     internal class IkvmProjectTypeGuidProvider : IItemTypeGuidProvider
     {
 

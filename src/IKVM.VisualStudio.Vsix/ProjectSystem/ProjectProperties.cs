@@ -7,7 +7,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export]
-    [AppliesTo(ProjectCapabilities.AppliesTo)]
+    [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
     internal partial class ProjectProperties : StronglyTypedPropertyAccess
     {
 

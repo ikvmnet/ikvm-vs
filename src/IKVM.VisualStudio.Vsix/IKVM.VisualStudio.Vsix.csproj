@@ -61,6 +61,9 @@
         <None Update="IKVM.VisualStudio.md">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="ProjectSystem\Rules\ProjectItemsSchema.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </None>
     </ItemGroup>
 
     <ItemGroup>

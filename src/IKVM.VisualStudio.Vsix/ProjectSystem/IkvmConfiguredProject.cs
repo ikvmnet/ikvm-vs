@@ -6,7 +6,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export]
-    [AppliesTo(ProjectCapabilities.AppliesTo)]
+    [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
     internal class IkvmConfiguredProject
     {
 
