@@ -43,6 +43,12 @@
         <Content Include="languages.pkgdef" IncludeInVSIX="true" />
         <Content Include="images.pkgdef" IncludeInVSIX="true" />
         <Content Include="Images\IkvmImages.imagemanifest" IncludeInVSIX="true" />
+        <Content Include="ProjectTemplates\IkvmLibrary\IkvmLibrary.vstemplate" IncludeInVSIX="true" />
+        <Content Include="ProjectTemplates\IkvmLibrary\IkvmLibrary.ikvmproj" IncludeInVSIX="true" />
+        <Content Include="ProjectTemplates\IkvmLibrary\Class1.java" IncludeInVSIX="true" />
+        <Content Include="ProjectTemplates\IkvmConsoleApp\IkvmConsoleApp.vstemplate" IncludeInVSIX="true" />
+        <Content Include="ProjectTemplates\IkvmConsoleApp\IkvmConsoleApp.ikvmproj" IncludeInVSIX="true" />
+        <Content Include="ProjectTemplates\IkvmConsoleApp\Program.java" IncludeInVSIX="true" />
     </ItemGroup>
 
     <ItemGroup>
@@ -52,6 +58,11 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Images\ikvm.ico" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="ProjectTemplates\IkvmConsoleApp\IkvmConsoleApp.ikvmproj" />
+      <None Include="ProjectTemplates\IkvmLibrary\IkvmLibrary.ikvmproj" />
     </ItemGroup>
 
     <ItemGroup>

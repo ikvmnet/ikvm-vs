@@ -1,0 +1,20 @@
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+    <TemplateData>
+        <Name>IKVM Java Class Library</Name>
+        <Description>A class library project that compiles Java source files to a .NET assembly using the IKVM.NET SDK.</Description>
+        <Icon>__TemplateIcon.ico</Icon>
+        <ProjectType>DAEA77DE-8320-43BA-BA7C-EF5C12478AB5</ProjectType>
+        <DefaultName>IkvmLibrary1</DefaultName>
+        <LanguageTag>Java</LanguageTag>
+        <PlatformTag>Windows</PlatformTag>
+        <PlatformTag>Linux</PlatformTag>
+        <PlatformTag>macOS</PlatformTag>
+        <ProjectTypeTag>Library</ProjectTypeTag>
+        <FrameworkVersion>net8.0</FrameworkVersion>
+    </TemplateData>
+    <TemplateContent>
+        <Project File="IkvmLibrary.ikvmproj" ReplaceParameters="true">
+            <ProjectItem ReplaceParameters="true" TargetFileName="Class1.java">Class1.java</ProjectItem>
+        </Project>
+    </TemplateContent>
+</VSTemplate>

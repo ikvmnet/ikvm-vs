@@ -15,21 +15,25 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
         public ProjectProperties(ConfiguredProject configuredProject) :
             base(configuredProject)
         {
+
         }
 
         public ProjectProperties(ConfiguredProject configuredProject, string file, string itemType, string itemName) :
             base(configuredProject, file, itemType, itemName)
         {
+
         }
 
         public ProjectProperties(ConfiguredProject configuredProject, IProjectPropertiesContext projectPropertiesContext) :
             base(configuredProject, projectPropertiesContext)
         {
+
         }
 
         public ProjectProperties(ConfiguredProject configuredProject, UnconfiguredProject unconfiguredProject) :
             base(configuredProject, unconfiguredProject)
         {
+
         }
 
     }

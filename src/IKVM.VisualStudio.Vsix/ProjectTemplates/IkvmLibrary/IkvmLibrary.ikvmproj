@@ -1,0 +1,8 @@
+<Project Sdk="IKVM.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>$targetframeworkoverride$</TargetFramework>
+		<AssemblyName>$safeprojectname$</AssemblyName>
+		<RootNamespace>$safeprojectname$</RootNamespace>
+	</PropertyGroup>
+</Project>
