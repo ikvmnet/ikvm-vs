@@ -11,7 +11,7 @@ namespace IKVM.VisualStudio.Vsix.Icons
     [Export(typeof(IProjectTreePropertiesProvider))]
     [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
     [Order(1000)]
-    internal class IkvmFileIconProvider : IProjectTreePropertiesProvider
+    internal class IkvmIconProvider : IProjectTreePropertiesProvider
     {
 
         public void CalculatePropertyValues(IProjectTreeCustomizablePropertyContext propertyContext, IProjectTreeCustomizablePropertyValues propertyValues)
@@ -19,7 +19,7 @@ namespace IKVM.VisualStudio.Vsix.Icons
             // Project root node: identified by the ProjectRoot flag already set in the property values
             if (propertyValues.Flags.Contains(ProjectTreeFlags.ProjectRoot))
             {
-                var projectMoniker = KnownMonikers.JavaSource.ToProjectSystemType();
+                var projectMoniker = IkvmImageMonikers.ProjectIcon.ToProjectSystemType();
                 propertyValues.Icon = projectMoniker;
                 propertyValues.ExpandedIcon = projectMoniker;
                 return;
