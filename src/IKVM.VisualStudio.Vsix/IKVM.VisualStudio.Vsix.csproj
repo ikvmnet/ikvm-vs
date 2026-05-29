@@ -43,12 +43,6 @@
         <Content Include="languages.pkgdef" IncludeInVSIX="true" />
         <Content Include="images.pkgdef" IncludeInVSIX="true" />
         <Content Include="Images\IkvmImages.imagemanifest" IncludeInVSIX="true" />
-        <Content Include="ProjectTemplates\IkvmLibrary\IkvmLibrary.vstemplate" IncludeInVSIX="true" />
-        <Content Include="ProjectTemplates\IkvmLibrary\IkvmLibrary.ikvmproj" IncludeInVSIX="true" />
-        <Content Include="ProjectTemplates\IkvmLibrary\Class1.java" IncludeInVSIX="true" />
-        <Content Include="ProjectTemplates\IkvmConsoleApp\IkvmConsoleApp.vstemplate" IncludeInVSIX="true" />
-        <Content Include="ProjectTemplates\IkvmConsoleApp\IkvmConsoleApp.ikvmproj" IncludeInVSIX="true" />
-        <Content Include="ProjectTemplates\IkvmConsoleApp\Program.java" IncludeInVSIX="true" />
     </ItemGroup>
 
     <ItemGroup>
@@ -61,11 +55,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="ProjectTemplates\IkvmConsoleApp\IkvmConsoleApp.ikvmproj" />
-      <None Include="ProjectTemplates\IkvmLibrary\IkvmLibrary.ikvmproj" />
-    </ItemGroup>
-
-    <ItemGroup>
         <None Update="IKVM.VisualStudio.manifest.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -73,7 +62,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="ProjectSystem\Rules\ProjectItemsSchema.xaml">
-          <Generator>MSBuild:Compile</Generator>
+            <Generator>MSBuild:Compile</Generator>
         </None>
     </ItemGroup>
 
