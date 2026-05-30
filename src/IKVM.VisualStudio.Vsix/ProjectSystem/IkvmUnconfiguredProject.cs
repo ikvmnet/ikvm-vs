@@ -1,7 +1,5 @@
 using System.ComponentModel.Composition;
 
-using IKVM.VisualStudio.Vsix.Packaging;
-
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.VS;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -17,7 +15,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
         displayProjectFileExtensions: "#22",
         defaultProjectExtension: "ikvmproj",
         language: "Java",
-        resourcePackageGuid: IkvmPackage.PackageGuid,
+        resourcePackageGuid: VsPkg.PackageGuid,
         Capabilities = IkvmProjectCapabilities.Default,
         DisableAsynchronousProjectTreeLoad = true,
         PossibleProjectExtensions = "ikvmproj",

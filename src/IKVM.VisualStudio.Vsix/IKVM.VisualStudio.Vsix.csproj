@@ -1,19 +1,19 @@
-﻿<Project>
-    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net472</TargetFramework>
         <Nullable>enable</Nullable>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     </PropertyGroup>
 
     <PropertyGroup>
-        <IsManagedProjectSystemProject>true</IsManagedProjectSystemProject>
+        <VSSDKBuildToolsAutoSetup>true</VSSDKBuildToolsAutoSetup>
+        <VsixDeployOnDebug>true</VsixDeployOnDebug>
         <GeneratePkgDefFile>true</GeneratePkgDefFile>
-        <CreateVsixContainer>true</CreateVsixContainer>
+
+        <IsManagedProjectSystemProject>true</IsManagedProjectSystemProject>
+        <CreateVsixContainer>True</CreateVsixContainer>
         <TargetVsixContainerName>IKVM.vsix</TargetVsixContainerName>
-        <UseCodebase>true</UseCodebase>
         <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
         <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
         <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
@@ -22,16 +22,11 @@
         <Experimental Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">true</Experimental>
         <AllUsers>false</AllUsers>
         <AllUsers Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">true</AllUsers>
-        <StartAction>Program</StartAction>
-        <StartProgram>$(DevEnvDir)devenv.exe</StartProgram>
-        <StartArguments>/rootSuffix Exp</StartArguments>
     </PropertyGroup>
 
     <ItemGroup>
         <None Remove="Grammars\java.tmlanguage.json" />
         <None Remove="java-language-configuration.json" />
-        <None Remove="languages.pkgdef" />
-        <None Remove="images.pkgdef" />
         <None Remove="Images\ikvm.ico" />
         <None Remove="Images\ikvm.png" />
         <None Remove="Images\IkvmImages.imagemanifest" />
@@ -41,11 +36,13 @@
     <ItemGroup>
         <Content Include="Grammars\java.tmLanguage.json" IncludeInVSIX="true" />
         <Content Include="java-language-configuration.json" IncludeInVSIX="true" />
-        <Content Include="languages.pkgdef" IncludeInVSIX="true" />
-        <Content Include="images.pkgdef" IncludeInVSIX="true" />
-        <Content Include="Images\IkvmImages.imagemanifest" IncludeInVSIX="true" />
-        <Content Include="Images\ikvm.png" IncludeInVSIX="true" />
+        <Content Include="IKVM.VisualStudio.pkgdef" IncludeInVSIX="true" />
+        <Content Include="IKVM.VisualStudio.imagemanifest" IncludeInVSIX="true" />
         <Content Include="LICENSE" IncludeInVSIX="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Resource Include="Images\ikvm.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -59,9 +56,6 @@
         <None Update="IKVM.VisualStudio.md">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="ProjectSystem\Rules\ProjectItemsSchema.xaml">
-            <Generator>MSBuild:Compile</Generator>
-        </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -73,24 +67,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IsExternalInit" Version="1.0.3" PrivateAssets="all" />
-        <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.Language" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.Language.Intellisense" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.Language.StandardClassification" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem" Version="17.9.380" />
-        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" />
-        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
+        <PackageReference Include="Microsoft.VisualStudio.ImageCatalog" Version="17.14.40260" />
+        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
+        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.13.40008" />
-        <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.13.40008" />
-        <PackageReference Include="Microsoft.VisualStudio.Text.Data" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.Text.Logic" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.Text.UI" Version="17.13.226" />
-        <PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.13.40008" />
-        <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.13.2126">
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" />
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -110,9 +94,6 @@
             <LastGenOutput>VSPackage.Designer.cs</LastGenOutput>
         </EmbeddedResource>
     </ItemGroup>
-
-    <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
-    <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="Exists('$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets') And ('$(IsVsixProject)' == 'true' Or '$(GeneratePkgDefFile)' == 'true')" />
 
     <Target Name="GetVsixVersion" Returns="$(FileVersion)" />
     <Target Name="GetVsixExperimental" Returns="$(Experimental)" />

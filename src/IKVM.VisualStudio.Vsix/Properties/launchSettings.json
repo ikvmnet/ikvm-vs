@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "IKVM.VisualStudio.Vsix": {
+      "commandName": "Project",
+      "commandLineArgs": "sddsgfgdfg"
+    }
+  }
+}

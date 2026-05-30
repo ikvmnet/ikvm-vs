@@ -1,5 +1,3 @@
-using Microsoft.VisualStudio.ProjectSystem;
-
 namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 

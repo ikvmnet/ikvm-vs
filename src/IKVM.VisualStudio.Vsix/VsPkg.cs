@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 
-namespace IKVM.VisualStudio.Vsix.Packaging
+namespace IKVM.VisualStudio.Vsix
 {
 
     [Guid(PackageGuid)]
@@ -13,7 +13,7 @@ namespace IKVM.VisualStudio.Vsix.Packaging
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string, PackageAutoLoadFlags.BackgroundLoad)]
-    public sealed class IkvmPackage : AsyncPackage
+    public sealed class VsPkg : AsyncPackage
     {
 
         public const string PackageGuid = "c3f18b47-662b-4785-a2bf-5fd7bc8c6f69";
