@@ -1,7 +1,4 @@
-﻿[$RootKey$\ImageLibrary]
-"TraceLevel"="Verbose"
-"TraceFilename"="ImageLibrary.log"
-[$RootKey$\ImageManifests]
+﻿[$RootKey$\ImageManifests]
 "$PackageFolder$\IKVM.VisualStudio.imagemanifest"=""
 
 [$RootKey$\TextMate\Repositories]
