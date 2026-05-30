@@ -28,14 +28,13 @@
     <ItemGroup>
         <None Remove="Grammars\java.tmlanguage.json" />
         <None Remove="java-language-configuration.json" />
-        <None Remove="Images\ikvm.ico" />
-        <None Remove="Images\ikvm.png" />
-        <None Remove="Images\IkvmImages.imagemanifest" />
         <None Remove="LICENSE" />
     </ItemGroup>
 
     <ItemGroup>
         <Content Include="Grammars\java.tmLanguage.json" IncludeInVSIX="true" />
+        <Content Include="ikvm.ico"  IncludeInVSIX="true" />
+        <Content Include="ikvm.png" IncludeInVSIX="true" />
         <Content Include="java-language-configuration.json" IncludeInVSIX="true" />
         <Content Include="IKVM.VisualStudio.pkgdef" IncludeInVSIX="true" />
         <Content Include="IKVM.VisualStudio.imagemanifest" IncludeInVSIX="true" />
