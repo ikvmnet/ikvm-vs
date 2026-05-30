@@ -1,10 +1,8 @@
 using System.ComponentModel.Composition;
 
-using IKVM.VisualStudio.Vsix.ProjectSystem;
-
 using Microsoft.VisualStudio.ProjectSystem;
 
-namespace IKVM.VisualStudio.Vsix.Icons
+namespace IKVM.VisualStudio.Vsix.ProjectSystem
 {
 
     [Export(typeof(IProjectTreePropertiesProvider))]
