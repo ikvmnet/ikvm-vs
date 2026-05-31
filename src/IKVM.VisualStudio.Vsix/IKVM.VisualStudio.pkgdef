@@ -1,6 +1,10 @@
 ﻿[$RootKey$\ImageManifests]
 "$PackageFolder$\IKVM.VisualStudio.imagemanifest"=""
 
+[$RootKey$\ImageLibrary]
+"TraceLevel"="Verbose"
+"TraceFilename"="ImageLibrary.log"
+
 [$RootKey$\TextMate\Repositories]
 "Java"="$PackageFolder$\Grammars"
 [$RootKey$\TextMate\LanguageConfiguration\GrammarMapping]
