@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+		<UseWPF>true</UseWPF>
     </PropertyGroup>
 
     <PropertyGroup>
