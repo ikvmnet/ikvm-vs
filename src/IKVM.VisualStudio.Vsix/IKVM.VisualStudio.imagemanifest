@@ -1,11 +1,11 @@
-﻿<ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+﻿<ImageManifest xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
     <Symbols>
         <Guid Name="MonikerGuid" Value="{d53d7256-d44d-4245-bdd2-bfd22943659c}" />
         <String Name="Images" Value="/IKVM.VisualStudio.Vsix;Component/Images" />
-        <ID Name="ikvm" Value="1" />
+        <ID Name="ProjectIcon" Value="1" />
     </Symbols>
     <Images>
-        <Image Guid="$(MonikerGuid)" ID="$(ikvm)">
+        <Image Guid="$(MonikerGuid)" ID="$(ProjectIcon)">
             <Source Uri="$(Images)/ikvm.png">
                 <Size Value="16" />
             </Source>

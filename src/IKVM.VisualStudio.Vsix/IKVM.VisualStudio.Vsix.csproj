@@ -33,7 +33,7 @@
 
     <ItemGroup>
         <Content Include="Grammars\java.tmLanguage.json" IncludeInVSIX="true" />
-        <Content Include="ikvm.ico"  IncludeInVSIX="true" />
+        <Content Include="ikvm.ico" IncludeInVSIX="true" />
         <Content Include="ikvm.png" IncludeInVSIX="true" />
         <Content Include="java-language-configuration.json" IncludeInVSIX="true" />
         <Content Include="IKVM.VisualStudio.pkgdef" IncludeInVSIX="true" />
