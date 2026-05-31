@@ -5,5 +5,3 @@
 "Java"="$PackageFolder$\Grammars"
 [$RootKey$\TextMate\LanguageConfiguration\GrammarMapping]
 "source.java"="$PackageFolder$\java-language-configuration.json"
-[$RootKey$\ImageManifests]
-"$PackageFolder$\IKVM.VisualStudio.Vsix.imagemanifest"=""
