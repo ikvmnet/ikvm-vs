@@ -61,6 +61,24 @@ namespace IKVM.VisualStudio.Vsix {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to IKVM.VisualStudio.
+        /// </summary>
+        internal static string _110 {
+            get {
+                return ResourceManager.GetString("110", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Visual Studio extension for IKVM.
+        /// </summary>
+        internal static string _112 {
+            get {
+                return ResourceManager.GetString("112", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to IKVM.
         /// </summary>
         internal static string _21 {

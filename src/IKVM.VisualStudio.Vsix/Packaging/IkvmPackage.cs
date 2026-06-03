@@ -1,18 +1,18 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using IKVM.VisualStudio.Vsix.Registration;
 
-using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+
+using System;
+using System.Runtime.InteropServices;
 
 namespace IKVM.VisualStudio.Vsix.Packaging
 {
 
     [Guid(PackageGuid)]
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasMultipleProjects_string, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionHasSingleProject_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [InstalledProductRegistration("#110", "#112", "1.0")]
+    [ProvideBindingPath]
+    [ProvideImageManifest("IKVM.VisualStudio.imagemanifest")]
     public sealed class IkvmPackage : AsyncPackage
     {
 
