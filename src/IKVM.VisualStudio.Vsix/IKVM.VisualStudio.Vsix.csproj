@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-		<UseWPF>true</UseWPF>
+        <UseWPF>true</UseWPF>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,10 +20,6 @@
         <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
         <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
         <DeployExtension Condition=" '$(BuildingInsideVisualStudio)' != 'true' ">false</DeployExtension>
-        <Experimental>false</Experimental>
-        <Experimental Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">true</Experimental>
-        <AllUsers>false</AllUsers>
-        <AllUsers Condition=" '$(BuildingInsideVisualStudio)' == 'true' ">true</AllUsers>
     </PropertyGroup>
 
     <ItemGroup>
@@ -31,14 +27,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="ikvm.ico" IncludeInVSIX="true" />
-        <Content Include="ikvm.png" IncludeInVSIX="true" />
+        <Content Include="Images\ikvm.png" IncludeInVSIX="true" />
         <Content Include="IKVM.VisualStudio.imagemanifest" IncludeInVSIX="true" />
         <Content Include="LICENSE" IncludeInVSIX="true" />
     </ItemGroup>
 
     <ItemGroup>
         <Resource Include="Images\ikvm.png" />
+        <Resource Include="Images\ikvm-16.png" />
+        <Resource Include="Images\ikvm-32.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -63,13 +60,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.VisualStudio.ImageCatalog" Version="17.14.40260" />
         <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
         <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" />
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" ExcludeAssets="runtime" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -92,6 +88,4 @@
     </ItemGroup>
 
     <Target Name="GetVsixVersion" Returns="$(FileVersion)" />
-    <Target Name="GetVsixExperimental" Returns="$(Experimental)" />
-    <Target Name="GetVsixAllUsers" Returns="$(AllUsers)" />
 </Project>

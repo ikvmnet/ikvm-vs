@@ -48,6 +48,13 @@ $png = New-IkvmBitmap 256
 $png.Save("$outDir\ikvm.png", [System.Drawing.Imaging.ImageFormat]::Png)
 Write-Host "Saved ikvm.png"
 
+# --- PNG (16 and 32 px, used by the image manifest for the Solution Explorer project icon) ---
+foreach ($s in @(16, 32)) {
+	$bmp = New-IkvmBitmap $s
+	$bmp.Save("$outDir\ikvm-$s.png", [System.Drawing.Imaging.ImageFormat]::Png)
+	Write-Host "Saved ikvm-$s.png"
+}
+
 # --- ICO (multi-size: 16, 32, 48, 256) ---
 $sizes = @(16, 32, 48, 256)
 $streams = foreach ($s in $sizes) {

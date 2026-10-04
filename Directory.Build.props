@@ -18,7 +18,8 @@
         <DefaultMajorVersion>1</DefaultMajorVersion>
         <Version Condition=" '$(Version)' == '' ">$(DefaultMajorVersion).0.0-dev</Version>
         <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(DefaultMajorVersion).0.0.0</AssemblyVersion>
-        <FileVersion Condition=" '$(FileVersion)' == '' ">$(DefaultMajorVersion).0.0.0</FileVersion>
+        <!-- also the VSIX version: kept high for local builds so Visual Studio never offers the Marketplace release as an update -->
+        <FileVersion Condition=" '$(FileVersion)' == '' ">999.0.0.0</FileVersion>
         <InformationalVersion Condition=" '$(InformationalVersion)' == '' ">$(DefaultMajorVersion).0.0.0</InformationalVersion>
     </PropertyGroup>
 

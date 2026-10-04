@@ -10,13 +10,12 @@
 ## Features
 
 ### Java Project System
-- **`.ikvmproj` project type** — a full SDK-style project backed by the [IKVM.NET SDK](https://github.com/ikvmnet/ikvm), integrated with Visual Studio's Common Project System (CPS)
-- **Solution Explorer support** — `.java` source files, `.jar` archives, and `.class` files appear as first-class project items with dedicated icons
+- **`.ikvmproj` project type** — a full SDK-style project backed by the [IKVM.NET SDK](https://github.com/ikvmnet/ikvm), integrated with Visual Studio's Common Project System (CPS). Java source is compiled with `javac` and translated by `ikvmc` into an ordinary .NET assembly.
+- **Solution Explorer support** — `.java` source files appear as project items, with dependencies, references, and the IKVM project icon
 - **MSBuild integration** — build, rebuild, and clean work through the standard Visual Studio build pipeline; CI builds work via `dotnet msbuild` with no extra tooling
 
 ### Editor
-- **Java syntax highlighting** — TextMate grammar for `.java` source files (sourced from VS Code's Java extension)
-- **Language configuration** — bracket matching, comment toggling, and other editor affordances for Java source
+- **Java syntax highlighting** — provided by Visual Studio's built-in Java TextMate grammar
 
 ### Marketplace & Distribution
 - **Automatic install prompt** — projects using `IKVM.NET.Sdk` declare a `VsixDependency` on this extension, so Visual Studio prompts users to install it on first open
@@ -28,7 +27,7 @@
 
 | Requirement | Version |
 |---|---|
-| Visual Studio | 2026 or later (amd64) |
+| Visual Studio | 2022 17.14 or later (amd64 or arm64) |
 | .NET SDK | 9.0 or later (for building this repo) |
 | [IKVM.NET SDK NuGet package](https://www.nuget.org/packages/IKVM.NET.Sdk) | referenced from your `.ikvmproj` |
 
@@ -40,15 +39,9 @@
 
 Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=IKVM.ikvm), or search for **IKVM** in **Extensions → Manage Extensions** inside Visual Studio.
 
-### Create a new Java project
+### Create a Java project
 
-1. Open Visual Studio and choose **Create a new project**.
-2. Search for **IKVM** or filter by language **Java**.
-3. Select the **IKVM Java Class Library** (or application) template and follow the wizard.
-
-### Add to an existing solution
-
-Create a `.ikvmproj` file by hand or via `dotnet new`:
+The extension does not yet ship project templates. Create a `.ikvmproj` file by hand:
 
 ```xml
 <Project Sdk="IKVM.NET.Sdk/8.x.x">
@@ -67,15 +60,16 @@ Add `.java` source files to the project directory — they are included automati
 ```
 src/
   IKVM.VisualStudio.Vsix/        # The VSIX extension (net472)
-    Grammars/                    # TextMate grammar for .java files
-    Icons/                       # File icon provider
-    Images/                      # Image manifest and icons
+    Images/                      # Project icon images (see tools/Generate-IkvmIcon.ps1)
+    Imaging/                     # Image monikers for the image manifest
     Packaging/                   # AsyncPackage registration
     ProjectSystem/               # CPS project type, capabilities, properties
   dist-vsix/                     # Packaging target that assembles the .vsix artifact
   dist-tests/                    # Test distribution target
 .github/workflows/
   IKVM.VisualStudio.yml          # CI/CD: build, test, publish to Marketplace on tag
+tools/
+  Generate-IkvmIcon.ps1          # Regenerates the icon images
 ```
 
 ---

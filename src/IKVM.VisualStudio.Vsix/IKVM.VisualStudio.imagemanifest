@@ -6,9 +6,13 @@
     </Symbols>
     <Images>
         <Image Guid="$(MonikerGuid)" ID="$(ProjectIcon)">
-            <Source Uri="$(Images)/ikvm.png">
+            <Source Uri="$(Images)/ikvm-16.png">
                 <Size Value="16" />
             </Source>
+            <Source Uri="$(Images)/ikvm-32.png">
+                <Size Value="32" />
+            </Source>
+            <Source Uri="$(Images)/ikvm.png" />
         </Image>
     </Images>
     <ImageLists />
