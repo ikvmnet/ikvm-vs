@@ -78,7 +78,7 @@ tools/
 
 ```pwsh
 # Restore packages
-dotnet restore IKVM.VisualStudio.sln
+dotnet restore IKVM.VisualStudio.slnx
 
 # Build the VSIX
 dotnet msbuild /p:Configuration=Release IKVM.VisualStudio.dist.msbuildproj
@@ -86,7 +86,7 @@ dotnet msbuild /p:Configuration=Release IKVM.VisualStudio.dist.msbuildproj
 # The output VSIX is written to dist/vsix/IKVM.vsix
 ```
 
-To run the extension in the Visual Studio Experimental Instance, open `IKVM.VisualStudio.sln` in Visual Studio and press **F5**.
+To run the extension in the Visual Studio Experimental Instance, open `IKVM.VisualStudio.slnx` in Visual Studio and press **F5**.
 
 ---
 
