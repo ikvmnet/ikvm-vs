@@ -3,29 +3,17 @@
 	<Metadata>
 		<Identity Id="IKVM.VisualStudio.8bf8ccd4-363a-4a23-a857-b038314c2c9e" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="IKVM" />
 		<DisplayName>IKVM Extension for Visual Studio</DisplayName>
-		<Description>Brings Java project support to Visual Studio. Create, build, and manage .ikvmproj projects that compile Java source code to .NET assemblies using the IKVM.NET SDK. Includes syntax highlighting and Solution Explorer support for .java, .jar, and .class files.</Description>
+		<Description>Brings Java project support to Visual Studio. Create, build, and manage .ikvmproj projects that compile Java source code to .NET assemblies using the IKVM.NET SDK. Java source files get Visual Studio's built-in Java syntax highlighting.</Description>
 		<MoreInfo>https://github.com/ikvmnet/ikvm-vs</MoreInfo>
 		<License>LICENSE</License>
-		<Icon>ikvm.png</Icon>
+		<Icon>Images\ikvm.png</Icon>
 		<Tags>ikvm;java;jvm;dotnet;interop;cross-platform</Tags>
 	</Metadata>
-	<Installation Experimental="|%CurrentProject%;GetVsixExperimental|" InstalledByMsi="false" AllUsers="|%CurrentProject%;GetVsixAllUsers|">
-		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">
+	<Installation InstalledByMsi="false" AllUsers="false">
+		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.14,)">
 			<ProductArchitecture>amd64</ProductArchitecture>
 		</InstallationTarget>
-		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,)">
-			<ProductArchitecture>arm64</ProductArchitecture>
-		</InstallationTarget>
-		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[17.0,)">
-			<ProductArchitecture>amd64</ProductArchitecture>
-		</InstallationTarget>
-		<InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[17.0,)">
-			<ProductArchitecture>arm64</ProductArchitecture>
-		</InstallationTarget>
-		<InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[17.0,)">
-			<ProductArchitecture>amd64</ProductArchitecture>
-		</InstallationTarget>
-		<InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[17.0,)">
+		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.14,)">
 			<ProductArchitecture>arm64</ProductArchitecture>
 		</InstallationTarget>
 	</Installation>
@@ -33,13 +21,12 @@
 		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="[4.7.2,)" />
 	</Dependencies>
 	<Prerequisites>
-		<Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,)" DisplayName="Visual Studio core editor" />
+		<Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.14,)" DisplayName="Visual Studio core editor" />
 	</Prerequisites>
 	<Assets>
 		<Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
 		<Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" AssemblyName="|%CurrentProject%;AssemblyName|" />
 		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
 		<Asset Type="Microsoft.VisualStudio.ImageManifest" d:Source="File" Path="IKVM.VisualStudio.imagemanifest" />
-		<Asset Type="Microsoft.VisualStudio.Content" d:Source="Project" Path="Grammars" Addressable="true" />
 	</Assets>
 </PackageManifest>

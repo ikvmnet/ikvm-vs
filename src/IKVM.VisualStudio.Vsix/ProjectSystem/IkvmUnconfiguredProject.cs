@@ -22,7 +22,6 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem
         DisableAsynchronousProjectTreeLoad = true,
         PossibleProjectExtensions = "ikvmproj",
         NewProjectRequireNewFolderVsTemplate = true,
-        SupportsCodespaces = true,
         SupportsSolutionChangeWithoutReload = true)]
     internal class IkvmUnconfiguredProject
     {
