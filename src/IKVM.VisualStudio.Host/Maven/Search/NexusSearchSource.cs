@@ -28,6 +28,12 @@ sealed class NexusSearchSource : MavenSearchSource
     readonly RemoteRepository _api;
     readonly string _repository;
 
+    /// <summary>
+    /// Initializes a new instance that searches the given repository of Nexus through its API.
+    /// </summary>
+    /// <param name="http">The transports.</param>
+    /// <param name="api">The root of the server, where its API is.</param>
+    /// <param name="repository">The name of the repository of Nexus searched.</param>
     NexusSearchSource(MavenHttp http, RemoteRepository api, string repository)
     {
         _http = http;
@@ -35,6 +41,7 @@ sealed class NexusSearchSource : MavenSearchSource
         _repository = repository;
     }
 
+    /// <inheritdoc />
     public override string Name => "Nexus";
 
     /// <summary>
@@ -58,6 +65,10 @@ sealed class NexusSearchSource : MavenSearchSource
         return new NexusSearchSource(http, api, name);
     }
 
+    /// <summary>
+    /// Searches the components of the repository, by their coordinates or by keyword, reading pages of them until
+    /// enough artifacts are found, or <see cref="MaxPages"/> have been read.
+    /// </summary>
     public override IReadOnlyList<MavenServiceSearchResult> Search(MavenSearchText text, int count)
     {
         var query = "service/rest/v1/search?format=maven2&repository=" + Uri.EscapeDataString(_repository);
@@ -86,6 +97,9 @@ sealed class NexusSearchSource : MavenSearchSource
         return results.ToList(text, count);
     }
 
+    /// <summary>
+    /// Gets a string property of a JSON object, or an empty string when it has none.
+    /// </summary>
     static string GetString(JsonElement element, string name)
     {
         return element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() ?? "" : "";

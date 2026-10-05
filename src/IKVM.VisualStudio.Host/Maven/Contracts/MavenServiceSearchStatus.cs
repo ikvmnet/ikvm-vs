@@ -6,10 +6,19 @@ namespace IKVM.VisualStudio.Host.Maven.Contracts;
 public sealed class MavenServiceSearchStatus
 {
 
+    /// <summary>
+    /// The ID of the repository.
+    /// </summary>
     public string RepositoryId { get; set; } = "";
 
+    /// <summary>
+    /// The URL the repository is reached at, which is that of its mirror when the settings mirror it.
+    /// </summary>
     public string Url { get; set; } = "";
 
+    /// <summary>
+    /// How the repository is searched.
+    /// </summary>
     public MavenServiceSearchMethod Method { get; set; }
 
     /// <summary>
@@ -21,6 +30,11 @@ public sealed class MavenServiceSearchStatus
     /// Whether the index of the repository is being downloaded or updated.
     /// </summary>
     public bool IsUpdating { get; set; }
+
+    /// <summary>
+    /// How much of the index has been downloaded, from 0 to 1, or -1 when that is not known.
+    /// </summary>
+    public double Progress { get; set; } = -1;
 
     /// <summary>
     /// What is searched, or what is happening to the index.

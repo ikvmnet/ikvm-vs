@@ -6,6 +6,10 @@ namespace IKVM.VisualStudio.Host.Maven.Search;
 sealed record MavenSearchText(string Text, string? GroupId, string? ArtifactId)
 {
 
+    /// <summary>
+    /// Parses text as coordinates when its first two parts, separated by colons, are not empty, and otherwise as
+    /// words.
+    /// </summary>
     public static MavenSearchText Parse(string text)
     {
         text = text.Trim();
@@ -17,6 +21,9 @@ sealed record MavenSearchText(string Text, string? GroupId, string? ArtifactId)
         return new MavenSearchText(text, null, null);
     }
 
+    /// <summary>
+    /// Whether the text is <c>groupId:artifactId</c>, which searches those fields.
+    /// </summary>
     public bool IsCoordinates => GroupId != null && ArtifactId != null;
 
 }

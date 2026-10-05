@@ -26,12 +26,18 @@ internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupH
 
     readonly IkvmDependencyService _service;
 
+    /// <summary>
+    /// Initializes a new instance with the service that reads the dependencies for the dialog and saves its changes.
+    /// </summary>
     [ImportingConstructor]
     public ManageIkvmDependenciesCommandHandler(IkvmDependencyService service)
     {
         _service = service;
     }
 
+    /// <summary>
+    /// Enables the command wherever it is offered.
+    /// </summary>
     public Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
         if (commandId != IkvmDependencyCommandIds.ManageIkvmDependencies)
@@ -40,6 +46,9 @@ internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupH
         return Task.FromResult(new CommandStatusResult(true, commandText, CommandStatus.Enabled | CommandStatus.Supported));
     }
 
+    /// <summary>
+    /// Shows the Manage IKVM Dependencies dialog and saves its changes if the user accepts them.
+    /// </summary>
     public async Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
         if (commandId != IkvmDependencyCommandIds.ManageIkvmDependencies)

@@ -14,6 +14,10 @@ sealed class ElementIdentities
 
     readonly Dictionary<ProjectRootElement, Dictionary<ProjectElement, int>> _positions = new Dictionary<ProjectRootElement, Dictionary<ProjectElement, int>>();
 
+    /// <summary>
+    /// Gets an identity for <paramref name="element"/> made of its file's full path and its position among that file's
+    /// elements, or -1 when the element is not found. Positions are computed once per file and cached.
+    /// </summary>
     public string Get(ProjectElement element)
     {
         var root = element.ContainingProject;

@@ -30,12 +30,24 @@ internal sealed class MavenArtifact
     /// </summary>
     public IImmutableDictionary<string, string> Properties { get; }
 
+    /// <summary>
+    /// Group ID of the artifact.
+    /// </summary>
     public string GroupId => Get(MavenReferenceRules.ResolvedGroupIdMetadata);
 
+    /// <summary>
+    /// Artifact ID of the artifact.
+    /// </summary>
     public string ArtifactId => Get(MavenReferenceRules.ResolvedArtifactIdMetadata);
 
+    /// <summary>
+    /// Classifier of the artifact, or empty for none.
+    /// </summary>
     public string Classifier => Get(MavenReferenceRules.ResolvedClassifierMetadata);
 
+    /// <summary>
+    /// The version Maven resolved, never a range.
+    /// </summary>
     public string Version => Get(MavenReferenceRules.ResolvedVersionMetadata);
 
     /// <summary>
@@ -59,6 +71,9 @@ internal sealed class MavenArtifact
     /// </summary>
     public string Coordinates => MavenCoordinates.Format(GroupId, ArtifactId, Classifier, Version);
 
+    /// <summary>
+    /// Gets a metadata value of the resolved item, or empty when it has none.
+    /// </summary>
     string Get(string name) => Properties.TryGetValue(name, out var value) ? value ?? "" : "";
 
 }

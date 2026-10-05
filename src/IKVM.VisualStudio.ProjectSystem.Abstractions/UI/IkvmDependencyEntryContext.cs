@@ -16,6 +16,15 @@ public sealed class IkvmDependencyEntryContext
 
     readonly Func<string, string, Task<bool>> _addPackage;
 
+    /// <summary>
+    /// Initializes the context the dialog gives its entries.
+    /// </summary>
+    /// <param name="project">The project.</param>
+    /// <param name="configuredProjects">The configured project of each target framework, or a single one under an empty key.</param>
+    /// <param name="targetFrameworks">The target frameworks of the project, if it targets more than one.</param>
+    /// <param name="defaultTargetFrameworks">The target frameworks new entries are used in, or empty for all.</param>
+    /// <param name="entries">Every entry in the dialog.</param>
+    /// <param name="addPackage">Offers to add a NuGet package to the project, given its ID and why it is needed, and returns whether it was added.</param>
     internal IkvmDependencyEntryContext(
         UnconfiguredProject project,
         IReadOnlyDictionary<string, ConfiguredProject> configuredProjects,

@@ -6,6 +6,9 @@ namespace IKVM.VisualStudio.ProjectSystem.UI;
 public enum FieldState
 {
 
+    /// <summary>
+    /// The value is the same for every target framework being edited, and valid.
+    /// </summary>
     Normal,
 
     /// <summary>

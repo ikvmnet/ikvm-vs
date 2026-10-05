@@ -13,6 +13,9 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 internal sealed record IkvmDependencyChanges(IReadOnlyList<IkvmDependencyElement> Removed, IReadOnlyList<IkvmDependencyElementUpdate> Updated, IReadOnlyList<IkvmDependencyElement> Added)
 {
 
+    /// <summary>
+    /// Whether there is nothing to remove, update or add, so the project file need not be touched.
+    /// </summary>
     public bool IsEmpty => Removed.Count == 0 && Updated.Count == 0 && Added.Count == 0;
 
 }

@@ -27,6 +27,9 @@ internal sealed class IkvmReferenceDescriber
 
     readonly UnconfiguredProject _project;
 
+    /// <summary>
+    /// Initializes a new instance for the project whose IKVM package does the describing.
+    /// </summary>
     [ImportingConstructor]
     public IkvmReferenceDescriber(UnconfiguredProject project)
     {
@@ -89,6 +92,9 @@ internal sealed class IkvmReferenceDescriber
         return result;
     }
 
+    /// <summary>
+    /// Treats empty metadata values, which MSBuild returns for unset metadata, as <c>null</c>.
+    /// </summary>
     static string? Empty(string value) => string.IsNullOrEmpty(value) ? null : value;
 
 }

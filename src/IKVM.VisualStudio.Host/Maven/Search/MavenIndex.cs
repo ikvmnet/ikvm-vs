@@ -62,7 +62,12 @@ sealed class MavenIndex
     Task? _update;
     DateTime _failed = DateTime.MinValue;
     string _message = "";
+    double _progress = -1;
 
+    /// <summary>
+    /// Initializes a new instance for the index of the repository with the given ID at the given URL, in a directory
+    /// of its own.
+    /// </summary>
     MavenIndex(string repositoryId, string url)
     {
         _repositoryId = repositoryId;
@@ -81,6 +86,9 @@ sealed class MavenIndex
         return id + "-" + string.Concat(hash.Take(6).Select(i => i.ToString("x2")));
     }
 
+    /// <summary>
+    /// The file whose last write time is when the repository was last checked for a newer index.
+    /// </summary>
     string CheckedFile => Path.Combine(_directory, "checked");
 
     /// <summary>
@@ -104,6 +112,18 @@ sealed class MavenIndex
         {
             lock (_lock)
                 return _update is { IsCompleted: false };
+        }
+    }
+
+    /// <summary>
+    /// How much of the index being downloaded has been, from 0 to 1, or -1 when that is not known.
+    /// </summary>
+    public double Progress
+    {
+        get
+        {
+            lock (_lock)
+                return _update is { IsCompleted: false } ? _progress : -1;
         }
     }
 
@@ -161,6 +181,7 @@ sealed class MavenIndex
                 return;
 
             _message = "Checking for a newer index...";
+            _progress = -1;
             _update = Task.Run(() => Download(http, repository));
         }
     }
@@ -196,6 +217,10 @@ sealed class MavenIndex
         }
     }
 
+    /// <summary>
+    /// Downloads the index, or the increments since the one on disk, and applies them, recording when the repository
+    /// was checked, or when and why that failed.
+    /// </summary>
     void Download(MavenHttp http, RemoteRepository repository)
     {
         try
@@ -222,6 +247,15 @@ sealed class MavenIndex
         }
     }
 
+    /// <summary>
+    /// Formats a number of bytes as kilobytes, or as megabytes from one megabyte.
+    /// </summary>
+    static string FormatSize(long bytes) => bytes < 1048576 ? $"{Math.Max(1, bytes / 1024)} KB" : $"{bytes / 1048576.0:0.#} MB";
+
+    /// <summary>
+    /// Reports how much of a compressed file of the index has been downloaded, or that the index is being updated
+    /// once it has been.
+    /// </summary>
     void OnProgress(string name, long received, long length)
     {
         // the properties that say which files to download are small
@@ -229,15 +263,26 @@ sealed class MavenIndex
             return;
 
         string message;
+        var progress = -1.0;
         if (length > 0 && received >= length)
+        {
             message = "Updating the index...";
+        }
         else if (length > 0)
-            message = $"Downloading the index: {received / 1048576} of {Math.Max(1, length / 1048576)} MB...";
+        {
+            message = $"Downloading the index: {FormatSize(received)} of {FormatSize(length)}...";
+            progress = (double)received / length;
+        }
         else
-            message = $"Downloading the index: {received / 1048576} MB...";
+        {
+            message = $"Downloading the index: {FormatSize(received)}...";
+        }
 
         lock (_lock)
+        {
             _message = message;
+            _progress = progress;
+        }
     }
 
 }

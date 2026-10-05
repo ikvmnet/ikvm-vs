@@ -34,9 +34,16 @@ namespace IKVM.VisualStudio.Host.Maven;
 sealed class MavenEnvironment
 {
 
+    /// <summary>
+    /// Decrypts the passwords of the settings with the master password of a <c>settings-security.xml</c> file.
+    /// </summary>
     sealed class SecDispatcher : DefaultSecDispatcher
     {
 
+        /// <summary>
+        /// Initializes a new instance that reads the master password from the given <c>settings-security.xml</c>
+        /// file.
+        /// </summary>
         public SecDispatcher(string configurationFile) :
             base(new DefaultPlexusCipher(), Collections.emptyMap(), configurationFile)
         {
@@ -58,6 +65,9 @@ sealed class MavenEnvironment
 
     readonly Settings settings;
 
+    /// <summary>
+    /// Initializes a new instance that reads the user's settings, and reaches the given repositories of a project.
+    /// </summary>
     public MavenEnvironment(IReadOnlyList<MavenServiceRepository> repositories)
     {
         settings = ReadSettings();
@@ -68,6 +78,9 @@ sealed class MavenEnvironment
         Repositories = CreateRemoteRepositories(repositories);
     }
 
+    /// <summary>
+    /// The repository system of Maven Resolver, which resolves versions and artifacts.
+    /// </summary>
     public RepositorySystem RepositorySystem { get; }
 
     /// <summary>
@@ -81,6 +94,9 @@ sealed class MavenEnvironment
     /// </summary>
     public List Repositories { get; }
 
+    /// <summary>
+    /// Enumerates a Java collection as items of the given type, or nothing when it is <see langword="null"/>.
+    /// </summary>
     static IEnumerable<T> Iterate<T>(Collection? collection)
     {
         if (collection == null)
@@ -91,6 +107,10 @@ sealed class MavenEnvironment
             yield return (T)iterator.next();
     }
 
+    /// <summary>
+    /// Reads the effective user settings from <c>~/.m2/settings.xml</c>, with their passwords decrypted when
+    /// <c>settings-security.xml</c> exists.
+    /// </summary>
     static Settings ReadSettings()
     {
         var request = new DefaultSettingsBuildingRequest();
@@ -110,6 +130,9 @@ sealed class MavenEnvironment
         return settings;
     }
 
+    /// <summary>
+    /// Creates the service locator of Maven Resolver, with the basic connector and the file and HTTP transports.
+    /// </summary>
     static DefaultServiceLocator CreateServiceLocator()
     {
         var locator = MavenRepositorySystemUtils.newServiceLocator();
@@ -119,6 +142,9 @@ sealed class MavenEnvironment
         return locator;
     }
 
+    /// <summary>
+    /// Gets the local repository the settings name, or <c>~/.m2/repository</c> when they name none.
+    /// </summary>
     File GetLocalRepositoryDirectory()
     {
         return settings.getLocalRepository() is string path ? new File(path) : new File(Path.Combine(UserHome, "repository"));
@@ -150,6 +176,9 @@ sealed class MavenEnvironment
         return Iterate<RemoteRepository>(RepositorySystem.newResolutionRepositories(session, Repositories)).ToList();
     }
 
+    /// <summary>
+    /// Creates a proxy selector with the proxies of the settings, their credentials and the hosts they skip.
+    /// </summary>
     ProxySelector CreateProxySelector()
     {
         var selector = new DefaultProxySelector();
@@ -167,6 +196,9 @@ sealed class MavenEnvironment
         return selector;
     }
 
+    /// <summary>
+    /// Creates a mirror selector with the mirrors of the settings.
+    /// </summary>
     MirrorSelector CreateMirrorSelector()
     {
         var selector = new DefaultMirrorSelector();
@@ -176,6 +208,10 @@ sealed class MavenEnvironment
         return selector;
     }
 
+    /// <summary>
+    /// Creates an authentication selector with the credentials of the servers of the settings, which keeps any
+    /// credentials a repository already has.
+    /// </summary>
     AuthenticationSelector CreateAuthenticationSelector()
     {
         var selector = new DefaultAuthenticationSelector();
@@ -185,6 +221,10 @@ sealed class MavenEnvironment
         return new ConservativeAuthenticationSelector(selector);
     }
 
+    /// <summary>
+    /// Creates the credentials of a server of the settings: its user name and password, or private key and
+    /// passphrase.
+    /// </summary>
     static Authentication CreateAuthentication(Server server)
     {
         var builder = new AuthenticationBuilder();
@@ -198,6 +238,10 @@ sealed class MavenEnvironment
         return builder.build();
     }
 
+    /// <summary>
+    /// Creates the remote repositories: those of the active profiles of the settings, replaced by those of the
+    /// project with the same ID, with the policies of the profiles and the credentials of the servers.
+    /// </summary>
     List CreateRemoteRepositories(IReadOnlyList<MavenServiceRepository> import)
     {
         var map = new Dictionary<string, RemoteRepository.Builder>();

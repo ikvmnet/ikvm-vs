@@ -5,6 +5,7 @@
                    xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
                    xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
                    xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+                   xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
                    xmlns:theming="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Imaging"
                    xmlns:ui="clr-namespace:IKVM.VisualStudio.ProjectSystem.UI;assembly=IKVM.VisualStudio.ProjectSystem.Abstractions"
                    xmlns:maven="clr-namespace:IKVM.VisualStudio.Maven.Imaging"
@@ -26,6 +27,29 @@
                 <ResourceDictionary Source="pack://application:,,,/IKVM.VisualStudio.ProjectSystem.Abstractions;component/UI/IkvmDependencyStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <local:ScopeNameConverter x:Key="ScopeName" />
+
+            <!-- a repository: a rounded chip, with a bar along its bottom while its index downloads -->
+            <Style x:Key="RepositoryChip" TargetType="Border">
+                <Setter Property="CornerRadius" Value="10" />
+                <Setter Property="Padding" Value="8,3,10,3" />
+                <Setter Property="Margin" Value="0,0,6,6" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsui:CommonControlsColors.ButtonBorderBrushKey}}" />
+                <Setter Property="Background" Value="{DynamicResource {x:Static vsui:CommonControlsColors.ButtonBrushKey}}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource {x:Static vsui:CommonControlsColors.ButtonTextBrushKey}}" />
+            </Style>
+
+            <!-- a small label on a found artifact: its version, or that it is typed or in the project -->
+            <Style x:Key="Tag" TargetType="Border">
+                <Setter Property="CornerRadius" Value="3" />
+                <Setter Property="Padding" Value="6,1" />
+                <Setter Property="Margin" Value="4,0,0,0" />
+                <Setter Property="VerticalAlignment" Value="Top" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="BorderBrush" Value="{DynamicResource {x:Static vsui:CommonControlsColors.ButtonBorderBrushKey}}" />
+                <Setter Property="TextElement.FontSize" Value="{DynamicResource {x:Static vsshell:VsFonts.Environment90PercentFontSizeKey}}" />
+                <Setter Property="Opacity" Value="0.9" />
+            </Style>
         </ResourceDictionary>
     </vsui:DialogWindow.Resources>
 
@@ -37,61 +61,149 @@
         </Grid.RowDefinitions>
 
         <Grid Margin="16,16,16,0">
+            <!-- the list is as wide as the dialog until an artifact is selected -->
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
             <!-- what to add: found by a search, or typed -->
             <DockPanel Grid.Column="0">
                 <ui:Field DockPanel.Dock="Top">
-                    <Grid>
-                        <TextBox x:Name="SearchBox" BorderThickness="0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search" />
-                        <TextBlock Style="{StaticResource Placeholder}" Text="{Binding SearchPlaceholder}" Visibility="{Binding Text.IsEmpty, ElementName=SearchBox, Converter={StaticResource BoolToVisibility}}" />
-                    </Grid>
+                    <DockPanel>
+                        <imaging:CrispImage DockPanel.Dock="Left" Moniker="{x:Static catalog:KnownMonikers.Search}" Width="16" Height="16" Margin="6,0,2,0" VerticalAlignment="Center" />
+                        <Button DockPanel.Dock="Right" Style="{StaticResource RowButton}" Content="&#xE711;" Click="OnClearSearch" ToolTip="Clear" AutomationProperties.Name="Clear search" Margin="0,0,2,0"
+                                Visibility="{Binding HasSearchText, Converter={StaticResource BoolToVisibility}}" />
+                        <ui:Spinner DockPanel.Dock="Right" Width="14" Height="14" Margin="0,0,4,0" VerticalAlignment="Center"
+                                    Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}" />
+                        <Grid>
+                            <TextBox x:Name="SearchBox" PreviewKeyDown="OnSearchKeyDown" BorderThickness="0" Padding="2,4" VerticalContentAlignment="Center" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search" />
+                            <TextBlock Style="{StaticResource Placeholder}" Margin="6,0,0,0" VerticalAlignment="Center" Text="{Binding SearchPlaceholder}" Visibility="{Binding Text.IsEmpty, ElementName=SearchBox, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </DockPanel>
                 </ui:Field>
-                <TextBlock DockPanel.Dock="Top" Text="{Binding SearchStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,6,0,0" />
-                <TextBlock DockPanel.Dock="Top" Text="{Binding IndexStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,6,0,0" Visibility="{Binding HasIndexStatus, Converter={StaticResource BoolToVisibility}}" />
-                <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding Selected}" Margin="0,8,0,0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Artifacts">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate DataType="{x:Type root:MavenSearchResult}">
-                            <DockPanel Margin="2,3">
-                                <imaging:CrispImage DockPanel.Dock="Left" Moniker="{x:Static maven:MavenMonikers.MavenReference}" Width="16" Height="16" Margin="0,2,8,0" VerticalAlignment="Top" />
-                                <TextBlock DockPanel.Dock="Right" Text="{Binding LatestVersion}" Opacity="0.8" Margin="8,0,0,0" VerticalAlignment="Top" />
-                                <StackPanel>
-                                    <TextBlock Text="{Binding ArtifactId}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding GroupId}" Opacity="0.8" TextTrimming="CharacterEllipsis" />
-                                </StackPanel>
-                            </DockPanel>
+
+                <!-- the repositories, how each is searched, and how the search of each went -->
+                <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Repositories}" Margin="0,8,0,0" Focusable="False" AutomationProperties.Name="Repositories">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:MavenRepositoryItem}">
+                            <Border x:Name="Chip" Style="{StaticResource RepositoryChip}" ToolTip="{Binding ToolTip}" AutomationProperties.Name="{Binding AutomationName}">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,1">
+                                        <Grid Width="12" Height="12" Margin="0,0,5,0" VerticalAlignment="Center">
+                                            <ui:Spinner Width="12" Height="12" Thickness="1.5" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                                            <imaging:CrispImage Width="12" Height="12" Moniker="{x:Static catalog:KnownMonikers.StatusOK}" Visibility="{Binding IsFound, Converter={StaticResource BoolToVisibility}}" />
+                                            <imaging:CrispImage Width="12" Height="12" Moniker="{x:Static catalog:KnownMonikers.StatusWarning}" Visibility="{Binding IsFailed, Converter={StaticResource BoolToVisibility}}" />
+                                            <Ellipse Width="6" Height="6" Fill="{Binding Foreground, ElementName=Name}" Opacity="0.6" Visibility="{Binding IsIdle, Converter={StaticResource BoolToVisibility}}" />
+                                            <Ellipse Width="7" Height="7" Stroke="{Binding Foreground, ElementName=Name}" StrokeThickness="1" Opacity="0.6" Visibility="{Binding IsUnsearchable, Converter={StaticResource BoolToVisibility}}" />
+                                        </Grid>
+                                        <TextBlock x:Name="Name" Text="{Binding Id}" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Suffix}" Opacity="0.7" Margin="5,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                    <Border Height="2" VerticalAlignment="Bottom" Margin="0,0,0,-3" CornerRadius="1" RenderTransformOrigin="0,0.5"
+                                            Background="{DynamicResource {x:Static vsui:CommonControlsColors.TextBoxBorderFocusedBrushKey}}"
+                                            Visibility="{Binding HasProgress, Converter={StaticResource BoolToVisibility}}">
+                                        <Border.RenderTransform>
+                                            <ScaleTransform ScaleX="{Binding Progress}" />
+                                        </Border.RenderTransform>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsUnsearchable}" Value="True">
+                                    <Setter TargetName="Chip" Property="Opacity" Value="0.6" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Grid Margin="0,8,0,0">
+                    <ListBox x:Name="ResultsList" ItemsSource="{Binding Results}" SelectedItem="{Binding Selected}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Artifacts">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate DataType="{x:Type root:MavenSearchResult}">
+                                <DockPanel x:Name="Row" Margin="2,4">
+                                    <imaging:CrispImage DockPanel.Dock="Left" Moniker="{x:Static maven:MavenMonikers.MavenReference}" Width="16" Height="16" Margin="0,2,8,0" VerticalAlignment="Top" />
+                                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top" Margin="8,0,0,0">
+                                        <Border Style="{StaticResource Tag}" Visibility="{Binding IsInProject, Converter={StaticResource BoolToVisibility}}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <imaging:CrispImage Width="12" Height="12" Margin="0,0,4,0" VerticalAlignment="Center" Moniker="{x:Static catalog:KnownMonikers.StatusOK}" />
+                                                <TextBlock Text="{Binding InProjectText}" />
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Style="{StaticResource Tag}" Visibility="{Binding IsTyped, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="Typed" />
+                                        </Border>
+                                        <Border x:Name="VersionTag" Style="{StaticResource Tag}">
+                                            <TextBlock Text="{Binding LatestVersion}" />
+                                        </Border>
+                                    </StackPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding ArtifactId}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding GroupId}" Opacity="0.75" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DockPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding LatestVersion}" Value="">
+                                        <Setter TargetName="VersionTag" Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsInProject}" Value="True">
+                                        <Setter TargetName="Row" Property="Opacity" Value="0.6" />
+                                        <Setter TargetName="VersionTag" Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- what the list shows when it has nothing -->
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24" IsHitTestVisible="False"
+                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
+                        <ui:Spinner Width="28" Height="28" Thickness="3" Margin="0,0,0,10" Visibility="{Binding IsEmptyBusy, Converter={StaticResource BoolToVisibility}}" />
+                        <imaging:CrispImage Width="32" Height="32" Margin="0,0,0,10" Moniker="{x:Static catalog:KnownMonikers.StatusWarning}" Visibility="{Binding IsEmptyError, Converter={StaticResource BoolToVisibility}}" />
+                        <imaging:CrispImage Width="32" Height="32" Margin="0,0,0,10" Opacity="0.6" Moniker="{x:Static catalog:KnownMonikers.Search}" Visibility="{Binding IsEmptyHint, Converter={StaticResource BoolToVisibility}}" />
+                        <TextBlock Text="{Binding EmptyText}" Opacity="0.8" TextAlignment="Center" TextWrapping="Wrap" MaxWidth="360" />
+                    </StackPanel>
+                </Grid>
             </DockPanel>
 
             <!-- the selected artifact -->
-            <StackPanel Grid.Column="2" Visibility="{Binding HasSelected, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel Grid.Column="1" Width="300" Margin="16,0,0,0" Visibility="{Binding HasSelected, Converter={StaticResource BoolToVisibility}}">
                 <TextBlock Text="{Binding Selected.ArtifactId}" FontSize="{DynamicResource {x:Static vsshell:VsFonts.Environment133PercentFontSizeKey}}" FontWeight="SemiBold" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding Selected.GroupId}" Opacity="0.85" TextWrapping="Wrap" Margin="0,2,0,12" />
 
-                <Label Content="_Version" Target="{Binding ElementName=VersionBox}" Padding="0,0,0,4" />
-                <ui:Field>
-                    <ComboBox x:Name="VersionBox" BorderThickness="0" IsEditable="True" ItemsSource="{Binding Versions}" Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" />
-                </ui:Field>
-                <TextBlock Text="{Binding VersionsStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+                <!-- an artifact the project references already: why it cannot be added -->
+                <DockPanel Visibility="{Binding IsSelectedInProject, Converter={StaticResource BoolToVisibility}}">
+                    <imaging:CrispImage DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Top" Moniker="{x:Static catalog:KnownMonikers.StatusInformation}" />
+                    <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" />
+                </DockPanel>
 
-                <Label Content="_Scope" Target="{Binding ElementName=ScopeBox}" Padding="0,0,0,4" />
-                <ui:Field Margin="0,0,0,12">
-                    <ComboBox x:Name="ScopeBox" BorderThickness="0" ItemsSource="{Binding ScopeOptions}" SelectedItem="{Binding Scope}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource ScopeName}}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                </ui:Field>
+                <StackPanel Visibility="{Binding CanEditSelected, Converter={StaticResource BoolToVisibility}}">
+                    <DockPanel Margin="0,0,0,4">
+                        <ui:Spinner DockPanel.Dock="Right" Width="12" Height="12" Thickness="1.5" VerticalAlignment="Center" Visibility="{Binding IsLoadingVersions, Converter={StaticResource BoolToVisibility}}" />
+                        <Label Content="_Version" Target="{Binding ElementName=VersionBox}" Padding="0" />
+                    </DockPanel>
+                    <ui:Field>
+                        <ComboBox x:Name="VersionBox" BorderThickness="0" IsEditable="True" ItemsSource="{Binding Versions}" Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" />
+                    </ui:Field>
+                    <TextBlock Text="{Binding VersionsStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
 
-                <TextBlock Text="{Binding Problem}" Foreground="{StaticResource ErrorBrush}" TextWrapping="Wrap" />
+                    <Label Content="_Scope" Target="{Binding ElementName=ScopeBox}" Padding="0,0,0,4" />
+                    <ui:Field Margin="0,0,0,12">
+                        <ComboBox x:Name="ScopeBox" BorderThickness="0" ItemsSource="{Binding ScopeOptions}" SelectedItem="{Binding Scope}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource ScopeName}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </ui:Field>
+                </StackPanel>
             </StackPanel>
         </Grid>
 
@@ -100,7 +212,6 @@
                 <Button Content="_Add" IsDefault="True" Click="OnAdd" IsEnabled="{Binding CanAdd}" MinWidth="96" Margin="0,0,8,0" />
                 <Button Content="Cancel" IsCancel="True" MinWidth="96" />
             </StackPanel>
-            <TextBlock Text="{Binding RepositoriesText}" Opacity="0.85" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
         </DockPanel>
     </Grid>
 </vsui:DialogWindow>

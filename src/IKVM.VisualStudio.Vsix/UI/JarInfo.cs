@@ -22,12 +22,18 @@ internal sealed class JarInfo
         return new JarInfo(false, File.Exists(sources) ? sources : null);
     }
 
+    /// <summary>
+    /// Initializes the information read by <see cref="Read"/>.
+    /// </summary>
     JarInfo(bool isDirectory, string? sourcesPath)
     {
         IsDirectory = isDirectory;
         SourcesPath = sourcesPath;
     }
 
+    /// <summary>
+    /// Whether the path is an existing directory of classes rather than a JAR.
+    /// </summary>
     public bool IsDirectory { get; }
 
     /// <summary>

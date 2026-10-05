@@ -114,6 +114,10 @@ public abstract class IkvmDependencyEntry : ViewModelBase
 
     // state
 
+    /// <summary>
+    /// Gets whether the entry is already in the project, added in the dialog, or to be removed on save. Set by the
+    /// dialog.
+    /// </summary>
     public IkvmDependencyState State
     {
         get => _state;
@@ -124,8 +128,14 @@ public abstract class IkvmDependencyEntry : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Gets whether the entry was added in the dialog, and is written to the project on save.
+    /// </summary>
     public bool IsNew => _state == IkvmDependencyState.New;
 
+    /// <summary>
+    /// Gets whether the entry is marked for removal from the project on save.
+    /// </summary>
     public bool IsRemoved => _state == IkvmDependencyState.Removed;
 
     /// <summary>
@@ -139,6 +149,10 @@ public abstract class IkvmDependencyEntry : ViewModelBase
     /// </summary>
     public bool CanEdit => IsEditable && IsRemoved == false && HasEditing;
 
+    /// <summary>
+    /// Gets the heading the list groups the entry under: <c>New</c> for entries added in the dialog, else
+    /// <c>Referenced</c>.
+    /// </summary>
     public string GroupName => IsNew ? "New" : "Referenced";
 
     /// <summary>
@@ -387,8 +401,15 @@ public abstract class IkvmDependencyEntry : ViewModelBase
     /// </summary>
     public IReadOnlyList<string> Errors => _errors;
 
+    /// <summary>
+    /// Gets whether anything is wrong with the entry, as of its last validation.
+    /// </summary>
     public bool HasErrors => _errors.Count > 0;
 
+    /// <summary>
+    /// Gets the errors one per line, shown when hovering the error icon of the entry in the list; <c>null</c> when
+    /// there are none.
+    /// </summary>
     public string? ErrorToolTip => HasErrors ? string.Join("\n", _errors) : null;
 
     /// <summary>

@@ -23,16 +23,29 @@ internal sealed class AddIkvmDependencyCommandHandler : IAsyncCommandGroupHandle
 
     readonly IkvmDependencyService _service;
 
+    /// <summary>
+    /// Initializes a new instance with the service that lists the add commands and saves what they add.
+    /// </summary>
     [ImportingConstructor]
     public AddIkvmDependencyCommandHandler(IkvmDependencyService service)
     {
         _service = service;
     }
 
+    /// <summary>
+    /// Gets whether the command is one of the dynamic add dependency menu items.
+    /// </summary>
     static bool IsAddCommand(long commandId) => commandId >= IkvmDependencyCommandIds.AddDependencyFirst && commandId <= IkvmDependencyCommandIds.AddDependencyLast;
 
+    /// <summary>
+    /// Gets whether the selection is just the IKVM Dependencies node or one of its target framework folders.
+    /// </summary>
     static bool IsTarget(IImmutableSet<IProjectTree> nodes) => nodes.Count == 1 && (nodes.First().Flags.Contains(IkvmDependencyTreeFlags.Root) || nodes.First().Flags.Contains(IkvmDependencyTreeFlags.TargetFramework));
 
+    /// <summary>
+    /// Shows one menu item per add command of the entry providers, captioned with its description, and hides the
+    /// first item when there are none.
+    /// </summary>
     public Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
         if (IsAddCommand(commandId) == false || IsTarget(nodes) == false)
@@ -47,6 +60,9 @@ internal sealed class AddIkvmDependencyCommandHandler : IAsyncCommandGroupHandle
         return Task.FromResult(new CommandStatusResult(true, descriptions[index] + "...", CommandStatus.Enabled | CommandStatus.Supported));
     }
 
+    /// <summary>
+    /// Runs the chosen add command for the node's target framework, or all from the root, and saves what it adds.
+    /// </summary>
     public async Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
         if (IsAddCommand(commandId) == false || IsTarget(nodes) == false)

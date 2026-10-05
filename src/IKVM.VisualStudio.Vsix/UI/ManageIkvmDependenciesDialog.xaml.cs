@@ -25,6 +25,9 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
     IkvmDependencyEntry? _pressedEntry;
     Point _pressedAt;
 
+    /// <summary>
+    /// Creates the dialog for a session, listing the entries already in the project ahead of new ones.
+    /// </summary>
     public ManageIkvmDependenciesDialog(IkvmDependencySession session)
     {
         InitializeComponent();
@@ -41,18 +44,27 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
     /// </summary>
     public IkvmDependencyChanges GetChanges() => _model.GetChanges();
 
+    /// <summary>
+    /// Runs the add command of the clicked button.
+    /// </summary>
     async void OnAdd(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IkvmDependencyAddCommand command })
             await _model.AddAsync(command, this);
     }
 
+    /// <summary>
+    /// Removes the clicked entry, or restores it when it is already marked for removal.
+    /// </summary>
     void OnRemoveItem(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IkvmDependencyEntry entry })
             _model.ToggleRemove(entry);
     }
 
+    /// <summary>
+    /// Removes or restores the selected entry on Delete.
+    /// </summary>
     void OnEntryListKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Delete && _model.SelectedEntry is { } entry)
@@ -95,12 +107,18 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
         menu.Items.Add(remove);
     }
 
+    /// <summary>
+    /// Adds the entry to, or takes it out of, the clicked chip's target framework.
+    /// </summary>
     void OnChipUsedClick(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: TargetFrameworkChip chip })
             chip.ToggleUsed();
     }
 
+    /// <summary>
+    /// Starts or stops editing the clicked chip's target framework.
+    /// </summary>
     void OnChipEditingClick(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: TargetFrameworkChip chip })
@@ -110,6 +128,9 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
     // entries in the list are selected when the mouse is released, so that dragging one into a view, such as
     // "Depends on", leaves the selection, and the details shown, as they are
 
+    /// <summary>
+    /// Remembers the entry pressed, and where, without selecting it yet; presses on buttons are left alone.
+    /// </summary>
     void OnEntryListMouseDown(object sender, MouseButtonEventArgs e)
     {
         _pressedEntry = null;
@@ -125,6 +146,9 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
         }
     }
 
+    /// <summary>
+    /// Starts dragging the pressed entry, to link it elsewhere, once the mouse has moved far enough.
+    /// </summary>
     void OnEntryListMouseMove(object sender, MouseEventArgs e)
     {
         if (_pressedEntry is not { } entry || e.LeftButton != MouseButtonState.Pressed)
@@ -138,6 +162,9 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
         DragDrop.DoDragDrop(EntryList, new DataObject(typeof(IkvmDependencyEntry), entry), DragDropEffects.Link);
     }
 
+    /// <summary>
+    /// Selects the pressed entry, when it was released without being dragged.
+    /// </summary>
     void OnEntryListMouseUp(object sender, MouseButtonEventArgs e)
     {
         if (_pressedEntry is { } entry)
@@ -146,18 +173,27 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
         _pressedEntry = null;
     }
 
+    /// <summary>
+    /// Accepts files dragged over the dialog, and nothing else.
+    /// </summary>
     void OnDragOver(object sender, DragEventArgs e)
     {
         e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
         e.Handled = true;
     }
 
+    /// <summary>
+    /// Adds entries for the files dropped on the dialog.
+    /// </summary>
     void OnDrop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)
             _model.AddPaths(paths);
     }
 
+    /// <summary>
+    /// Closes the dialog to save, when no entry has errors.
+    /// </summary>
     void OnSave(object sender, RoutedEventArgs e)
     {
         if (_model.CanSave == false)

@@ -76,8 +76,14 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
         return entry;
     }
 
+    /// <summary>
+    /// Splits a semicolon separated metadata value into its trimmed, non-empty parts.
+    /// </summary>
     static IEnumerable<string> Split(string value) => value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0);
 
+    /// <summary>
+    /// Resolves a path against the project directory; a path that is not valid is returned as it is.
+    /// </summary>
     static string Resolve(string projectDirectory, string path)
     {
         try
@@ -96,6 +102,10 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
     bool _referencesResolved;
     JarInfo _info;
 
+    /// <summary>
+    /// Initializes an entry for the given path, for an item already in the project or, when
+    /// <paramref name="original"/> is <c>null</c>, a new one.
+    /// </summary>
     JarDependencyEntry(IkvmDependencyEntryContext context, string fullPath, IkvmDependencyElement? original) :
         base(context, IkvmReferenceRules.ItemType, original)
     {
@@ -103,6 +113,7 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
         _info = JarInfo.Read(FullPath);
     }
 
+    /// <inheritdoc />
     protected override FrameworkElement CreateView() => new JarDependencyView() { DataContext = this };
 
     /// <summary>
@@ -137,18 +148,31 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
     /// </summary>
     public string DescribedPath => _fullPath;
 
+    /// <summary>
+    /// File system facts about the entry's path, read again on each refresh.
+    /// </summary>
     public JarInfo Info => _info;
 
+    /// <summary>
+    /// Whether the entry is a class directory rather than a JAR.
+    /// </summary>
     public bool IsDirectory => _info.IsDirectory;
 
+    /// <inheritdoc />
     public override string DisplayName => Path.GetFileName(FullPath.TrimEnd('\\', '/'));
 
+    /// <inheritdoc />
     public override string? Subtitle => Path.GetDirectoryName(FullPath.TrimEnd('\\', '/')) ?? "";
 
+    /// <inheritdoc />
     public override string? Location => FullPath;
 
+    /// <inheritdoc />
     public override ImageMoniker Icon => IsDirectory ? IkvmMonikers.ClassFolder : IkvmMonikers.JarFile;
 
+    /// <summary>
+    /// The base status, else the diagnostic of the IKVM package when it could not resolve the entry.
+    /// </summary>
     public override string? Status => base.Status ?? (_description?.IsResolved == false ? _description.Diagnostic : null);
 
     /// <summary>
@@ -158,26 +182,50 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
 
     // assembly name and version
 
+    /// <summary>
+    /// The assembly name set for the target frameworks being edited, or empty when it is not set or differs between
+    /// them. Setting it sets it for all of them.
+    /// </summary>
     public string AssemblyName
     {
         get => Common(i => i.AssemblyName);
         set => Apply(i => i.AssemblyName = value);
     }
 
+    /// <summary>
+    /// The assembly name of each target framework being edited, when they differ.
+    /// </summary>
     public string? AssemblyNameVariations => Variations(i => i.AssemblyName);
 
+    /// <summary>
+    /// The hint shown in an empty assembly name field: that the values differ, or the detected name.
+    /// </summary>
     public string AssemblyNamePlaceholder => Varies(i => i.AssemblyName) ? VariesPlaceholder : Placeholder(_description?.AssemblyName);
 
+    /// <summary>
+    /// The assembly version set for the target frameworks being edited, or empty when it is not set or differs
+    /// between them. Setting it sets it for all of them.
+    /// </summary>
     public string AssemblyVersion
     {
         get => Common(i => i.AssemblyVersion);
         set => Apply(i => i.AssemblyVersion = value);
     }
 
+    /// <summary>
+    /// The assembly version of each target framework being edited, when they differ.
+    /// </summary>
     public string? AssemblyVersionVariations => Variations(i => i.AssemblyVersion);
 
+    /// <summary>
+    /// The hint shown in an empty assembly version field: that the values differ, or the detected version.
+    /// </summary>
     public string AssemblyVersionPlaceholder => Varies(i => i.AssemblyVersion) ? VariesPlaceholder : Placeholder(_description?.AssemblyVersion);
 
+    /// <summary>
+    /// Gets the hint for a field left unset: what the IKVM package detected, that detection is still running, or
+    /// that nothing was detected. Entries that cannot be edited just say it is not set.
+    /// </summary>
     string Placeholder(string? detected) => IsEditable == false ? "Not set" : _isDescribed == false ? "Detecting..." : detected != null ? $"{detected} (detected)" : "Not detected: set a value";
 
     // classes and sources
@@ -187,6 +235,9 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
     /// </summary>
     public IReadOnlyList<PathItem> ClassItems => GetPathItems(i => i.Classes);
 
+    /// <summary>
+    /// The class file names of each target framework being edited, when they differ.
+    /// </summary>
     public string? ClassesVariations => Variations(i => Join(i.Classes.Select(Path.GetFileName)));
 
     /// <summary>
@@ -194,8 +245,14 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
     /// </summary>
     public IReadOnlyList<PathItem> SourceItems => GetPathItems(i => i.Sources);
 
+    /// <summary>
+    /// The source file names of each target framework being edited, when they differ.
+    /// </summary>
     public string? SourcesVariations => Variations(i => Join(i.Sources.Select(Path.GetFileName)));
 
+    /// <summary>
+    /// Joins values into a comma separated list for display.
+    /// </summary>
     static string Join(IEnumerable<string> values) => string.Join(", ", values);
 
     /// <summary>
@@ -207,6 +264,10 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
         return ShownValues.SelectMany(list).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
+    /// <summary>
+    /// Gets the items of a list for the target frameworks being edited, each noting which of them it applies to when
+    /// that is only some.
+    /// </summary>
     List<PathItem> GetPathItems(Func<JarDependencyValues, List<string>> list)
     {
         return GetPathOrder(list).Select(path =>
@@ -239,17 +300,32 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
         });
     }
 
+    /// <summary>
+    /// Removes a path from a list, for the target frameworks being edited.
+    /// </summary>
     void RemovePath(Func<JarDependencyValues, List<string>> list, string path)
     {
         Apply(i => list(i).RemoveAll(j => string.Equals(j, path, StringComparison.OrdinalIgnoreCase)));
     }
 
+    /// <summary>
+    /// Moves a class path to a position for the target frameworks being edited, adding it where it is not listed.
+    /// </summary>
     public void MoveClass(string path, int index) => MovePaths(i => i.Classes, new[] { path }, index);
 
+    /// <summary>
+    /// Removes a class path for the target frameworks being edited.
+    /// </summary>
     public void RemoveClass(string path) => RemovePath(i => i.Classes, path);
 
+    /// <summary>
+    /// Moves a source path to a position for the target frameworks being edited, adding it where it is not listed.
+    /// </summary>
     public void MoveSource(string path, int index) => MovePaths(i => i.Sources, new[] { path }, index);
 
+    /// <summary>
+    /// Removes a source path for the target frameworks being edited.
+    /// </summary>
     public void RemoveSource(string path) => RemovePath(i => i.Sources, path);
 
     /// <summary>
@@ -264,6 +340,9 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
 
     // references
 
+    /// <summary>
+    /// An option for each other entry in the dialog that this one could depend on, rebuilt when the entries change.
+    /// </summary>
     public ObservableCollection<DependencyOption> Dependencies { get; } = new ObservableCollection<DependencyOption>();
 
     /// <summary>
@@ -353,6 +432,10 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
     /// </summary>
     IEnumerable<JarDependencyEntry> Others => Context.Entries.OfType<JarDependencyEntry>().Where(i => i != this);
 
+    /// <summary>
+    /// Resolves the entries named by References metadata the first time, once they are all listed, and rebuilds
+    /// <see cref="Dependencies"/> from the entries not removed.
+    /// </summary>
     protected internal override void OnEntriesChanged()
     {
         // the entries named by References metadata, once they are all listed
@@ -384,6 +467,9 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
             string.Equals(i.DescribedPath.TrimEnd('\\'), fullPath, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// Reads the file system facts about the path again and refreshes the dependency options.
+    /// </summary>
     protected override void OnRefresh()
     {
         _info = JarInfo.Read(FullPath);
@@ -396,18 +482,40 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
 
     HashSet<JarDependencyEntry> _cycleTargets = new HashSet<JarDependencyEntry>();
 
+    /// <summary>
+    /// The state the Compile field shows: an error when it is empty, or that it differs between target frameworks.
+    /// </summary>
     public FieldState CompileFrame => GetFieldState(IsInvalid(i => i.Classes.Count > 0), Varies(i => Join(i.Classes)));
 
+    /// <summary>
+    /// The state the Sources field shows: whether it differs between target frameworks. Sources are never invalid.
+    /// </summary>
     public FieldState SourcesFrame => GetFieldState(false, Varies(i => Join(i.Sources)));
 
+    /// <summary>
+    /// The state the assembly name field shows: an error when it is not a valid file name, or that it differs.
+    /// </summary>
     public FieldState AssemblyNameFrame => GetFieldState(IsInvalid(i => IsAssemblyNameValid(i.AssemblyName)), Varies(i => i.AssemblyName));
 
+    /// <summary>
+    /// The state the assembly version field shows: an error when it is not a version, or that it differs.
+    /// </summary>
     public FieldState AssemblyVersionFrame => GetFieldState(IsInvalid(i => IsAssemblyVersionValid(i.AssemblyVersion)), Varies(i => i.AssemblyVersion));
 
+    /// <summary>
+    /// The state the dependencies field shows: an error when a dependency leads back to this entry, or that the
+    /// references differ between target frameworks.
+    /// </summary>
     public FieldState DependenciesFrame => GetFieldState(_cycleTargets.Count > 0, Dependencies.Any(i => i.IsChecked == null));
 
+    /// <summary>
+    /// Whether an assembly name has only characters a file name can have.
+    /// </summary>
     static bool IsAssemblyNameValid(string value) => value.Trim().IndexOfAny(Path.GetInvalidFileNameChars()) < 0;
 
+    /// <summary>
+    /// Whether an assembly version is empty or parses as a <see cref="Version"/>.
+    /// </summary>
     static bool IsAssemblyVersionValid(string value) => string.IsNullOrWhiteSpace(value) || Version.TryParse(value.Trim(), out _);
 
     /// <summary>
@@ -420,6 +528,10 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
     /// </summary>
     IEnumerable<JarDependencyEntry> GetReferencedEntries(string key) => GetValues(key).References.Where(i => i.IsRemoved == false);
 
+    /// <summary>
+    /// Reports an empty Compile, an assembly name or version that is not valid, and dependencies that lead back to
+    /// this entry, and remembers the latter for the dependency options to show.
+    /// </summary>
     protected override void Validate(IkvmDependencyValidation validation)
     {
         AddError(validation, i => i.Classes.Count > 0, "Compile is empty: add a JAR or class folder to compile.");
@@ -524,6 +636,9 @@ sealed class JarDependencyEntry : IkvmDependencyEntry<JarDependencyValues>
         return path;
     }
 
+    /// <summary>
+    /// Makes a path relative to a directory, when both are on the same drive; otherwise returns it unchanged.
+    /// </summary>
     static string MakeRelative(string baseDirectory, string path)
     {
         if (string.Equals(Path.GetPathRoot(baseDirectory), Path.GetPathRoot(path), StringComparison.OrdinalIgnoreCase) == false)

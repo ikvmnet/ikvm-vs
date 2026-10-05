@@ -19,11 +19,17 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextMenuProvider
 {
 
+    /// <summary>
+    /// Gets the menu for a single node, chosen by its flags.
+    /// </summary>
     public bool TryGetContextMenu(IProjectTree projectItem, out Guid menuCommandGuid, out int menuCommandId)
     {
         return TryGetMenu(projectItem.Flags, out menuCommandGuid, out menuCommandId);
     }
 
+    /// <summary>
+    /// Gets the menu for a selection of several nodes, if they are all references or all JAR files.
+    /// </summary>
     public bool TryGetMixedItemsContextMenu(IEnumerable<IProjectTree> projectItems, out Guid menuCommandGuid, out int menuCommandId)
     {
         menuCommandGuid = Guid.Empty;
@@ -48,6 +54,10 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
         return false;
     }
 
+    /// <summary>
+    /// Maps node flags to a menu: the root menu for the root and target framework folders, else the reference or JAR
+    /// file menu. Returns <c>false</c> for nodes of no IKVM Dependencies kind.
+    /// </summary>
     static bool TryGetMenu(ProjectTreeFlags flags, out Guid menuCommandGuid, out int menuCommandId)
     {
         menuCommandGuid = IkvmDependencyCommandIds.CommandSet;

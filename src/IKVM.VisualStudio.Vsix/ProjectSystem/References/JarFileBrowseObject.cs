@@ -20,6 +20,9 @@ static class JarFileBrowseObject
 
     static readonly Lazy<Rule> Schema = new Lazy<Rule>(CreateSchema);
 
+    /// <summary>
+    /// Builds the rule describing the read-only file properties shown for a JAR file or class directory.
+    /// </summary>
     static Rule CreateSchema()
     {
         var rule = new Rule() { Name = ItemType, DisplayName = "JAR File", Description = "JAR File Properties", PageTemplate = "generic" };
@@ -35,6 +38,9 @@ static class JarFileBrowseObject
         return rule;
     }
 
+    /// <summary>
+    /// Creates a read-only string property in the File category.
+    /// </summary>
     static StringProperty Property(string name, string displayName, string description)
     {
         return new StringProperty() { Name = name, DisplayName = displayName, Description = description, Category = "File", ReadOnly = true };
@@ -76,6 +82,9 @@ static class JarFileBrowseObject
         return project.Services.ExportProvider.GetExportedValue<IRuleFactory>().CreateResolvedReferencePageRule(Schema.Value, context, fullPath, properties.ToImmutable());
     }
 
+    /// <summary>
+    /// Formats a file size in bytes, KB or MB, with the exact byte count alongside the larger units.
+    /// </summary>
     static string FormatSize(long bytes)
     {
         if (bytes < 1024)
@@ -92,18 +101,29 @@ static class JarFileBrowseObject
     sealed class FileContext : IProjectPropertiesContext
     {
 
+        /// <summary>
+        /// Initializes a new instance for a file or directory, in the context of the project file.
+        /// </summary>
         public FileContext(string projectPath, string fullPath)
         {
             File = projectPath;
             ItemName = fullPath;
         }
 
+        /// <inheritdoc />
         public bool IsProjectFile => true;
 
+        /// <summary>
+        /// Full path of the project file, since the JAR or directory is not a project file of its own.
+        /// </summary>
         public string File { get; }
 
+        /// <inheritdoc />
         public string ItemType => JarFileBrowseObject.ItemType;
 
+        /// <summary>
+        /// Full path of the JAR file or class directory.
+        /// </summary>
         public string ItemName { get; }
 
     }

@@ -13,20 +13,35 @@ sealed class DependencyOption : ViewModelBase, IReorderableItem
     bool _isDropBefore;
     bool _isDropAfter;
 
+    /// <summary>
+    /// Creates the option for <paramref name="owner"/> to depend on <paramref name="target"/>.
+    /// </summary>
     public DependencyOption(JarDependencyEntry owner, JarDependencyEntry target)
     {
         _owner = owner;
         Target = target;
     }
 
+    /// <summary>
+    /// The entry that may be depended on.
+    /// </summary>
     public JarDependencyEntry Target { get; }
 
+    /// <summary>
+    /// The name shown for the target.
+    /// </summary>
     public string DisplayName => Target.DisplayName;
 
+    /// <inheritdoc />
     public object Key => Target;
 
+    /// <inheritdoc />
     public bool CanMove => true;
 
+    /// <summary>
+    /// Whether the owner references the target: for every target framework in view, for none, or
+    /// <see langword="null"/> for some. Setting it adds or removes the reference for all of them.
+    /// </summary>
     public bool? IsChecked
     {
         get => _owner.GetReferences(Target);
@@ -66,6 +81,9 @@ sealed class DependencyOption : ViewModelBase, IReorderableItem
         set => Set(ref _isDropAfter, value);
     }
 
+    /// <summary>
+    /// Raises change notifications for the values derived from the owner's references, after they may have changed.
+    /// </summary>
     public void Refresh()
     {
         OnPropertyChanged(nameof(IsChecked));

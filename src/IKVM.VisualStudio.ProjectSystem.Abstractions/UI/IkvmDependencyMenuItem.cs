@@ -25,12 +25,24 @@ public sealed class IkvmDependencyMenuItem
         Icon = icon;
     }
 
+    /// <summary>
+    /// Gets the text of the item, with an underscore before its access key.
+    /// </summary>
     public string Text { get; }
 
+    /// <summary>
+    /// Gets what the item does when chosen.
+    /// </summary>
     public Action Execute { get; }
 
+    /// <summary>
+    /// Gets whether the item can be chosen.
+    /// </summary>
     public bool IsEnabled { get; }
 
+    /// <summary>
+    /// Gets the icon of the item, or the default moniker for none.
+    /// </summary>
     public ImageMoniker Icon { get; }
 
 }
