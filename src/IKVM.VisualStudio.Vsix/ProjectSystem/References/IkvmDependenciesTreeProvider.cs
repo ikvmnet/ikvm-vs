@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,6 +33,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
 
     static readonly ProjectImageMoniker RootIcon = IkvmMonikers.IkvmDependencies.ToProjectSystemType();
     static readonly ProjectImageMoniker TargetFrameworkIcon = KnownMonikers.Library.ToProjectSystemType();
+    static readonly ProjectImageMoniker JarIcon = IkvmMonikers.JarFile.ToProjectSystemType();
+    static readonly ProjectImageMoniker JarWarningIcon = IkvmMonikers.JarFileWarning.ToProjectSystemType();
+    static readonly ProjectImageMoniker FolderIcon = IkvmMonikers.ClassFolder.ToProjectSystemType();
 
     readonly IActiveConfigurationGroupService _configurationGroupService;
     readonly object _sync = new object();
@@ -289,6 +293,13 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         public IProjectTree NewTree(string caption, ProjectImageMoniker icon, ProjectTreeFlags flags, IRule? browseObject = null, ProjectImageMoniker? expandedIcon = null)
         {
             return _owner.NewTree(caption, icon: icon, expandedIcon: expandedIcon ?? icon, flags: flags, browseObjectProperties: browseObject);
+        }
+
+        public IProjectTree NewJarFileTree(string fullPath, ProjectTreeFlags flags)
+        {
+            var icon = Directory.Exists(fullPath) ? FolderIcon : File.Exists(fullPath) ? JarIcon : JarWarningIcon;
+            var browseObject = JarFileBrowseObject.Create(ConfiguredProject, fullPath);
+            return NewTree(Path.GetFileName(fullPath.TrimEnd('\\', '/')), icon, flags + IkvmDependencyTreeFlags.JarFile, browseObject);
         }
 
     }

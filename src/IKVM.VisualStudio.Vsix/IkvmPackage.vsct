@@ -20,6 +20,13 @@
                     <ButtonText>IKVM Dependency</ButtonText>
                 </Strings>
             </Menu>
+
+            <!-- context menu of a JAR file or class directory on disk -->
+            <Menu guid="guidIkvmDependenciesCmdSet" id="IkvmJarFileMenu" type="Context">
+                <Strings>
+                    <ButtonText>JAR File</ButtonText>
+                </Strings>
+            </Menu>
         </Menus>
 
         <Groups>
@@ -31,6 +38,15 @@
             </Group>
             <Group guid="guidIkvmDependenciesCmdSet" id="IkvmReferencePropertiesGroup" priority="0x0F00">
                 <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmReferenceMenu" />
+            </Group>
+            <Group guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesAddGroup" priority="0x0080">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesRootMenu" />
+            </Group>
+            <Group guid="guidIkvmDependenciesCmdSet" id="IkvmJarFileGroup" priority="0x0100">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmJarFileMenu" />
+            </Group>
+            <Group guid="guidIkvmDependenciesCmdSet" id="IkvmJarFilePropertiesGroup" priority="0x0F00">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmJarFileMenu" />
             </Group>
             <Group guid="guidIkvmDependenciesCmdSet" id="DependenciesAddGroup" priority="0x0110">
                 <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_REFERENCEROOT" />
@@ -44,6 +60,26 @@
                 <CommandFlag>DefaultInvisible</CommandFlag>
                 <Strings>
                     <ButtonText>Manage IKVM Dependencies...</ButtonText>
+                </Strings>
+            </Button>
+            <!-- the add commands of the entry providers, as many as they have -->
+            <Button guid="guidIkvmDependenciesCmdSet" id="cmdidAddDependencyFirst" priority="0x0100" type="Button">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesAddGroup" />
+                <CommandFlag>DynamicItemStart</CommandFlag>
+                <CommandFlag>DynamicVisibility</CommandFlag>
+                <CommandFlag>DefaultInvisible</CommandFlag>
+                <CommandFlag>TextChanges</CommandFlag>
+                <Strings>
+                    <ButtonText>Add...</ButtonText>
+                </Strings>
+            </Button>
+
+            <Button guid="guidIkvmDependenciesCmdSet" id="cmdidOpenContainingFolder" priority="0x0100" type="Button">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmJarFileGroup" />
+                <CommandFlag>DynamicVisibility</CommandFlag>
+                <CommandFlag>DefaultInvisible</CommandFlag>
+                <Strings>
+                    <ButtonText>Open Containing &amp;Folder</ButtonText>
                 </Strings>
             </Button>
         </Buttons>
@@ -66,6 +102,9 @@
         <CommandPlacement guid="guidVSStd97" id="cmdidPropSheetOrProperties" priority="0x0100">
             <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmReferencePropertiesGroup" />
         </CommandPlacement>
+        <CommandPlacement guid="guidVSStd97" id="cmdidPropSheetOrProperties" priority="0x0100">
+            <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmJarFilePropertiesGroup" />
+        </CommandPlacement>
     </CommandPlacements>
 
     <KeyBindings>
@@ -82,7 +121,13 @@
             <IDSymbol name="IkvmReferenceGroup" value="0x1101" />
             <IDSymbol name="IkvmReferencePropertiesGroup" value="0x1102" />
             <IDSymbol name="DependenciesAddGroup" value="0x1103" />
+            <IDSymbol name="IkvmJarFileMenu" value="0x1002" />
+            <IDSymbol name="IkvmJarFileGroup" value="0x1104" />
+            <IDSymbol name="IkvmJarFilePropertiesGroup" value="0x1105" />
+            <IDSymbol name="IkvmDependenciesAddGroup" value="0x1106" />
             <IDSymbol name="cmdidManageIkvmDependencies" value="0x0100" />
+            <IDSymbol name="cmdidOpenContainingFolder" value="0x0101" />
+            <IDSymbol name="cmdidAddDependencyFirst" value="0x0200" />
         </GuidSymbol>
     </Symbols>
 

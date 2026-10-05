@@ -42,5 +42,6 @@ static class MavenReferenceRules
     public const string ResolvedClassifierMetadata = "MavenClassifier";
     public const string ResolvedVersionMetadata = "MavenVersion";
     public const string ResolvedReferencesMetadata = "References";
+    public const string ResolvedCompileMetadata = "Compile";
 
 }

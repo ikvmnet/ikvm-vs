@@ -25,6 +25,7 @@ internal sealed class MavenReferenceTreeProvider : IIkvmDependencyTreeProvider
 
     public static readonly ProjectTreeFlags MavenReferenceFlag = ProjectTreeFlags.Create("IkvmMavenReference");
     public static readonly ProjectTreeFlags MavenDependencyFlag = ProjectTreeFlags.Create("IkvmMavenDependency");
+    public static readonly ProjectTreeFlags MavenJarFlag = ProjectTreeFlags.Create("IkvmMavenJar");
 
     static readonly ProjectImageMoniker MavenIcon = MavenMonikers.MavenReference.ToProjectSystemType();
     static readonly ProjectImageMoniker MavenWarningIcon = MavenMonikers.MavenReferenceWarning.ToProjectSystemType();
@@ -59,12 +60,34 @@ internal sealed class MavenReferenceTreeProvider : IIkvmDependencyTreeProvider
                 ? node.SetProperties(icon: icon, expandedIcon: icon, flags: flags, browseObjectProperties: browseObject)
                 : parent.Add(context.NewTree(reference.Coordinates, icon, flags, browseObject));
 
+            node = UpdateJars(context, node, reference.Artifact);
             var path = reference.Artifact != null ? ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, reference.Artifact.ItemSpec) : ImmutableHashSet<string>.Empty;
             node = UpdateDependencies(context, node, reference, reference.Artifact, path, catalog, rule?.Context, cancellationToken);
             parent = node.Parent!;
         }
 
         return parent;
+    }
+
+    /// <summary>
+    /// Updates the children of a Maven node to the files of its artifact, from the local Maven repository.
+    /// </summary>
+    static IProjectTree UpdateJars(IIkvmDependencyTreeContext context, IProjectTree node, MavenArtifact? artifact)
+    {
+        var paths = artifact?.Compile.ToList() ?? new List<string>();
+        var captions = paths.Select(i => System.IO.Path.GetFileName(i.TrimEnd('\\', '/'))).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        node = node.RemoveChildren(i => i.Flags.Contains(MavenJarFlag) && captions.Contains(i.Caption) == false);
+
+        foreach (var path in paths)
+        {
+            var jar = context.NewJarFileTree(path, MavenJarFlag);
+            var existing = node.FindChild(jar.Caption, MavenJarFlag);
+            node = existing != null
+                ? existing.SetProperties(icon: jar.Icon, expandedIcon: jar.ExpandedIcon, flags: jar.Flags, browseObjectProperties: jar.BrowseObjectProperties).Parent!
+                : node.Add(jar).Parent!;
+        }
+
+        return node;
     }
 
     /// <summary>
@@ -92,6 +115,7 @@ internal sealed class MavenReferenceTreeProvider : IIkvmDependencyTreeProvider
                 ? child.SetProperties(icon: MavenDependencyIcon, expandedIcon: MavenDependencyIcon, flags: flags, browseObjectProperties: rule)
                 : node.Add(context.NewTree(dependency.Coordinates, MavenDependencyIcon, flags, rule));
 
+            child = UpdateJars(context, child, dependency);
             child = UpdateDependencies(context, child, reference, dependency, path.Add(dependency.ItemSpec), catalog, itemContext, cancellationToken);
             node = child.Parent!;
         }

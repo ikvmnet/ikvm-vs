@@ -44,6 +44,11 @@ internal sealed class MavenArtifact
     public IEnumerable<string> References => Get(MavenReferenceRules.ResolvedReferencesMetadata).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0);
 
     /// <summary>
+    /// Full paths of the files of the artifact compiled into its assembly, in the local Maven repository.
+    /// </summary>
+    public IEnumerable<string> Compile => Get(MavenReferenceRules.ResolvedCompileMetadata).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0);
+
+    /// <summary>
     /// The artifact's coordinates, as Maven writes them: <c>groupId:artifactId[:classifier]:version</c>.
     /// </summary>
     public string Coordinates => MavenCoordinates.Format(GroupId, ArtifactId, Classifier, Version);

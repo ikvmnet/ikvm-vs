@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
@@ -8,13 +7,11 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Input;
 
-using IKVM.VisualStudio.ProjectSystem;
 using IKVM.VisualStudio.ProjectSystem.UI;
 using IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
 using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.ProjectSystem;
 
 namespace IKVM.VisualStudio.Vsix.UI;
 
@@ -28,16 +25,10 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
     IkvmDependencyEntry? _pressedEntry;
     Point _pressedAt;
 
-    public ManageIkvmDependenciesDialog(
-        UnconfiguredProject project,
-        IReadOnlyDictionary<string, ConfiguredProject> configuredProjects,
-        IReadOnlyList<string> targetFrameworks,
-        string? defaultTargetFramework,
-        IReadOnlyList<IkvmDependencyEntryProvider> providers,
-        IEnumerable<IkvmDependencyElement> elements)
+    public ManageIkvmDependenciesDialog(IkvmDependencySession session)
     {
         InitializeComponent();
-        DataContext = _model = new ManageIkvmDependenciesViewModel(project, configuredProjects, targetFrameworks, defaultTargetFramework, providers, elements);
+        DataContext = _model = new ManageIkvmDependenciesViewModel(session);
 
         // existing entries first, then new ones
         var view = CollectionViewSource.GetDefaultView(_model.Entries);

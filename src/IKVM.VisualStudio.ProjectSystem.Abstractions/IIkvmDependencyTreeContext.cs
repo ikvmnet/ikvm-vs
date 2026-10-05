@@ -37,4 +37,12 @@ public interface IIkvmDependencyTreeContext
     /// <param name="expandedIcon">Icon of the node when expanded, if not the same.</param>
     IProjectTree NewTree(string caption, ProjectImageMoniker icon, ProjectTreeFlags flags, IRule? browseObject = null, ProjectImageMoniker? expandedIcon = null);
 
+    /// <summary>
+    /// Creates a node for a JAR file or class directory on disk, captioned with its name: with the icon for it, the
+    /// JAR file context menu and its location in the Properties window.
+    /// </summary>
+    /// <param name="fullPath">Full path of the file or directory.</param>
+    /// <param name="flags">Flags of the node besides <see cref="IkvmDependencyTreeFlags.JarFile"/>: at least one of the provider's own.</param>
+    IProjectTree NewJarFileTree(string fullPath, ProjectTreeFlags flags);
+
 }

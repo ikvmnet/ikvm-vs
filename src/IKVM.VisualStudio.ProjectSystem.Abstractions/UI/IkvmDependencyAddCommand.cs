@@ -20,7 +20,7 @@ public sealed class IkvmDependencyAddCommand
     /// </summary>
     /// <param name="text">Text of the button, such as <c>JARs...</c>.</param>
     /// <param name="icon">Icon of the button.</param>
-    /// <param name="description">Accessible name of the button, such as <c>Add JAR files</c>.</param>
+    /// <param name="description">Accessible name of the button, such as <c>Add JAR files</c>; also, followed by an ellipsis, its text in the context menu of the IKVM Dependencies node.</param>
     /// <param name="execute">Asks for what to add, given the dialog as the owner of any window it opens, and returns the new entries.</param>
     public IkvmDependencyAddCommand(string text, ImageMoniker icon, string description, Func<Window, Task<IReadOnlyList<IkvmDependencyEntry>>> execute)
     {
