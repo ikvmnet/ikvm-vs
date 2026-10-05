@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 
+using IKVM.VisualStudio.ProjectSystem;
 using IKVM.VisualStudio.Vsix.Commands;
 
 using Microsoft.VisualStudio.ProjectSystem;
@@ -14,7 +15,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// Supplies the context menus for nodes of the IKVM Dependencies tree.
 /// </summary>
 [Export(typeof(IProjectItemContextMenuProvider))]
-[AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 [Order(1000)]
 internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextMenuProvider
 {
@@ -31,7 +32,7 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
 
         // only a selection consisting entirely of IKVM references gets the reference menu
         var items = projectItems.ToList();
-        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag)))
+        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)))
         {
             menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
             menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
@@ -45,13 +46,13 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
     {
         menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
 
-        if (flags.Contains(IkvmDependenciesTreeProvider.RootFlag) || flags.Contains(IkvmDependenciesTreeProvider.TargetFrameworkFlag))
+        if (flags.Contains(IkvmDependencyTreeFlags.Root) || flags.Contains(IkvmDependencyTreeFlags.TargetFramework))
         {
             menuCommandId = IkvmDependenciesCommandIds.IkvmDependenciesRootMenu;
             return true;
         }
 
-        if (flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag))
+        if (flags.Contains(IkvmDependencyTreeFlags.Reference))
         {
             menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
             return true;

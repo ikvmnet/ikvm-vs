@@ -1,4 +1,4 @@
-namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
+namespace IKVM.VisualStudio.Maven;
 
 /// <summary>
 /// Names of the XAML rules, capability and metadata shipped by IKVM.Maven.Sdk for <c>MavenReference</c> items.

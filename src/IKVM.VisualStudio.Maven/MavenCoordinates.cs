@@ -1,4 +1,4 @@
-namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
+namespace IKVM.VisualStudio.Maven;
 
 /// <summary>
 /// Maven coordinates as text.

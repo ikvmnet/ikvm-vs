@@ -5,7 +5,7 @@ using System.Linq;
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
 /// <summary>
-/// An <c>IkvmReference</c> item: written in the project file, or imported from another file.
+/// An item, such as <c>IkvmReference</c>,: written in the project file, or imported from another file.
 /// </summary>
 /// <param name="Include">Unevaluated include, or the evaluated include of one of the items an element with wildcards or lists produces.</param>
 /// <param name="TargetFrameworks">Target frameworks the item applies to, or empty for all.</param>
@@ -14,6 +14,11 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// <param name="DefinedIn">The file the element is imported from, or <c>null</c> for the project file.</param>
 internal sealed record IkvmReferenceElement(string Include, IReadOnlyList<string> TargetFrameworks, IReadOnlyList<IkvmReferenceMetadata> Metadata, bool IsEditable, string? DefinedIn = null)
 {
+
+    /// <summary>
+    /// The item type.
+    /// </summary>
+    public string ItemType { get; init; } = IkvmReferenceRules.ItemType;
 
     /// <summary>
     /// The item as MSBuild evaluates it, by target framework, or under an empty key for a project with a single one.
