@@ -6,8 +6,14 @@ namespace IKVM.VisualStudio.Host.Maven.Contracts;
 public sealed class MavenServiceSearchResult
 {
 
+    /// <summary>
+    /// The group ID of the artifact.
+    /// </summary>
     public string GroupId { get; set; } = "";
 
+    /// <summary>
+    /// The artifact ID of the artifact.
+    /// </summary>
     public string ArtifactId { get; set; } = "";
 
     /// <summary>

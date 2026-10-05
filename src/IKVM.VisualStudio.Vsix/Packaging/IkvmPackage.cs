@@ -5,6 +5,10 @@ using System.Runtime.InteropServices;
 
 namespace IKVM.VisualStudio.Vsix.Packaging;
 
+/// <summary>
+/// The IKVM Visual Studio package. Registers the extension's resources, menus and binding path; the project system
+/// itself is composed through MEF.
+/// </summary>
 [Guid(PackageGuid)]
 [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
 [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]

@@ -35,8 +35,15 @@ internal sealed class MavenReferenceTreeProvider : IIkvmDependencyTreeProvider
     static readonly ProjectImageMoniker MavenOmittedIcon = MavenMonikers.MavenOmitted.ToProjectSystemType();
     static readonly ProjectImageMoniker InformationIcon = Microsoft.VisualStudio.Imaging.KnownMonikers.StatusInformation.ToProjectSystemType();
 
+    /// <summary>
+    /// The rules the tree is built from: the <c>MavenReference</c> items, and what Maven resolved for them.
+    /// </summary>
     public IReadOnlyCollection<string> RuleNames { get; } = new[] { MavenReferenceRules.MavenReference, MavenReferenceRules.ResolvedMavenReference };
 
+    /// <summary>
+    /// Updates a node for each <c>MavenReference</c> item under <paramref name="parent"/>, with its files and the tree
+    /// of artifacts Maven resolved for it, removing nodes of references no longer in the project.
+    /// </summary>
     public async Task<IProjectTree> UpdateTreeAsync(IIkvmDependencyTreeContext context, IProjectTree parent, CancellationToken cancellationToken)
     {
         var references = MavenReference.Create(context.ConfiguredProject, context.Rules);

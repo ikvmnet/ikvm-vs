@@ -22,6 +22,9 @@ sealed class MavenSearchResults
     readonly Dictionary<string, MavenServiceSearchResult> _byCoordinates = new(StringComparer.OrdinalIgnoreCase);
     readonly List<MavenServiceSearchResult> _results = new();
 
+    /// <summary>
+    /// How many artifacts have been found.
+    /// </summary>
     public int Count => _results.Count;
 
     /// <summary>
@@ -43,6 +46,10 @@ sealed class MavenSearchResults
             existing.LatestVersion = version!;
     }
 
+    /// <summary>
+    /// Gets whether a version should replace another: any version replaces none, a release replaces a snapshot, and
+    /// otherwise the higher version, as Maven compares them, wins.
+    /// </summary>
     static bool IsNewer(string? version, string than)
     {
         if (string.IsNullOrEmpty(version))
@@ -85,6 +92,10 @@ sealed class MavenSearchResults
             .ToList();
     }
 
+    /// <summary>
+    /// Ranks an artifact by how well its artifact ID matches a word: equal first, then starting with it, then the
+    /// rest.
+    /// </summary>
     static int Rank(MavenServiceSearchResult result, string word)
     {
         if (string.Equals(result.ArtifactId, word, StringComparison.OrdinalIgnoreCase))

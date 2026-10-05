@@ -56,6 +56,9 @@ static class TargetFrameworkCondition
         return Normalize(a).SequenceEqual(Normalize(b), StringComparer.OrdinalIgnoreCase);
     }
 
+    /// <summary>
+    /// Removes duplicate target framework names and sorts the rest, ignoring case, so sets compare and format consistently.
+    /// </summary>
     static IReadOnlyList<string> Normalize(IEnumerable<string> names)
     {
         return names.Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(i => i, StringComparer.OrdinalIgnoreCase).ToList();

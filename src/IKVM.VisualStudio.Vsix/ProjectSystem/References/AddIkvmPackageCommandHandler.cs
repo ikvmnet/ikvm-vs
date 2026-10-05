@@ -29,12 +29,18 @@ internal sealed class AddIkvmPackageCommandHandler : IAsyncCommandGroupHandler
 
     readonly IkvmPackageInstaller _installer;
 
+    /// <summary>
+    /// Initializes a new instance with the installer that offers to add the IKVM package.
+    /// </summary>
     [ImportingConstructor]
     public AddIkvmPackageCommandHandler(IkvmPackageInstaller installer)
     {
         _installer = installer;
     }
 
+    /// <summary>
+    /// Enables the command wherever it is offered.
+    /// </summary>
     public Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
         if (commandId != IkvmDependencyCommandIds.ManageIkvmDependencies)
@@ -43,6 +49,10 @@ internal sealed class AddIkvmPackageCommandHandler : IAsyncCommandGroupHandler
         return Task.FromResult(new CommandStatusResult(true, commandText, CommandStatus.Enabled | CommandStatus.Supported));
     }
 
+    /// <summary>
+    /// Offers to add the IKVM package and, if it was added, tells the user the dependencies become available once it
+    /// is restored.
+    /// </summary>
     public async Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
         if (commandId != IkvmDependencyCommandIds.ManageIkvmDependencies)

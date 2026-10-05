@@ -20,6 +20,9 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 internal sealed class OpenContainingFolderCommandHandler : IAsyncCommandGroupHandler
 {
 
+    /// <summary>
+    /// Claims the command for a single JAR file node, enabling it only when the file or directory exists.
+    /// </summary>
     public Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
         if (commandId != IkvmDependencyCommandIds.OpenContainingFolder || nodes.Count != 1 || nodes.First().Flags.Contains(IkvmDependencyTreeFlags.JarFile) == false)
@@ -29,6 +32,9 @@ internal sealed class OpenContainingFolderCommandHandler : IAsyncCommandGroupHan
         return Task.FromResult(new CommandStatusResult(true, commandText, enabled ? CommandStatus.Enabled | CommandStatus.Supported : CommandStatus.Supported));
     }
 
+    /// <summary>
+    /// Starts Explorer with the node's file or directory selected.
+    /// </summary>
     public Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
         if (commandId != IkvmDependencyCommandIds.OpenContainingFolder || nodes.Count != 1 || GetPath(nodes.First()) is not { } path)

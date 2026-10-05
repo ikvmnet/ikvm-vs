@@ -16,6 +16,9 @@ sealed class MavenSmoTransport : SmoSearchTransportSupport
     readonly MavenHttp _http;
     readonly RemoteRepository _repository;
 
+    /// <summary>
+    /// Carries the requests of the search service of Maven Central for a repository.
+    /// </summary>
     /// <param name="http">The transports.</param>
     /// <param name="repository">The repository the service searches, whose credentials are used.</param>
     public MavenSmoTransport(MavenHttp http, RemoteRepository repository)
@@ -24,6 +27,10 @@ sealed class MavenSmoTransport : SmoSearchTransportSupport
         _repository = repository;
     }
 
+    /// <summary>
+    /// Gets the response of the service at a URI as text, through a repository at the root of its server with the
+    /// credentials of the repository searched, failing with <c>FileNotFoundException</c> when it does not exist.
+    /// </summary>
     public override string fetch(SearchRequest searchRequest, string serviceUri)
     {
         var uri = URI.create(serviceUri);

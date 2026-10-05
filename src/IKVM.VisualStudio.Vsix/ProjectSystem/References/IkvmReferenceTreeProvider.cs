@@ -29,8 +29,13 @@ internal sealed class IkvmReferenceTreeProvider : IIkvmDependencyTreeProvider
     static readonly ProjectImageMoniker FolderIcon = IkvmMonikers.ClassFolder.ToProjectSystemType();
     static readonly ProjectImageMoniker FolderWarningIcon = IkvmMonikers.ClassFolderWarning.ToProjectSystemType();
 
+    /// <inheritdoc />
     public IReadOnlyCollection<string> RuleNames { get; } = new[] { IkvmReferenceRules.IkvmReference, IkvmReferenceRules.ResolvedIkvmReference };
 
+    /// <summary>
+    /// Adds or updates a node for each reference, with an icon reflecting whether it is a folder and whether it resolved,
+    /// and removes nodes for references that no longer exist.
+    /// </summary>
     public async Task<IProjectTree> UpdateTreeAsync(IIkvmDependencyTreeContext context, IProjectTree parent, CancellationToken cancellationToken)
     {
         var references = IkvmReference.Create(context.ConfiguredProject, context.Rules).ToList();

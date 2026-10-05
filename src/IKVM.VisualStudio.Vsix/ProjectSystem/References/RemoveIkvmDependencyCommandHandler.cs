@@ -26,6 +26,10 @@ internal sealed class RemoveIkvmDependencyCommandHandler : IAsyncCommandGroupHan
     readonly IkvmReferenceWriter _writer;
     readonly Lazy<IkvmDependenciesTreeProvider> _treeProvider;
 
+    /// <summary>
+    /// Initializes a new instance with the writer that removes items and the tree provider that supplies the
+    /// configured projects to read them from.
+    /// </summary>
     [ImportingConstructor]
     public RemoveIkvmDependencyCommandHandler(IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
     {
@@ -33,6 +37,10 @@ internal sealed class RemoveIkvmDependencyCommandHandler : IAsyncCommandGroupHan
         _treeProvider = treeProvider;
     }
 
+    /// <summary>
+    /// Claims Remove and Delete when every selected node is an IKVM reference, enabling them only when each node maps
+    /// to an item defined by an editable element.
+    /// </summary>
     public async Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
         if (IsRemove(commandId) == false || nodes.Count == 0 || nodes.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)) == false)
@@ -43,6 +51,9 @@ internal sealed class RemoveIkvmDependencyCommandHandler : IAsyncCommandGroupHan
         return new CommandStatusResult(true, commandText, removable ? CommandStatus.Enabled | CommandStatus.Supported : CommandStatus.Supported);
     }
 
+    /// <summary>
+    /// Removes the items behind the selected IKVM reference nodes from the project file.
+    /// </summary>
     public async Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
         if (IsRemove(commandId) == false || nodes.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)) == false)
@@ -52,6 +63,9 @@ internal sealed class RemoveIkvmDependencyCommandHandler : IAsyncCommandGroupHan
         return true;
     }
 
+    /// <summary>
+    /// Gets whether the command is Remove or Delete, both of which remove the selected references.
+    /// </summary>
     static bool IsRemove(long commandId)
     {
         return commandId == (long)VSConstants.VSStd97CmdID.Remove || commandId == (long)VSConstants.VSStd97CmdID.Delete;

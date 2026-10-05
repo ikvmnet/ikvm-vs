@@ -23,11 +23,17 @@ sealed class MavenIndexFetcher : ResourceFetcher
         long _length;
         long _received;
 
+        /// <summary>
+        /// Initializes a new instance that tells <paramref name="progress"/> how much is downloaded, of how much.
+        /// </summary>
         public Listener(Action<long, long> progress)
         {
             _progress = progress;
         }
 
+        /// <summary>
+        /// Starts counting from where the download resumes, of the length of the data.
+        /// </summary>
         public override void transportStarted(long dataOffset, long dataLength)
         {
             _received = dataOffset;
@@ -35,6 +41,9 @@ sealed class MavenIndexFetcher : ResourceFetcher
             _progress(_received, _length);
         }
 
+        /// <summary>
+        /// Counts the data received.
+        /// </summary>
         public override void transportProgressed(java.nio.ByteBuffer data)
         {
             _received += data.remaining();
@@ -48,6 +57,9 @@ sealed class MavenIndexFetcher : ResourceFetcher
     readonly java.io.File _directory;
     readonly Action<string, long, long> _progress;
 
+    /// <summary>
+    /// Fetches the index of a repository into a directory, telling how much of each file is downloaded.
+    /// </summary>
     /// <param name="http">The transports.</param>
     /// <param name="repository">The repository whose index is fetched.</param>
     /// <param name="directory">Where files are downloaded to.</param>
@@ -60,16 +72,26 @@ sealed class MavenIndexFetcher : ResourceFetcher
         _progress = progress;
     }
 
+    /// <summary>
+    /// Creates the directory files are downloaded to; the repository is already known.
+    /// </summary>
     public void connect(string id, string url)
     {
         _directory.mkdirs();
     }
 
+    /// <summary>
+    /// Does nothing: each request uses a transporter of its own, which it closes.
+    /// </summary>
     public void disconnect()
     {
 
     }
 
+    /// <summary>
+    /// Downloads a file of the <c>.index</c> directory of the repository to a file, reporting progress, and returns
+    /// a stream that reads it, and deletes it once closed.
+    /// </summary>
     public java.io.InputStream retrieve(string name)
     {
         var file = new java.io.File(_directory, name);
@@ -87,12 +109,18 @@ sealed class MavenIndexFetcher : ResourceFetcher
 
         readonly java.io.File _file;
 
+        /// <summary>
+        /// Initializes a new instance that reads, and then deletes, the given file.
+        /// </summary>
         public DeletingInputStream(java.io.File file) :
             base(file)
         {
             _file = file;
         }
 
+        /// <summary>
+        /// Closes the stream, and deletes the file.
+        /// </summary>
         public override void close()
         {
             base.close();

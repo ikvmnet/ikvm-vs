@@ -27,6 +27,9 @@ internal sealed class IkvmDependencyService
     readonly Lazy<IkvmDependenciesTreeProvider> _treeProvider;
     readonly IkvmPackageInstaller _installer;
 
+    /// <summary>
+    /// Initializes a new instance, with the entry providers filtered by the capabilities of <paramref name="project"/>.
+    /// </summary>
     [ImportingConstructor]
     public IkvmDependencyService(UnconfiguredProject project, IProjectThreadingService threading, IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider, IkvmPackageInstaller installer)
     {
@@ -38,6 +41,9 @@ internal sealed class IkvmDependencyService
         EntryProviders = new OrderPrecedenceImportCollection<IkvmDependencyEntryProvider>(projectCapabilityCheckProvider: project);
     }
 
+    /// <summary>
+    /// The project whose dependencies are read and changed.
+    /// </summary>
     public UnconfiguredProject Project { get; }
 
     /// <summary>

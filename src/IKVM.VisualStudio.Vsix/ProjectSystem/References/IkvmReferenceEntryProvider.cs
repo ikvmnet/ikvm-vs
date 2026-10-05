@@ -29,19 +29,29 @@ internal sealed class IkvmReferenceEntryProvider : IkvmDependencyEntryProvider
 
     readonly IkvmReferenceDescriber _describer;
 
+    /// <summary>
+    /// Initializes a new instance with the describer that asks the project's IKVM package about JARs and folders.
+    /// </summary>
     [ImportingConstructor]
     public IkvmReferenceEntryProvider(IkvmReferenceDescriber describer)
     {
         _describer = describer;
     }
 
+    /// <inheritdoc />
     public override string ItemType => IkvmReferenceRules.ItemType;
 
+    /// <summary>
+    /// Creates a JAR or class directory entry for an <c>IkvmReference</c> element read from the project.
+    /// </summary>
     public override IkvmDependencyEntry CreateEntry(IkvmDependencyEntryContext context, IkvmDependencyElement element)
     {
         return JarDependencyEntry.FromElement(context, element);
     }
 
+    /// <summary>
+    /// Offers adding JAR files and adding a class folder.
+    /// </summary>
     public override IReadOnlyList<IkvmDependencyAddCommand> GetAddCommands(IkvmDependencyEntryContext context)
     {
         return new[]
@@ -51,18 +61,27 @@ internal sealed class IkvmReferenceEntryProvider : IkvmDependencyEntryProvider
         };
     }
 
+    /// <summary>
+    /// Asks for JAR files, starting in the project directory, and creates entries for those not already listed.
+    /// </summary>
     IReadOnlyList<IkvmDependencyEntry> AddJars(IkvmDependencyEntryContext context, Window owner)
     {
         var dialog = new OpenFileDialog() { Title = "Add JAR Files", Filter = "Java archives (*.jar)|*.jar|All files (*.*)|*.*", Multiselect = true, InitialDirectory = context.ProjectDirectory };
         return dialog.ShowDialog(owner) == true ? CreateEntriesCore(context, dialog.FileNames) : Array.Empty<IkvmDependencyEntry>();
     }
 
+    /// <summary>
+    /// Asks for a folder of <c>.class</c> files and creates an entry for it unless it is already listed.
+    /// </summary>
     IReadOnlyList<IkvmDependencyEntry> AddFolder(IkvmDependencyEntryContext context)
     {
         using var dialog = new System.Windows.Forms.FolderBrowserDialog() { Description = "Select a folder of .class files", SelectedPath = context.ProjectDirectory, ShowNewFolderButton = false };
         return dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK ? CreateEntriesCore(context, new[] { dialog.SelectedPath }) : Array.Empty<IkvmDependencyEntry>();
     }
 
+    /// <summary>
+    /// Creates entries for the given paths that are directories or <c>.jar</c> files, skipping ones already listed.
+    /// </summary>
     public override IReadOnlyList<IkvmDependencyEntry> CreateEntries(IkvmDependencyEntryContext context, IReadOnlyList<string> paths)
     {
         return CreateEntriesCore(context, paths.Where(i => Directory.Exists(i) || string.Equals(Path.GetExtension(i), ".jar", StringComparison.OrdinalIgnoreCase)));

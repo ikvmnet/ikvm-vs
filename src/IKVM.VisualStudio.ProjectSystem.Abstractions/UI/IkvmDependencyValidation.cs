@@ -12,11 +12,18 @@ public sealed class IkvmDependencyValidation
     readonly bool _hasTargetFrameworks;
     readonly List<string> _errors = new List<string>();
 
+    /// <summary>
+    /// Initializes an empty validation, naming target frameworks in errors when <paramref name="hasTargetFrameworks"/>
+    /// says the project has several.
+    /// </summary>
     internal IkvmDependencyValidation(bool hasTargetFrameworks)
     {
         _hasTargetFrameworks = hasTargetFrameworks;
     }
 
+    /// <summary>
+    /// Gets the errors added so far, in order.
+    /// </summary>
     internal IReadOnlyList<string> Errors => _errors;
 
     /// <summary>

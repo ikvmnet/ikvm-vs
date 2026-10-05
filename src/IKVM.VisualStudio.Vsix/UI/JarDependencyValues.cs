@@ -8,8 +8,14 @@ namespace IKVM.VisualStudio.Vsix.UI;
 sealed class JarDependencyValues
 {
 
+    /// <summary>
+    /// Name of the assembly the entry compiles to; empty leaves it unset, for the IKVM package to derive.
+    /// </summary>
     public string AssemblyName { get; set; } = "";
 
+    /// <summary>
+    /// Version of the assembly the entry compiles to; empty leaves it unset, for the IKVM package to derive.
+    /// </summary>
     public string AssemblyVersion { get; set; } = "";
 
     /// <summary>

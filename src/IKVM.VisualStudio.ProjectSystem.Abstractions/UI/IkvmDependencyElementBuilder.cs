@@ -13,6 +13,11 @@ public sealed class IkvmDependencyElementBuilder
     readonly HashSet<string> _written = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     readonly List<IkvmDependencyMetadata> _metadata = new List<IkvmDependencyMetadata>();
 
+    /// <summary>
+    /// Initializes a builder for an entry, starting from the include of its original element, if any.
+    /// </summary>
+    /// <param name="original">The element as read from the project, or <c>null</c> for a new entry.</param>
+    /// <param name="keys">The keys of the target frameworks the entry is used in.</param>
     internal IkvmDependencyElementBuilder(IkvmDependencyElement? original, IReadOnlyList<string> keys)
     {
         Original = original;
@@ -66,6 +71,10 @@ public sealed class IkvmDependencyElementBuilder
     /// </summary>
     public void SetMetadata(string name, string value) => SetMetadata(name, _ => value);
 
+    /// <summary>
+    /// Builds the editable element of the given item type, limited to the given target frameworks, or empty for all.
+    /// Metadata of the original element that was not written is kept, before the metadata written.
+    /// </summary>
     internal IkvmDependencyElement Build(string itemType, IReadOnlyList<string> targetFrameworks)
     {
         // metadata the entry does not write is kept

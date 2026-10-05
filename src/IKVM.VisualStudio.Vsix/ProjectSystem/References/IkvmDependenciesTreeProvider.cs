@@ -62,6 +62,10 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
     [ImportMany]
     internal IEnumerable<Lazy<IIkvmDependencyTreeProvider, IOrderPrecedenceMetadataView>> Providers { get; set; } = null!;
 
+    /// <summary>
+    /// Publishes the empty root node, then follows the active configuration group to learn which configured projects
+    /// to show dependencies for.
+    /// </summary>
     protected override void Initialize()
     {
         base.Initialize();
@@ -73,6 +77,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         _groupLink = _configurationGroupService.ActiveConfiguredProjectGroupSource.SourceBlock.LinkTo(target, new DataflowLinkOptions() { PropagateCompletion = true });
     }
 
+    /// <summary>
+    /// Unlinks from the configuration group and from the rule subscriptions of every configured project.
+    /// </summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing)
@@ -91,6 +98,7 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         base.Dispose(disposing);
     }
 
+    /// <inheritdoc />
     protected override ConfiguredProjectExports GetActiveConfiguredProjectExports(ConfiguredProject newActiveConfiguredProject)
     {
         return GetActiveConfiguredProjectExports<IkvmDependenciesConfiguredProjectExports>(newActiveConfiguredProject);
@@ -174,6 +182,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         ScheduleTreeUpdate();
     }
 
+    /// <summary>
+    /// Queues a rebuild of the tree from a snapshot of the current project states.
+    /// </summary>
     void ScheduleTreeUpdate()
     {
         _ = SubmitTreeUpdateAsync(async (treeSnapshot, exports, cancellationToken) =>
@@ -187,6 +198,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         });
     }
 
+    /// <summary>
+    /// Creates the empty IKVM Dependencies node, a virtual folder that bubbles up beside Dependencies.
+    /// </summary>
     IProjectTree CreateRoot()
     {
         return NewTree(RootCaption, icon: RootIcon, expandedIcon: RootIcon, flags: IkvmDependencyTreeFlags.Root.Union(ProjectTreeFlags.Create(ProjectTreeFlags.Common.VirtualFolder | ProjectTreeFlags.Common.BubbleUp)));
@@ -258,6 +272,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         return parent;
     }
 
+    /// <summary>
+    /// Gets the <c>TargetFramework</c> dimension of a configured project, or an empty string if it has none.
+    /// </summary>
     static string GetTargetFramework(ConfiguredProject configuredProject)
     {
         return configuredProject.ProjectConfiguration.Dimensions.TryGetValue("TargetFramework", out var targetFramework) ? targetFramework : "";
@@ -276,6 +293,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
 
         readonly IkvmDependenciesTreeProvider _owner;
 
+        /// <summary>
+        /// Initializes a new instance, creating nodes through <paramref name="owner"/>.
+        /// </summary>
         public TreeContext(IkvmDependenciesTreeProvider owner, ConfiguredProject configuredProject, string targetFramework, IImmutableDictionary<string, IProjectRuleSnapshot> rules)
         {
             _owner = owner;
@@ -284,17 +304,29 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
             Rules = rules;
         }
 
+        /// <inheritdoc />
         public ConfiguredProject ConfiguredProject { get; }
 
+        /// <summary>
+        /// Target framework of the configured project, or empty when the project targets only one.
+        /// </summary>
         public string TargetFramework { get; }
 
+        /// <summary>
+        /// Snapshots of the rules the provider asked for, limited to those the configured project has.
+        /// </summary>
         public IImmutableDictionary<string, IProjectRuleSnapshot> Rules { get; }
 
+        /// <inheritdoc />
         public IProjectTree NewTree(string caption, ProjectImageMoniker icon, ProjectTreeFlags flags, IRule? browseObject = null, ProjectImageMoniker? expandedIcon = null)
         {
             return _owner.NewTree(caption, icon: icon, expandedIcon: expandedIcon ?? icon, flags: flags, browseObjectProperties: browseObject);
         }
 
+        /// <summary>
+        /// Creates a node for a JAR file or class directory on disk, with an icon reflecting which it is or whether it
+        /// is missing, and the file's properties as its browse object.
+        /// </summary>
         public IProjectTree NewJarFileTree(string fullPath, ProjectTreeFlags flags)
         {
             var icon = Directory.Exists(fullPath) ? FolderIcon : File.Exists(fullPath) ? JarIcon : JarWarningIcon;
@@ -304,10 +336,16 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
 
     }
 
+    /// <summary>
+    /// Services of the active configured project that the tree provider base class needs.
+    /// </summary>
     [Export]
     protected class IkvmDependenciesConfiguredProjectExports : ConfiguredProjectExports
     {
 
+        /// <summary>
+        /// Initializes a new instance for the configured project.
+        /// </summary>
         [ImportingConstructor]
         public IkvmDependenciesConfiguredProjectExports(ConfiguredProject configuredProject) :
             base(configuredProject)

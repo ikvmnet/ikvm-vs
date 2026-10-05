@@ -67,10 +67,17 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         return entry;
     }
 
+    /// <summary>
+    /// Splits a list separated by semicolons, dropping empty items.
+    /// </summary>
     static IEnumerable<string> Split(string value) => value.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0);
 
     bool _isLoaded;
 
+    /// <summary>
+    /// Initializes a new instance, for an item of the project or, without <paramref name="original"/>, one being
+    /// added.
+    /// </summary>
     MavenDependencyEntry(IkvmDependencyEntryContext context, IkvmDependencyElement? original, string groupId, string artifactId) :
         base(context, MavenReferenceRules.ItemType, original)
     {
@@ -78,10 +85,17 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         ArtifactId = artifactId;
     }
 
+    /// <inheritdoc />
     protected override FrameworkElement CreateView() => new MavenDependencyView() { DataContext = this };
 
+    /// <summary>
+    /// Group ID of the reference, the same for every target framework.
+    /// </summary>
     public string GroupId { get; private set; }
 
+    /// <summary>
+    /// Artifact ID of the reference, the same for every target framework.
+    /// </summary>
     public string ArtifactId { get; private set; }
 
     /// <summary>
@@ -89,10 +103,17 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
     /// </summary>
     public string Coordinates => MavenCoordinates.Format(GroupId, ArtifactId, Common(i => i.Classifier), Common(i => i.Version));
 
+    /// <inheritdoc />
     public override string DisplayName => Coordinates;
 
+    /// <summary>
+    /// Says the entry is a Maven reference, with its scope when it has one.
+    /// </summary>
     public override string? Subtitle => Common(i => i.Scope) is { Length: > 0 } scope ? $"Maven, {scope} scope" : "Maven";
 
+    /// <summary>
+    /// Says what Maven resolved the reference to, that it did not, or that this is not known yet.
+    /// </summary>
     public override string? Location => ResolvedVersion is { } resolved ? $"Resolved {MavenCoordinates.Format(GroupId, ArtifactId, Common(i => i.Classifier), resolved)}" : _isLoaded ? "Not resolved" : "Resolving...";
 
     /// <summary>
@@ -100,34 +121,69 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
     /// </summary>
     string? ResolvedVersion => ShownValues.Select(i => i.Resolved?.Artifact?.Version).Distinct().ToList() is { Count: 1 } versions ? versions[0] : null;
 
+    /// <summary>
+    /// The Maven reference image, with a warning when Maven did not resolve the reference for a target framework
+    /// being edited.
+    /// </summary>
     public override ImageMoniker Icon => _isLoaded && IsEditable && ShownValues.Any(i => i.Resolved?.IsResolved != true) ? MavenMonikers.MavenReferenceWarning : MavenMonikers.MavenReference;
 
     // settings
 
+    /// <summary>
+    /// The version asked for in the target frameworks being edited, which may be a range, or empty when they differ.
+    /// Setting it sets it in each.
+    /// </summary>
     public string Version
     {
         get => Common(i => i.Version);
         set => Apply(i => i.Version = value.Trim());
     }
 
+    /// <summary>
+    /// The version of each target framework being edited, which the version field shows as its tooltip when they
+    /// differ.
+    /// </summary>
     public string? VersionVariations => Variations(i => i.Version);
 
+    /// <summary>
+    /// What the version field shows when empty: that the versions differ, or an example of one.
+    /// </summary>
     public string VersionPlaceholder => Varies(i => i.Version) ? VariesPlaceholder : "Required, such as 1.2.3 or [1.0,2.0)";
 
+    /// <summary>
+    /// The state the version field shows: missing, differing between target frameworks, or neither.
+    /// </summary>
     public FieldState VersionFrame => GetFieldState(IsInvalid(i => i.Version.Length > 0), Varies(i => i.Version));
 
+    /// <summary>
+    /// The classifier in the target frameworks being edited, or empty for none or when they differ. Setting it sets it
+    /// in each.
+    /// </summary>
     public string Classifier
     {
         get => Common(i => i.Classifier);
         set => Apply(i => i.Classifier = value.Trim());
     }
 
+    /// <summary>
+    /// The classifier of each target framework being edited, which the classifier field shows as its tooltip when
+    /// they differ.
+    /// </summary>
     public string? ClassifierVariations => Variations(i => i.Classifier);
 
+    /// <summary>
+    /// What the classifier field shows when empty: that the classifiers differ, or that there is none.
+    /// </summary>
     public string ClassifierPlaceholder => Varies(i => i.Classifier) ? VariesPlaceholder : "None";
 
+    /// <summary>
+    /// The state the classifier field shows: differing between target frameworks, or not. Any classifier is valid.
+    /// </summary>
     public FieldState ClassifierFrame => GetFieldState(false, Varies(i => i.Classifier));
 
+    /// <summary>
+    /// The scopes the scope field offers.
+    /// </summary>
     public IReadOnlyList<string> ScopeOptions => Scopes;
 
     /// <summary>
@@ -143,10 +199,21 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         }
     }
 
+    /// <summary>
+    /// The scope of each target framework being edited, the default named compile, which the scope field shows as
+    /// its tooltip when they differ.
+    /// </summary>
     public string? ScopeVariations => Variations(i => i.Scope.Length > 0 ? i.Scope : "compile");
 
+    /// <summary>
+    /// The state the scope field shows: not a scope Maven knows, differing between target frameworks, or neither.
+    /// </summary>
     public FieldState ScopeFrame => GetFieldState(IsInvalid(i => Scopes.Contains(i.Scope)), Varies(i => i.Scope));
 
+    /// <summary>
+    /// Whether the reference is optional in the target frameworks being edited, or <c>null</c> when they differ.
+    /// Setting it sets it in each.
+    /// </summary>
     public bool? Optional
     {
         get => Common(i => i.Optional);
@@ -157,6 +224,10 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         }
     }
 
+    /// <summary>
+    /// The tooltip of the optional box: whether each target framework being edited has the reference optional when
+    /// they differ, else what optional means.
+    /// </summary>
     public string OptionalTip => Variations(i => i.Optional ? "true" : "false") ?? "Not passed on to projects that depend on this one.";
 
     // exclusions
@@ -174,8 +245,14 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         })
         .ToList();
 
+    /// <summary>
+    /// The state the exclusions field shows: one not valid, differing between target frameworks, or neither.
+    /// </summary>
     public FieldState ExclusionsFrame => GetFieldState(IsInvalid(i => i.Exclusions.All(IsExclusionValid)), Varies(i => string.Join(";", i.Exclusions)));
 
+    /// <summary>
+    /// Adds an exclusion to each target framework being edited that does not have it already.
+    /// </summary>
     public void AddExclusion(string exclusion)
     {
         exclusion = exclusion.Trim();
@@ -189,11 +266,17 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         });
     }
 
+    /// <summary>
+    /// Removes an exclusion from each target framework being edited.
+    /// </summary>
     public void RemoveExclusion(string exclusion)
     {
         Apply(i => i.Exclusions.RemoveAll(j => string.Equals(j, exclusion, StringComparison.OrdinalIgnoreCase)));
     }
 
+    /// <summary>
+    /// Whether an exclusion is of the form <c>groupId:artifactId[:classifier[:extension]]</c>, with no part empty.
+    /// </summary>
     static bool IsExclusionValid(string exclusion) => exclusion.Split(':') is { Length: >= 2 and <= 4 } parts && parts.All(i => i.Trim().Length > 0);
 
     // resolved dependencies
@@ -235,8 +318,15 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         }
     }
 
+    /// <summary>
+    /// Whether Maven resolved any dependencies for the reference, which the view shows their list for.
+    /// </summary>
     public bool HasResolvedItems => ResolvedItems.Count > 0;
 
+    /// <summary>
+    /// The note above the resolved dependencies: that they are being read, that changes show once built, or that the
+    /// reference is not resolved yet.
+    /// </summary>
     public string ResolvedNote => _isLoaded == false ? "Resolving..." : ShownValues.Any(i => i.Resolved?.IsResolved == true) ? "Changes show here once the project is saved and built." : "Not resolved yet: save, then build the project.";
 
     /// <summary>
@@ -251,6 +341,9 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         Refresh();
     }
 
+    /// <summary>
+    /// Offers to copy the coordinates of the reference.
+    /// </summary>
     public override IReadOnlyList<IkvmDependencyMenuItem> GetMenuItems()
     {
         return new[]
@@ -259,10 +352,17 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
         };
     }
 
+    /// <summary>
+    /// The status of the entry, else, for a reference already in the project, a warning when Maven did not resolve it
+    /// in its last build.
+    /// </summary>
     public override string? Status => base.Status ?? (_isLoaded && IsEditable && IsNew == false && ShownValues.Any(i => i.Resolved?.IsResolved != true) ? "Maven did not resolve this reference in its last build. Check the version and the Maven repositories of the project." : null);
 
     // validation and saving
 
+    /// <summary>
+    /// Requires the group, artifact and version, a scope Maven knows, and exclusions of the right form.
+    /// </summary>
     protected override void Validate(IkvmDependencyValidation validation)
     {
         if (GroupId.Length == 0 || ArtifactId.Length == 0)

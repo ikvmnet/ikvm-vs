@@ -23,6 +23,9 @@ internal sealed class IkvmReferenceWriter
     readonly UnconfiguredProject _project;
     readonly IProjectLockService _lockService;
 
+    /// <summary>
+    /// Initializes a new instance for the project, using its lock service to read and write the project file.
+    /// </summary>
     [ImportingConstructor]
     public IkvmReferenceWriter(UnconfiguredProject project, IProjectLockService lockService)
     {
@@ -80,6 +83,10 @@ internal sealed class IkvmReferenceWriter
         }
     }
 
+    /// <summary>
+    /// Reads the items under a read lock, grouping the evaluations of each element across the configured projects
+    /// into one entry, or one per evaluated include for elements that produce several items.
+    /// </summary>
     async Task<IReadOnlyList<IkvmDependencyElement>> ReadCoreAsync(IReadOnlyCollection<ConfiguredProject> projects, IReadOnlyCollection<string> itemTypes)
     {
         return await _lockService.ReadLockAsync(async access =>
@@ -129,8 +136,15 @@ internal sealed class IkvmReferenceWriter
     }
 
 
+    /// <summary>
+    /// Captures the evaluated include and direct metadata of an item in one configured project.
+    /// </summary>
     static IkvmDependencyEvaluation ToEvaluation(ProjectItem item) => new(item.EvaluatedInclude, item.DirectMetadata.ToDictionary(i => i.Name, i => i.EvaluatedValue));
 
+    /// <summary>
+    /// Reads an element as written. It is editable only when it has no condition of its own, its group and metadata
+    /// conditions select target frameworks, and its include and metadata are literal.
+    /// </summary>
     static IkvmDependencyElement ToElement(ProjectItemElement item)
     {
         var metadata = ToMetadata(item, out var isMetadataSupported);
@@ -164,6 +178,9 @@ internal sealed class IkvmReferenceWriter
         return result;
     }
 
+    /// <summary>
+    /// Gets the condition of the item group holding the element, or an empty condition if it is not in one.
+    /// </summary>
     static string GetGroupCondition(ProjectItemElement item)
     {
         return item.Parent is ProjectItemGroupElement group ? group.Condition : "";
@@ -239,6 +256,9 @@ internal sealed class IkvmReferenceWriter
         await ApplyAsync(new IkvmDependencyChanges(removed, Array.Empty<IkvmDependencyElementUpdate>(), Array.Empty<IkvmDependencyElement>()));
     }
 
+    /// <summary>
+    /// Gets whether the element defines the item, matching its type and its include ignoring case.
+    /// </summary>
     static bool IsElementOf(IkvmDependencyElement element, (string ItemType, string ItemSpec) item)
     {
         return element.ItemType == item.ItemType && string.Equals(element.Include, item.ItemSpec, StringComparison.OrdinalIgnoreCase);
@@ -256,6 +276,9 @@ internal sealed class IkvmReferenceWriter
             TargetFrameworkCondition.AreSame(targetFrameworks, element.TargetFrameworks));
     }
 
+    /// <summary>
+    /// Removes the element from its parent, and the parent item group too if that leaves it empty.
+    /// </summary>
     static void RemoveItem(ProjectItemElement item)
     {
         var group = item.Parent;
@@ -266,6 +289,9 @@ internal sealed class IkvmReferenceWriter
             itemGroup.Parent.RemoveChild(itemGroup);
     }
 
+    /// <summary>
+    /// Adds the element, with its metadata, to an item group conditioned on its target frameworks.
+    /// </summary>
     static void AddItem(ProjectRootElement xml, IkvmDependencyElement element)
     {
         var item = GetItemGroup(xml, element.ItemType, element.TargetFrameworks).AddItem(element.ItemType, ProjectCollection.Escape(element.Include));

@@ -41,14 +41,15 @@ static class MavenServiceClient
 
     /// <summary>
     /// Searches the repositories of a project that can be searched for artifacts matching some text, telling
-    /// <paramref name="found"/> everything found so far each time the search of a repository completes.
+    /// <paramref name="updated"/> each time the search of a repository completes or fails, with everything found so
+    /// far.
     /// </summary>
-    public static Task SearchAsync(ConfiguredProject project, string text, int count, Action<IReadOnlyList<MavenSearchResult>> found, CancellationToken cancellationToken)
+    public static Task SearchAsync(ConfiguredProject project, string text, int count, Action<MavenServiceSearchUpdate, IReadOnlyList<MavenSearchResult>> updated, CancellationToken cancellationToken)
     {
         return InvokeAsync(project, async (service, repositories) =>
         {
-            await foreach (var results in service.SearchAsync(repositories, text, count, cancellationToken))
-                found(results.Select(i => new MavenSearchResult(i.GroupId, i.ArtifactId, i.LatestVersion)).ToList());
+            await foreach (var update in service.SearchAsync(repositories, text, count, cancellationToken))
+                updated(update, update.Results.Select(i => new MavenSearchResult(i.GroupId, i.ArtifactId, i.LatestVersion)).ToList());
 
             return true;
         }, false, $"search for '{text}'", cancellationToken, rethrow: true);

@@ -34,28 +34,44 @@ internal sealed class MavenReferenceEntryProvider : IkvmDependencyEntryProvider
 
     const string SdkPackageId = "IKVM.Maven.Sdk";
 
+    /// <inheritdoc />
     public override string ItemType => MavenReferenceRules.ItemType;
 
+    /// <inheritdoc />
     public override IkvmDependencyEntry CreateEntry(IkvmDependencyEntryContext context, IkvmDependencyElement element)
     {
         return MavenDependencyEntry.FromElement(context, element);
     }
 
+    /// <summary>
+    /// Offers to add a Maven reference, found with the Add Maven Reference dialog.
+    /// </summary>
     public override IReadOnlyList<IkvmDependencyAddCommand> GetAddCommands(IkvmDependencyEntryContext context)
     {
         return new[] { new IkvmDependencyAddCommand("Maven...", MavenMonikers.MavenReference, "Add Maven reference", owner => AddAsync(context, owner)) };
     }
 
+    /// <summary>
+    /// Whether the project uses IKVM.Maven.Sdk.
+    /// </summary>
     static bool HasSdk(IkvmDependencyEntryContext context) => context.Project.Capabilities.AppliesTo(MavenReferenceRules.Capability);
 
+    /// <summary>
+    /// Adds IKVM.Maven.Sdk to the project first if it does not use it, then asks for the artifact to add with the Add
+    /// Maven Reference dialog.
+    /// </summary>
+    /// <returns>The entry for the reference to add, or none when either is declined.</returns>
     static async Task<IReadOnlyList<IkvmDependencyEntry>> AddAsync(IkvmDependencyEntryContext context, Window owner)
     {
         // Maven references are resolved by IKVM.Maven.Sdk
         if (HasSdk(context) == false && await context.AddPackageAsync(SdkPackageId, "Maven references need the IKVM.Maven.Sdk package, which this project does not use yet.") == false)
             return Array.Empty<IkvmDependencyEntry>();
 
-        // one reference per group and artifact
-        var existing = context.Entries.OfType<MavenDependencyEntry>().Select(i => $"{i.GroupId}:{i.ArtifactId}");
+        // one reference per group and artifact: those the project has, with their versions, unless being removed
+        var existing = context.Entries.OfType<MavenDependencyEntry>()
+            .Where(i => i.IsRemoved == false)
+            .GroupBy(i => $"{i.GroupId}:{i.ArtifactId}", StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(i => i.Key, i => i.First().VersionVariations != null ? "several versions" : i.First().Version, StringComparer.OrdinalIgnoreCase);
 
         // versions come from the repositories of any target framework: they are the same in each
         var dialog = new AddMavenReferenceDialog(context.ConfiguredProjects.Values.First(), existing) { Owner = owner };
