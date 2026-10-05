@@ -16,13 +16,27 @@
 
 ### IKVM Dependencies
 - **IKVM Dependencies node** — `IkvmReference` items (JARs and class folders converted to .NET assemblies) appear beside Dependencies, in a folder per target framework when a project has several, with their resolved assembly name and version in the Properties window
-- **Manage IKVM Dependencies** — one place to add, remove, and edit references: from the Project menu, the Dependencies and IKVM Dependencies nodes, or **Ctrl+Alt+J**
+- **Manage IKVM Dependencies** — one place to add, remove, and edit references: from the Project menu, the Dependencies and IKVM Dependencies nodes, or **Ctrl+Alt+J**. In a .NET project that does not use IKVM yet, it offers to add the IKVM package
   - choose the target frameworks each reference is used in, and view or edit each framework's settings; values that differ between frameworks are highlighted
   - ordered **Compile**, **Sources**, and **Depends on** lists, reordered by dragging
   - assembly name and version are detected through the project's IKVM package
   - changes are checked as you make them, and Save is disabled while anything is invalid, such as an empty Compile list or dependencies that form a cycle
   - references imported from other files, or written with MSBuild expressions, are shown read-only
+- **Add and drop in Solution Explorer** — the IKVM Dependencies node and its target framework folders offer the same add commands as the dialog in their context menus, and take JARs and class folders dropped from Explorer
+- **JAR files** — the files behind references appear as nodes showing where they are on disk, with Open Containing Folder
 - Works in any SDK-style project that references the IKVM package, including C# projects. Requires an IKVM package that declares the `IkvmReferences` project capability.
+
+### Maven
+- **Maven references** — in projects using [IKVM.Maven.Sdk](https://github.com/ikvmnet/ikvm-maven), `MavenReference` items appear under IKVM Dependencies by their coordinates, each with the tree of artifacts Maven resolved for it, their JARs in the local Maven repository, and the dependencies left out because another version won a conflict
+- **Edit** version, classifier, scope, optional and exclusions in Manage IKVM Dependencies, per target framework like other references, and exclude a resolved dependency with one click
+- **Add Maven Reference** — search Maven Central or type `groupId:artifactId`; versions come from the project's own repositories through Maven Resolver. Adding one to a project without IKVM.Maven.Sdk offers to add the package
+
+### Extending IKVM Dependencies
+Other extensions can add their own kinds of dependencies, as the Maven support does, by referencing `IKVM.VisualStudio.ProjectSystem.Abstractions` and exporting:
+- an `IIkvmDependencyTreeProvider`, which adds nodes under IKVM Dependencies for each target framework, and can use the shared JAR file node
+- an `IkvmDependencyEntryProvider`, which supplies the entries of an item type to Manage IKVM Dependencies: their view, add commands, dropped files and validation, with `IkvmDependencyEntry<TValues>` keeping values by target framework and saving them as conditioned metadata
+
+The menus and groups of the tree are listed in `IkvmDependencyCommandIds`, so other extensions can add commands to them.
 
 ### Editor
 - **Java syntax highlighting** — provided by Visual Studio's built-in Java TextMate grammar
@@ -69,14 +83,15 @@ Add `.java` source files to the project directory — they are included automati
 
 ```
 src/
+  IKVM.VisualStudio.ProjectSystem.Abstractions/  # Extension points for other extensions (net472)
+  IKVM.VisualStudio.Maven/       # Maven support, built on the extension points only
   IKVM.VisualStudio.Vsix/        # The VSIX extension (net472)
-    Commands/                    # Command IDs for IkvmPackage.vsct
     Images/                      # Project icon images (see tools/Generate-IkvmIcon.ps1) and vector icons
     Imaging/                     # Image monikers for the image manifest
     Packaging/                   # AsyncPackage registration
     ProjectSystem/               # CPS project type, capabilities, properties
-      References/                # IKVM Dependencies node, commands, and reading and writing IkvmReference items
-    UI/                          # Manage IKVM Dependencies dialog
+      References/                # IKVM Dependencies node, commands, and reading and writing items
+    UI/                          # Manage IKVM Dependencies dialog, and the JAR and folder entries
   dist-vsix/                     # Packaging target that assembles the .vsix artifact
   dist-tests/                    # Test distribution target
 .github/workflows/
