@@ -17,7 +17,8 @@ using Microsoft.VisualStudio.ProjectSystem.Properties;
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
 /// <summary>
-/// Provides the "IKVM Dependencies" node beside Dependencies, listing <c>IkvmReference</c> items, grouped by target
+/// Provides the "IKVM Dependencies" node beside Dependencies, listing <c>IkvmReference</c> items and, in projects
+/// using IKVM.Maven.Sdk, <c>MavenReference</c> items with the artifacts Maven resolved for them, grouped by target
 /// framework when the project targets more than one.
 /// </summary>
 [Export(ExportContractNames.ProjectTreeProviders.PhysicalViewRootGraft, typeof(IProjectTreeProvider))]
@@ -31,6 +32,8 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
     public static readonly ProjectTreeFlags RootFlag = ProjectTreeFlags.Create("IkvmDependenciesRoot");
     public static readonly ProjectTreeFlags TargetFrameworkFlag = ProjectTreeFlags.Create("IkvmDependenciesTargetFramework");
     public static readonly ProjectTreeFlags ReferenceFlag = ProjectTreeFlags.Create("IkvmReference");
+    public static readonly ProjectTreeFlags MavenReferenceFlag = ProjectTreeFlags.Create("IkvmMavenReference");
+    public static readonly ProjectTreeFlags MavenDependencyFlag = ProjectTreeFlags.Create("IkvmMavenDependency");
 
     static readonly ProjectImageMoniker RootIcon = IkvmMonikers.IkvmDependencies.ToProjectSystemType();
     static readonly ProjectImageMoniker TargetFrameworkIcon = KnownMonikers.Library.ToProjectSystemType();
@@ -38,6 +41,9 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
     static readonly ProjectImageMoniker JarWarningIcon = IkvmMonikers.JarFileWarning.ToProjectSystemType();
     static readonly ProjectImageMoniker FolderIcon = IkvmMonikers.ClassFolder.ToProjectSystemType();
     static readonly ProjectImageMoniker FolderWarningIcon = IkvmMonikers.ClassFolderWarning.ToProjectSystemType();
+    static readonly ProjectImageMoniker MavenIcon = IkvmMonikers.MavenReference.ToProjectSystemType();
+    static readonly ProjectImageMoniker MavenWarningIcon = IkvmMonikers.MavenReferenceWarning.ToProjectSystemType();
+    static readonly ProjectImageMoniker MavenDependencyIcon = IkvmMonikers.MavenDependency.ToProjectSystemType();
 
     readonly IActiveConfigurationGroupService _configurationGroupService;
     readonly object _sync = new object();
@@ -102,6 +108,15 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
     }
 
     /// <summary>
+    /// Gets the Maven references currently known for each configured project of the active configuration group.
+    /// </summary>
+    public ImmutableArray<MavenReference> GetMavenReferences()
+    {
+        lock (_sync)
+            return _projects.Values.SelectMany(i => i.MavenReferences).ToImmutableArray();
+    }
+
+    /// <summary>
     /// Gets the configured projects of the active configuration group, one per target framework.
     /// </summary>
     public ImmutableArray<ConfiguredProject> GetConfiguredProjects()
@@ -162,16 +177,20 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
 
             foreach (var configuredProject in current.Where(i => _projects.ContainsKey(i) == false))
             {
+                // Maven rules exist only in projects using IKVM.Maven.Sdk
+                var rules = new List<string>() { IkvmReferenceRules.IkvmReference, IkvmReferenceRules.ResolvedIkvmReference };
+                if (configuredProject.Capabilities.Contains(MavenReferenceRules.Capability))
+                    rules.AddRange(new[] { MavenReferenceRules.MavenReference, MavenReferenceRules.ResolvedMavenReference });
+
                 var target = new ActionBlock<IProjectVersionedValue<IProjectSubscriptionUpdate>>(update => OnProjectUpdated(configuredProject, update));
                 var link = configuredProject.Services.ProjectSubscription!.JointRuleSource.SourceBlock.LinkTo(
                     target,
                     new DataflowLinkOptions() { PropagateCompletion = true },
                     initialDataAsNew: true,
                     suppressVersionOnlyUpdates: true,
-                    IkvmReferenceRules.IkvmReference,
-                    IkvmReferenceRules.ResolvedIkvmReference);
+                    rules.ToArray());
 
-                _projects = _projects.Add(configuredProject, new ProjectState(link, ImmutableArray<IkvmReference>.Empty));
+                _projects = _projects.Add(configuredProject, new ProjectState(link, ImmutableArray<IkvmReference>.Empty, ImmutableArray<MavenReference>.Empty));
             }
         }
 
@@ -184,13 +203,14 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
     void OnProjectUpdated(ConfiguredProject configuredProject, IProjectVersionedValue<IProjectSubscriptionUpdate> update)
     {
         var references = IkvmReference.Create(configuredProject, update.Value);
+        var mavenReferences = MavenReference.Create(configuredProject, update.Value);
 
         lock (_sync)
         {
             if (_projects.TryGetValue(configuredProject, out var state) == false)
                 return;
 
-            _projects = _projects.SetItem(configuredProject, state with { References = references });
+            _projects = _projects.SetItem(configuredProject, state with { References = references, MavenReferences = mavenReferences });
         }
 
         ScheduleTreeUpdate();
@@ -220,7 +240,7 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
     async Task<IProjectTree> UpdateRootAsync(IProjectTree root, ImmutableDictionary<ConfiguredProject, ProjectState> projects, CancellationToken cancellationToken)
     {
         var groups = projects
-            .Select(i => (Name: GetTargetFramework(i.Key), Project: i.Key, i.Value.References))
+            .Select(i => (Name: GetTargetFramework(i.Key), Project: i.Key, i.Value.References, i.Value.MavenReferences))
             .OrderBy(i => i.Name, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -228,7 +248,8 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         {
             // single target: references directly under the root
             root = RemoveChildren(root, i => i.Flags.Contains(TargetFrameworkFlag));
-            return await UpdateReferencesAsync(root, groups.SelectMany(i => i.References), cancellationToken);
+            root = await UpdateReferencesAsync(root, groups.SelectMany(i => i.References), cancellationToken);
+            return await UpdateMavenReferencesAsync(root, groups.SelectMany(i => i.MavenReferences), cancellationToken);
         }
 
         // multiple targets: a folder per target framework
@@ -240,6 +261,7 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
             var folder = FindChild(root, group.Name, TargetFrameworkFlag);
             folder ??= root.Add(NewTree(group.Name, icon: TargetFrameworkIcon, expandedIcon: TargetFrameworkIcon, flags: TargetFrameworkFlag.Union(ProjectTreeFlags.Create(ProjectTreeFlags.Common.VirtualFolder))));
             folder = await UpdateReferencesAsync(folder, group.References, cancellationToken);
+            folder = await UpdateMavenReferencesAsync(folder, group.MavenReferences, cancellationToken);
             root = folder.Parent!;
         }
 
@@ -274,6 +296,76 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         }
 
         return parent;
+    }
+
+    /// <summary>
+    /// Updates the Maven reference children of the given node, each with the tree of artifacts Maven resolved for it.
+    /// </summary>
+    async Task<IProjectTree> UpdateMavenReferencesAsync(IProjectTree parent, IEnumerable<MavenReference> references, CancellationToken cancellationToken)
+    {
+        var list = references.ToList();
+        var captions = list.Select(i => i.Coordinates).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        parent = RemoveChildren(parent, i => i.Flags.Contains(MavenReferenceFlag) && captions.Contains(i.Caption) == false);
+
+        foreach (var reference in list)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // without resolution results yet, a reference is not known to be broken
+            var broken = reference.Graph != null && reference.IsResolved == false;
+            var icon = broken ? MavenWarningIcon : MavenIcon;
+            var flags = MavenReferenceFlag + (broken ? ProjectTreeFlags.BrokenReference : ProjectTreeFlags.ResolvedReference);
+            var catalog = await reference.Project.Services.PropertyPagesCatalog!.GetCatalogAsync(PropertyPageContexts.BrowseObject);
+            var rule = catalog!.BindToContext(MavenReferenceRules.MavenReference, reference.Project.UnconfiguredProject.FullPath, MavenReferenceRules.ItemType, reference.ItemSpec);
+
+            // once resolved, the resolved coordinates beside the settings written in the project file
+            var browseObject = rule;
+            if (rule != null && reference.Artifact != null && catalog.GetSchema(MavenReferenceRules.ResolvedMavenReference) is { } resolvedSchema)
+                browseObject = reference.Project.Services.ExportProvider.GetExportedValue<IRuleFactory>().CreateResolvedReferencePageRule(resolvedSchema, rule.Context, reference.ItemSpec, reference.Artifact.Properties);
+
+            var node = FindChild(parent, reference.Coordinates, MavenReferenceFlag);
+            node = node != null
+                ? node.SetProperties(icon: icon, expandedIcon: icon, flags: flags, browseObjectProperties: browseObject)
+                : parent.Add(NewTree(reference.Coordinates, icon: icon, expandedIcon: icon, flags: flags, browseObjectProperties: browseObject));
+
+            var path = reference.Artifact != null ? ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, reference.Artifact.ItemSpec) : ImmutableHashSet<string>.Empty;
+            node = UpdateMavenDependencies(node, reference, reference.Artifact, path, catalog, rule?.Context, cancellationToken);
+            parent = node.Parent!;
+        }
+
+        return parent;
+    }
+
+    /// <summary>
+    /// Updates the children of a Maven node to the artifacts the given artifact depends on, recursively. An artifact
+    /// already on the path from the reference is left out, so that cycles end.
+    /// </summary>
+    IProjectTree UpdateMavenDependencies(IProjectTree node, MavenReference reference, MavenArtifact? artifact, ImmutableHashSet<string> path, IPropertyPagesCatalog catalog, IProjectPropertiesContext? context, CancellationToken cancellationToken)
+    {
+        var dependencies = artifact != null ? reference.GetDependencies(artifact).Where(i => path.Contains(i.ItemSpec) == false).ToList() : new List<MavenArtifact>();
+        var captions = dependencies.Select(i => i.Coordinates).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        node = RemoveChildren(node, i => i.Flags.Contains(MavenDependencyFlag) && captions.Contains(i.Caption) == false);
+
+        var schema = catalog.GetSchema(MavenReferenceRules.ResolvedMavenArtifact);
+        foreach (var dependency in dependencies)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            IRule? rule = null;
+            if (schema != null && context != null)
+                rule = reference.Project.Services.ExportProvider.GetExportedValue<IRuleFactory>().CreateResolvedReferencePageRule(schema, context, dependency.ItemSpec, dependency.Properties);
+
+            var flags = MavenDependencyFlag + ProjectTreeFlags.ResolvedReference;
+            var child = FindChild(node, dependency.Coordinates, MavenDependencyFlag);
+            child = child != null
+                ? child.SetProperties(icon: MavenDependencyIcon, expandedIcon: MavenDependencyIcon, flags: flags, browseObjectProperties: rule)
+                : node.Add(NewTree(dependency.Coordinates, icon: MavenDependencyIcon, expandedIcon: MavenDependencyIcon, flags: flags, browseObjectProperties: rule));
+
+            child = UpdateMavenDependencies(child, reference, dependency, path.Add(dependency.ItemSpec), catalog, context, cancellationToken);
+            node = child.Parent!;
+        }
+
+        return node;
     }
 
     /// <summary>
@@ -319,7 +411,7 @@ internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
         return parent;
     }
 
-    sealed record ProjectState(IDisposable Link, ImmutableArray<IkvmReference> References);
+    sealed record ProjectState(IDisposable Link, ImmutableArray<IkvmReference> References, ImmutableArray<MavenReference> MavenReferences);
 
     [Export]
     protected class IkvmDependenciesConfiguredProjectExports : ConfiguredProjectExports

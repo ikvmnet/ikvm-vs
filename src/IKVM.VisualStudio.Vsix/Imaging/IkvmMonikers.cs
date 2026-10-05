@@ -36,4 +36,10 @@ internal static class IkvmMonikers
 
     public static ImageMoniker JavaPackage => Get(11);
 
+    public static ImageMoniker MavenReference => Get(12);
+
+    public static ImageMoniker MavenReferenceWarning => Get(13);
+
+    public static ImageMoniker MavenDependency => Get(14);
+
 }
