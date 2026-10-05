@@ -5,6 +5,7 @@
         <ID Name="MavenReference" Value="1" />
         <ID Name="MavenReferenceWarning" Value="2" />
         <ID Name="MavenDependency" Value="3" />
+        <ID Name="MavenOmitted" Value="4" />
     </Symbols>
     <Images>
         <Image Guid="$(MonikerGuid)" ID="$(MavenReference)">
@@ -15,6 +16,9 @@
         </Image>
         <Image Guid="$(MonikerGuid)" ID="$(MavenDependency)">
             <Source Uri="$(Images)/MavenDependency.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenOmitted)">
+            <Source Uri="$(Images)/MavenOmitted.xaml" />
         </Image>
     </Images>
     <ImageLists />

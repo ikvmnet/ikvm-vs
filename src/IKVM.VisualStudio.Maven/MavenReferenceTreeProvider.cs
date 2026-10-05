@@ -26,10 +26,14 @@ internal sealed class MavenReferenceTreeProvider : IIkvmDependencyTreeProvider
     public static readonly ProjectTreeFlags MavenReferenceFlag = ProjectTreeFlags.Create("IkvmMavenReference");
     public static readonly ProjectTreeFlags MavenDependencyFlag = ProjectTreeFlags.Create("IkvmMavenDependency");
     public static readonly ProjectTreeFlags MavenJarFlag = ProjectTreeFlags.Create("IkvmMavenJar");
+    public static readonly ProjectTreeFlags MavenOmittedFlag = ProjectTreeFlags.Create("IkvmMavenOmitted");
+    public static readonly ProjectTreeFlags MavenOmittedReasonFlag = ProjectTreeFlags.Create("IkvmMavenOmittedReason");
 
     static readonly ProjectImageMoniker MavenIcon = MavenMonikers.MavenReference.ToProjectSystemType();
     static readonly ProjectImageMoniker MavenWarningIcon = MavenMonikers.MavenReferenceWarning.ToProjectSystemType();
     static readonly ProjectImageMoniker MavenDependencyIcon = MavenMonikers.MavenDependency.ToProjectSystemType();
+    static readonly ProjectImageMoniker MavenOmittedIcon = MavenMonikers.MavenOmitted.ToProjectSystemType();
+    static readonly ProjectImageMoniker InformationIcon = Microsoft.VisualStudio.Imaging.KnownMonikers.StatusInformation.ToProjectSystemType();
 
     public IReadOnlyCollection<string> RuleNames { get; } = new[] { MavenReferenceRules.MavenReference, MavenReferenceRules.ResolvedMavenReference };
 
@@ -120,7 +124,44 @@ internal sealed class MavenReferenceTreeProvider : IIkvmDependencyTreeProvider
             node = child.Parent!;
         }
 
+        return UpdateOmitted(context, node, reference, artifact);
+    }
+
+    /// <summary>
+    /// Updates the children of a Maven node to the dependencies of its artifact left out because another version of
+    /// them won a conflict, each with the reason as its only child.
+    /// </summary>
+    static IProjectTree UpdateOmitted(IIkvmDependencyTreeContext context, IProjectTree node, MavenReference reference, MavenArtifact? artifact)
+    {
+        var omitted = artifact?.Omitted.ToList() ?? new List<string>();
+        var captions = omitted.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
+        node = node.RemoveChildren(i => i.Flags.Contains(MavenOmittedFlag) && captions.Contains(i.Caption) == false);
+
+        foreach (var coordinates in omitted)
+        {
+            var reason = GetOmittedReason(reference, coordinates);
+            var child = node.FindChild(coordinates, MavenOmittedFlag) ?? context.NewTree(coordinates, MavenOmittedIcon, MavenOmittedFlag);
+            child = child.RemoveChildren(i => i.Flags.Contains(MavenOmittedReasonFlag) && i.Caption != reason);
+            if (child.FindChild(reason, MavenOmittedReasonFlag) == null)
+                child = child.Add(context.NewTree(reason, InformationIcon, MavenOmittedReasonFlag)).Parent!;
+
+            node = child.Parent == null ? node.Add(child).Parent! : child.Parent;
+        }
+
         return node;
+    }
+
+    /// <summary>
+    /// Says why an artifact was left out: which version of it was chosen instead.
+    /// </summary>
+    static string GetOmittedReason(MavenReference reference, string coordinates)
+    {
+        var parts = coordinates.Split(':');
+        var winner = parts.Length >= 3
+            ? reference.Graph?.Values.FirstOrDefault(i => i.GroupId == parts[0] && i.ArtifactId == parts[1] && (parts.Length == 3 || i.Classifier == parts[2]))
+            : null;
+
+        return winner != null ? $"Not used: version {winner.Version} was chosen instead" : "Not used: another version was chosen instead";
     }
 
 }
