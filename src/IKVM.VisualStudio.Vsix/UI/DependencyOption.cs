@@ -1,4 +1,6 @@
-﻿namespace IKVM.VisualStudio.Vsix.UI;
+using IKVM.VisualStudio.ProjectSystem.UI;
+
+namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>
 /// Another entry that an entry may depend on, through its <c>References</c> metadata. Checked when the entry
@@ -7,17 +9,17 @@
 sealed class DependencyOption : ViewModelBase, IReorderableItem
 {
 
-    readonly IkvmDependencyEntry _owner;
+    readonly JarDependencyEntry _owner;
     bool _isDropBefore;
     bool _isDropAfter;
 
-    public DependencyOption(IkvmDependencyEntry owner, IkvmDependencyEntry target)
+    public DependencyOption(JarDependencyEntry owner, JarDependencyEntry target)
     {
         _owner = owner;
         Target = target;
     }
 
-    public IkvmDependencyEntry Target { get; }
+    public JarDependencyEntry Target { get; }
 
     public string DisplayName => Target.DisplayName;
 

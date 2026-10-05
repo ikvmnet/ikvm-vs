@@ -4,7 +4,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 
 using IKVM.VisualStudio.ProjectSystem;
-using IKVM.VisualStudio.Vsix.Commands;
 
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.VS;
@@ -34,8 +33,8 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
         var items = projectItems.ToList();
         if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)))
         {
-            menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
-            menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
+            menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
+            menuCommandId = IkvmDependencyCommandIds.IkvmReferenceMenu;
             return true;
         }
 
@@ -44,17 +43,17 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
 
     static bool TryGetMenu(ProjectTreeFlags flags, out Guid menuCommandGuid, out int menuCommandId)
     {
-        menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
+        menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
 
         if (flags.Contains(IkvmDependencyTreeFlags.Root) || flags.Contains(IkvmDependencyTreeFlags.TargetFramework))
         {
-            menuCommandId = IkvmDependenciesCommandIds.IkvmDependenciesRootMenu;
+            menuCommandId = IkvmDependencyCommandIds.IkvmDependenciesRootMenu;
             return true;
         }
 
         if (flags.Contains(IkvmDependencyTreeFlags.Reference))
         {
-            menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
+            menuCommandId = IkvmDependencyCommandIds.IkvmReferenceMenu;
             return true;
         }
 

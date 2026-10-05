@@ -33,6 +33,9 @@ static class MavenReferenceRules
     public const string ArtifactIdMetadata = "ArtifactId";
     public const string ClassifierMetadata = "Classifier";
     public const string VersionMetadata = "Version";
+    public const string ScopeMetadata = "Scope";
+    public const string OptionalMetadata = "Optional";
+    public const string ExclusionsMetadata = "Exclusions";
 
     public const string ResolvedGroupIdMetadata = "MavenGroupId";
     public const string ResolvedArtifactIdMetadata = "MavenArtifactId";

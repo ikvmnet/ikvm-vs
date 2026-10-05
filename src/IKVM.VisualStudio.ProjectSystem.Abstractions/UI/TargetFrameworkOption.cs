@@ -1,9 +1,9 @@
-namespace IKVM.VisualStudio.Vsix.UI;
+namespace IKVM.VisualStudio.ProjectSystem.UI;
 
 /// <summary>
 /// A target framework an entry can be limited to.
 /// </summary>
-sealed class TargetFrameworkOption : ViewModelBase
+public sealed class TargetFrameworkOption : ViewModelBase
 {
 
     bool _isChecked;

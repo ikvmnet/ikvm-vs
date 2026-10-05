@@ -3,9 +3,9 @@
 namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>
-/// The values an entry of the Manage IKVM Dependencies dialog has for one target framework.
+/// The values a JAR entry of the Manage IKVM Dependencies dialog has for one target framework.
 /// </summary>
-sealed class IkvmDependencyValues
+sealed class JarDependencyValues
 {
 
     public string AssemblyName { get; set; } = "";
@@ -26,6 +26,6 @@ sealed class IkvmDependencyValues
     /// <summary>
     /// Other entries this entry references.
     /// </summary>
-    public List<IkvmDependencyEntry> References { get; } = new List<IkvmDependencyEntry>();
+    public List<JarDependencyEntry> References { get; } = new List<JarDependencyEntry>();
 
 }

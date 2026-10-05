@@ -3,12 +3,12 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace IKVM.VisualStudio.Vsix.UI;
+namespace IKVM.VisualStudio.ProjectSystem.UI;
 
 /// <summary>
 /// Shows an element while a value is <c>false</c>.
 /// </summary>
-sealed class FalseToVisibleConverter : IValueConverter
+public sealed class FalseToVisibleConverter : IValueConverter
 {
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value is false ? Visibility.Visible : Visibility.Collapsed;
