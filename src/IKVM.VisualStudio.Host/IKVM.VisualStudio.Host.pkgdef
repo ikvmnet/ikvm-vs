@@ -1,0 +1,5 @@
+[$RootKey$\BrokeredServices\IKVM.VisualStudio.Host.Maven\1.0]
+@="c3f18b47-662b-4785-a2bf-5fd7bc8c6f69"
+"IsServiceHub"=dword:00000001
+"ServiceLocation"="$PackageFolder$"
+"audience"=dword:00000003

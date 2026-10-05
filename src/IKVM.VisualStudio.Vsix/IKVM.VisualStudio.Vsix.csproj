@@ -99,5 +99,13 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <!-- the IKVM host, in which ServiceHub runs the services that need IKVM in a process of their own on .NET, published into the Host folder -->
+    <ItemGroup>
+        <PublishProjectReference Include="..\IKVM.VisualStudio.Host\IKVM.VisualStudio.Host.csproj">
+            <PublishTargetPath>Host</PublishTargetPath>
+            <PublishItemGroup>VSIXSourceItem</PublishItemGroup>
+        </PublishProjectReference>
+    </ItemGroup>
+
     <Target Name="GetVsixVersion" Returns="$(FileVersion)" />
 </Project>

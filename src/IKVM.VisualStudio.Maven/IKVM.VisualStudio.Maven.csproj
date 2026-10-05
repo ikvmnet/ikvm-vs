@@ -13,12 +13,17 @@
 
     <ItemGroup>
         <Reference Include="System.ComponentModel.Composition" />
-        <Reference Include="System.Net.Http" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" ExcludeAssets="runtime" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- the contract of the Maven service, shared with it -->
+        <Compile Include="..\IKVM.VisualStudio.Host\Contracts\*.cs" Link="Host\%(Filename)%(Extension)" />
+        <Compile Include="..\IKVM.VisualStudio.Host\Maven\Contracts\*.cs" Link="Host\Maven\%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>

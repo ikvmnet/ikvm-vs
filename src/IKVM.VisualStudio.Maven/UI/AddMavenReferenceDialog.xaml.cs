@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.ProjectSystem;
 namespace IKVM.VisualStudio.Maven.UI;
 
 /// <summary>
-/// Finds a Maven artifact to reference, with its version and scope: searching Maven Central, or from typed
+/// Finds a Maven artifact to reference, with its version and scope: searching the repositories of the project, or from typed
 /// coordinates, with versions from the repositories of the project.
 /// </summary>
 internal partial class AddMavenReferenceDialog : DialogWindow
@@ -22,6 +22,7 @@ internal partial class AddMavenReferenceDialog : DialogWindow
         InitializeComponent();
         DataContext = _model = new AddMavenReferenceViewModel(project, existing);
         Loaded += (s, e) => SearchBox.Focus();
+        Closed += (s, e) => _model.Close();
     }
 
     /// <summary>

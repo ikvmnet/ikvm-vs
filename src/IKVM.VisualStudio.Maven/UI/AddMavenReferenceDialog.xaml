@@ -52,6 +52,7 @@
                     </Grid>
                 </ui:Field>
                 <TextBlock DockPanel.Dock="Top" Text="{Binding SearchStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,6,0,0" />
+                <TextBlock DockPanel.Dock="Top" Text="{Binding IndexStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,6,0,0" Visibility="{Binding HasIndexStatus, Converter={StaticResource BoolToVisibility}}" />
                 <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding Selected}" Margin="0,8,0,0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Artifacts">
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="{x:Type root:MavenSearchResult}">
