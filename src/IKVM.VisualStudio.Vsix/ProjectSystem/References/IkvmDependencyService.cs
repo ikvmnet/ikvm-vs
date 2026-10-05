@@ -8,6 +8,9 @@ using IKVM.VisualStudio.ProjectSystem;
 using IKVM.VisualStudio.ProjectSystem.UI;
 
 using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Threading;
 
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
@@ -19,13 +22,15 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 internal sealed class IkvmDependencyService
 {
 
+    readonly IProjectThreadingService _threading;
     readonly IkvmReferenceWriter _writer;
     readonly Lazy<IkvmDependenciesTreeProvider> _treeProvider;
 
     [ImportingConstructor]
-    public IkvmDependencyService(UnconfiguredProject project, IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
+    public IkvmDependencyService(UnconfiguredProject project, IProjectThreadingService threading, IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
     {
         Project = project;
+        _threading = threading;
         _writer = writer;
         _treeProvider = treeProvider;
         EntryProviders = new OrderPrecedenceImportCollection<IkvmDependencyEntryProvider>(projectCapabilityCheckProvider: project);
@@ -78,8 +83,64 @@ internal sealed class IkvmDependencyService
     }
 
     /// <summary>
-    /// Saves the given changes to the project file.
+    /// Reads the items of the project and starts changing them, with new entries used in the given target framework,
+    /// or in all. Returns on the UI thread.
     /// </summary>
-    public Task ApplyAsync(IkvmDependencyChanges changes) => _writer.ApplyAsync(changes);
+    public async Task<IkvmDependencySession> CreateSessionAsync(string? targetFramework)
+    {
+        var providers = GetEntryProviders();
+        var elements = await ReadAsync(providers);
+        await _threading.SwitchToUIThread();
+        return new IkvmDependencySession(Project, GetConfiguredProjects(), GetTargetFrameworks(), targetFramework, providers, elements);
+    }
+
+    /// <summary>
+    /// Gets the descriptions of the add commands of the providers, in order, without reading the project.
+    /// </summary>
+    public IReadOnlyList<string> GetAddCommandDescriptions()
+    {
+        var session = new IkvmDependencySession(Project, GetConfiguredProjects(), GetTargetFrameworks(), null, GetEntryProviders(), Array.Empty<IkvmDependencyElement>());
+        return session.AddCommands.Select(i => i.Description).ToList();
+    }
+
+    /// <summary>
+    /// Saves the given changes to the project file, telling the user if that fails.
+    /// </summary>
+    public async Task SaveAsync(IkvmDependencyChanges changes)
+    {
+        await TaskScheduler.Default;
+
+        try
+        {
+            await _writer.ApplyAsync(changes);
+        }
+        catch (Exception e)
+        {
+            ActivityLog.TryLogError(nameof(IkvmDependencyService), $"Could not save IKVM dependencies: {e}");
+            await _threading.SwitchToUIThread();
+            VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider, $"Could not save IKVM dependencies: {e.Message}", "IKVM Dependencies", OLEMSGICON.OLEMSGICON_CRITICAL, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+        }
+    }
+
+    /// <summary>
+    /// Saves the entries a session added outside the dialog, unless any is not valid, which the user is told.
+    /// </summary>
+    public async Task SaveAddedAsync(IkvmDependencySession session, IReadOnlyList<IkvmDependencyEntry> added)
+    {
+        if (added.Count == 0)
+            return;
+
+        await _threading.SwitchToUIThread();
+        var errors = added.Where(i => i.HasErrors).SelectMany(i => i.Errors.Select(j => $"{i.DisplayName}: {j}")).ToList();
+        if (errors.Count > 0)
+        {
+            var message = "Could not add:\n\n" + string.Join("\n", errors) + "\n\nUse Manage IKVM Dependencies to fix this.";
+            VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider, message, "IKVM Dependencies", OLEMSGICON.OLEMSGICON_WARNING, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            return;
+        }
+
+        var changes = session.GetChanges();
+        await SaveAsync(new IkvmDependencyChanges(Array.Empty<IkvmDependencyElement>(), Array.Empty<IkvmDependencyElementUpdate>(), changes.Added));
+    }
 
 }

@@ -29,12 +29,19 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
         menuCommandGuid = Guid.Empty;
         menuCommandId = 0;
 
-        // only a selection consisting entirely of IKVM references gets the reference menu
+        // only a selection consisting entirely of references, or of JAR files, gets their menu
         var items = projectItems.ToList();
         if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)))
         {
             menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
             menuCommandId = IkvmDependencyCommandIds.IkvmReferenceMenu;
+            return true;
+        }
+
+        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.JarFile)))
+        {
+            menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
+            menuCommandId = IkvmDependencyCommandIds.IkvmJarFileMenu;
             return true;
         }
 
@@ -54,6 +61,12 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
         if (flags.Contains(IkvmDependencyTreeFlags.Reference))
         {
             menuCommandId = IkvmDependencyCommandIds.IkvmReferenceMenu;
+            return true;
+        }
+
+        if (flags.Contains(IkvmDependencyTreeFlags.JarFile))
+        {
+            menuCommandId = IkvmDependencyCommandIds.IkvmJarFileMenu;
             return true;
         }
 

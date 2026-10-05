@@ -27,6 +27,11 @@ public static class IkvmDependencyCommandIds
     public const int IkvmReferenceMenu = 0x1001;
 
     /// <summary>
+    /// The context menu of nodes flagged <see cref="IkvmDependencyTreeFlags.JarFile"/>.
+    /// </summary>
+    public const int IkvmJarFileMenu = 0x1002;
+
+    /// <summary>
     /// The group of <see cref="IkvmDependenciesRootMenu"/> holding Manage IKVM Dependencies.
     /// </summary>
     public const int IkvmDependenciesRootGroup = 0x1100;
@@ -42,8 +47,38 @@ public static class IkvmDependencyCommandIds
     public const int IkvmReferencePropertiesGroup = 0x1102;
 
     /// <summary>
+    /// The first group of <see cref="IkvmJarFileMenu"/>, holding Open Containing Folder.
+    /// </summary>
+    public const int IkvmJarFileGroup = 0x1104;
+
+    /// <summary>
+    /// The last group of <see cref="IkvmJarFileMenu"/>, holding Properties.
+    /// </summary>
+    public const int IkvmJarFilePropertiesGroup = 0x1105;
+
+    /// <summary>
+    /// The group of <see cref="IkvmDependenciesRootMenu"/> holding the add commands of the entry providers.
+    /// </summary>
+    public const int IkvmDependenciesAddGroup = 0x1106;
+
+    /// <summary>
     /// The Manage IKVM Dependencies command.
     /// </summary>
     public const int ManageIkvmDependencies = 0x0100;
+
+    /// <summary>
+    /// The Open Containing Folder command of a JAR file.
+    /// </summary>
+    public const int OpenContainingFolder = 0x0101;
+
+    /// <summary>
+    /// The first of the add commands of the entry providers, one after another.
+    /// </summary>
+    public const int AddDependencyFirst = 0x0200;
+
+    /// <summary>
+    /// The last of the add commands of the entry providers.
+    /// </summary>
+    public const int AddDependencyLast = 0x02FF;
 
 }

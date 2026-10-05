@@ -24,13 +24,11 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupHandler
 {
 
-    readonly IProjectThreadingService _threading;
     readonly IkvmDependencyService _service;
 
     [ImportingConstructor]
-    public ManageIkvmDependenciesCommandHandler(IProjectThreadingService threading, IkvmDependencyService service)
+    public ManageIkvmDependenciesCommandHandler(IkvmDependencyService service)
     {
-        _threading = threading;
         _service = service;
     }
 
@@ -49,36 +47,20 @@ internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupH
 
         // invoked from a target framework folder: new references default to that framework
         var targetFramework = nodes.FirstOrDefault(i => i.Flags.Contains(IkvmDependencyTreeFlags.TargetFramework))?.Caption;
-        var providers = _service.GetEntryProviders();
-        IReadOnlyList<IkvmDependencyElement> elements;
+        IkvmDependencySession session;
         try
         {
-            elements = await _service.ReadAsync(providers);
+            session = await _service.CreateSessionAsync(targetFramework);
         }
         catch (Exception e)
         {
             ActivityLog.TryLogError(nameof(ManageIkvmDependenciesCommandHandler), $"Could not read IKVM dependencies: {e}");
             throw;
         }
-        await _threading.SwitchToUIThread();
 
-        var dialog = new ManageIkvmDependenciesDialog(_service.Project, _service.GetConfiguredProjects(), _service.GetTargetFrameworks(), targetFramework, providers, elements);
-        if (dialog.ShowModal() != true)
-            return true;
-
-        var changes = dialog.GetChanges();
-        await TaskScheduler.Default;
-
-        try
-        {
-            await _service.ApplyAsync(changes);
-        }
-        catch (Exception e)
-        {
-            ActivityLog.TryLogError(nameof(ManageIkvmDependenciesCommandHandler), $"Could not save IKVM dependencies: {e}");
-            await _threading.SwitchToUIThread();
-            VsShellUtilities.ShowMessageBox(ServiceProvider.GlobalProvider, $"Could not save IKVM dependencies: {e.Message}", "Manage IKVM Dependencies", OLEMSGICON.OLEMSGICON_CRITICAL, OLEMSGBUTTON.OLEMSGBUTTON_OK, OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
-        }
+        var dialog = new ManageIkvmDependenciesDialog(session);
+        if (dialog.ShowModal() == true)
+            await _service.SaveAsync(dialog.GetChanges());
 
         return true;
     }

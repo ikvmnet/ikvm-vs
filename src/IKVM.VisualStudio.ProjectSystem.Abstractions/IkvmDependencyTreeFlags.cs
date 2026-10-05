@@ -26,4 +26,10 @@ public static class IkvmDependencyTreeFlags
     /// </summary>
     public static readonly ProjectTreeFlags Reference = ProjectTreeFlags.Create("IkvmDependencyReference");
 
+    /// <summary>
+    /// A JAR file or class directory on disk, created by <see cref="IIkvmDependencyTreeContext.NewJarFileTree"/>. Such a
+    /// node gets the JAR file context menu, and shows where the file is in the Properties window.
+    /// </summary>
+    public static readonly ProjectTreeFlags JarFile = ProjectTreeFlags.Create("IkvmDependencyJarFile");
+
 }
