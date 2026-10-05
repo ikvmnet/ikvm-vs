@@ -1,9 +1,9 @@
-namespace IKVM.VisualStudio.Vsix.UI;
+namespace IKVM.VisualStudio.ProjectSystem.UI;
 
 /// <summary>
 /// The state a <see cref="Field"/> shows with its border.
 /// </summary>
-enum FieldState
+public enum FieldState
 {
 
     Normal,

@@ -1,12 +1,12 @@
 using System;
 
-namespace IKVM.VisualStudio.Vsix.UI;
+namespace IKVM.VisualStudio.ProjectSystem.UI;
 
 /// <summary>
 /// A target framework on an entry of the Manage IKVM Dependencies dialog, or all of them: whether the entry is used in
 /// it (its check box), and whether its settings are being viewed and edited (its name, filled while editing).
 /// </summary>
-sealed class TargetFrameworkChip : ViewModelBase
+public sealed class TargetFrameworkChip : ViewModelBase
 {
 
     readonly Action<TargetFrameworkChip> _toggleUsed;

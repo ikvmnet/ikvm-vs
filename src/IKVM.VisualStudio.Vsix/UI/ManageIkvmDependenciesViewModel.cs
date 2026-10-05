@@ -1,68 +1,80 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
+using IKVM.VisualStudio.ProjectSystem;
+using IKVM.VisualStudio.ProjectSystem.UI;
 using IKVM.VisualStudio.Vsix.ProjectSystem.References;
+
+using Microsoft.VisualStudio.ProjectSystem;
 
 namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>
-/// State of the Manage IKVM Dependencies dialog: the project's references as they will be after saving.
+/// State of the Manage IKVM Dependencies dialog: the project's dependencies as they will be after saving, as entries
+/// supplied by the providers of each item type.
 /// </summary>
 sealed class ManageIkvmDependenciesViewModel : ViewModelBase
 {
 
-    readonly string _projectDirectory;
-    readonly IReadOnlyList<string> _targetFrameworks;
-    readonly string? _defaultTargetFramework;
-    readonly Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, IkvmReferenceDescription>>> _describe;
+    readonly IReadOnlyList<IkvmDependencyEntryProvider> _providers;
+    readonly ObservableCollection<IkvmDependencyEntry> _entries = new ObservableCollection<IkvmDependencyEntry>();
     IkvmDependencyEntry? _selectedEntry;
-    bool _useRelativePaths = true;
+    bool _validating;
 
     public ManageIkvmDependenciesViewModel(
-        string projectDirectory,
-        IEnumerable<IkvmReferenceElement> elements,
-        IEnumerable<string> targetFrameworks,
+        UnconfiguredProject project,
+        IReadOnlyDictionary<string, ConfiguredProject> configuredProjects,
+        IReadOnlyList<string> targetFrameworks,
         string? defaultTargetFramework,
-        Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, IkvmReferenceDescription>>> describe)
+        IReadOnlyList<IkvmDependencyEntryProvider> providers,
+        IEnumerable<IkvmDependencyElement> elements)
     {
-        _projectDirectory = projectDirectory;
-        _describe = describe;
+        _providers = providers;
 
-        _targetFrameworks = targetFrameworks.ToList();
-        _defaultTargetFramework = defaultTargetFramework;
+        // new entries apply to the target framework the dialog was opened from, else to all
+        Context = new IkvmDependencyEntryContext(project, configuredProjects, targetFrameworks, defaultTargetFramework != null ? new[] { defaultTargetFramework } : Array.Empty<string>(), new ReadOnlyObservableCollection<IkvmDependencyEntry>(_entries));
+        AddCommands = providers.SelectMany(i => i.GetAddCommands(Context)).ToList();
 
         foreach (var element in elements)
-            Entries.Add(IkvmDependencyEntry.FromElement(element, projectDirectory, _targetFrameworks));
+            if (GetProvider(element.ItemType) is { } provider)
+                _entries.Add(provider.CreateEntry(Context, element));
 
-        foreach (var entry in Entries)
-            entry.ResolveReferences(name => FindReferenced(entry, name));
+        foreach (var entry in _entries)
+            entry.Changed += OnEntryChanged;
 
-        RefreshDependencies();
-
-        foreach (var entry in Entries)
-            entry.Changed += (s, e) => Validate();
-
-        Validate();
-        SelectedEntry = Entries.FirstOrDefault();
-        _ = DescribeAsync(Entries.Where(i => i.IsEditable).ToList());
+        OnEntriesChanged();
+        SelectedEntry = _entries.FirstOrDefault();
+        _ = LoadAsync(_entries.ToList());
     }
 
-    public ObservableCollection<IkvmDependencyEntry> Entries { get; } = new ObservableCollection<IkvmDependencyEntry>();
+    /// <summary>
+    /// The dialog as the entries see it.
+    /// </summary>
+    public IkvmDependencyEntryContext Context { get; }
+
+    public ObservableCollection<IkvmDependencyEntry> Entries => _entries;
+
+    /// <summary>
+    /// The buttons above the list that add entries.
+    /// </summary>
+    public IReadOnlyList<IkvmDependencyAddCommand> AddCommands { get; }
+
+    IkvmDependencyEntryProvider? GetProvider(string itemType) => _providers.FirstOrDefault(i => string.Equals(i.ItemType, itemType, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Whether the dialog can save: no entry has errors.
     /// </summary>
-    public bool CanSave => Entries.All(i => i.HasErrors == false);
+    public bool CanSave => _entries.All(i => i.HasErrors == false);
 
-    bool _validating;
+    void OnEntryChanged(object? sender, EventArgs e) => Validate();
 
     /// <summary>
-    /// Validates every entry, including the cycles "Depends on" forms across entries.
+    /// Validates every entry, as entries can depend on each other.
     /// </summary>
     void Validate()
     {
@@ -72,8 +84,8 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
         _validating = true;
         try
         {
-            foreach (var entry in Entries)
-                entry.Validate(FindCycles(entry));
+            foreach (var entry in _entries)
+                entry.Validate();
 
             OnPropertyChanged(nameof(CanSave));
         }
@@ -84,90 +96,75 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Finds, for each target framework the entry is used in, a path through "Depends on" that leads back to it.
+    /// Tells each entry the entries changed, then validates them.
     /// </summary>
-    static List<(string Key, string Path, IkvmDependencyEntry Through)> FindCycles(IkvmDependencyEntry entry)
+    void OnEntriesChanged()
     {
-        var cycles = new List<(string Key, string Path, IkvmDependencyEntry Through)>();
-        if (entry.IsRemoved)
-            return cycles;
-
-        foreach (var key in entry.UsedKeys)
+        _validating = true;
+        try
         {
-            var path = new List<IkvmDependencyEntry>() { entry };
-            var visited = new HashSet<IkvmDependencyEntry>();
-            if (Visit(entry))
-                cycles.Add((key, string.Join(" \u2192 ", path.Select(i => i.DisplayName)), path[1]));
-
-            bool Visit(IkvmDependencyEntry from)
-            {
-                foreach (var next in from.GetReferencedEntries(key))
-                {
-                    if (next == entry)
-                    {
-                        path.Add(next);
-                        return true;
-                    }
-
-                    if (visited.Add(next) == false)
-                        continue;
-
-                    path.Add(next);
-                    if (Visit(next))
-                        return true;
-
-                    path.RemoveAt(path.Count - 1);
-                }
-
-                return false;
-            }
+            foreach (var entry in _entries)
+                entry.OnEntriesChanged();
+        }
+        finally
+        {
+            _validating = false;
         }
 
-        return cycles;
+        Validate();
     }
 
     /// <summary>
-    /// Whether the project targets more than one framework, so that references can be limited to some.
+    /// Whether the project targets more than one framework, so that entries can be limited to some.
     /// </summary>
-    public bool HasTargetFrameworks => _targetFrameworks.Count > 1;
+    public bool HasTargetFrameworks => Context.TargetFrameworks.Count > 1;
 
     public IkvmDependencyEntry? SelectedEntry
     {
         get => _selectedEntry;
-        set
-        {
-            Set(ref _selectedEntry, value);
-        }
+        set => Set(ref _selectedEntry, value);
     }
 
     public bool UseRelativePaths
     {
-        get => _useRelativePaths;
-        set => Set(ref _useRelativePaths, value);
+        get => Context.UseRelativePaths;
+        set
+        {
+            Context.UseRelativePaths = value;
+            OnPropertyChanged();
+        }
     }
 
     /// <summary>
-    /// Adds entries for the given paths, skipping ones already listed.
+    /// Runs an add command, adding the entries it returns.
     /// </summary>
-    public void AddPaths(IEnumerable<string> paths)
+    public async Task AddAsync(IkvmDependencyAddCommand command, Window owner)
     {
-        var added = new List<IkvmDependencyEntry>();
+        Add(await command.ExecuteAsync(owner));
+    }
 
-        foreach (var path in paths.Select(Path.GetFullPath))
+    /// <summary>
+    /// Adds entries for paths dropped on the list, from the providers that take them.
+    /// </summary>
+    public void AddPaths(IReadOnlyList<string> paths)
+    {
+        Add(_providers.SelectMany(i => i.CreateEntries(Context, paths)).ToList());
+    }
+
+    void Add(IReadOnlyList<IkvmDependencyEntry> added)
+    {
+        if (added.Count == 0)
+            return;
+
+        foreach (var entry in added)
         {
-            if (Entries.Any(i => string.Equals(i.FullPath.TrimEnd('\\'), path.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)))
-                continue;
-
-            // new references apply to the target framework the dialog was opened from, else to all
-            var entry = IkvmDependencyEntry.ForNewPath(path, _projectDirectory, _targetFrameworks, _defaultTargetFramework != null ? new[] { _defaultTargetFramework } : Array.Empty<string>());
-            entry.Changed += (s, e) => Validate();
-            Entries.Add(entry);
-            added.Add(entry);
+            entry.Changed += OnEntryChanged;
+            _entries.Add(entry);
         }
 
-        RefreshDependencies();
-        SelectedEntry = added.LastOrDefault() ?? SelectedEntry;
-        _ = DescribeAsync(added);
+        OnEntriesChanged();
+        SelectedEntry = added.Last();
+        _ = LoadAsync(added);
     }
 
     /// <summary>
@@ -181,8 +178,9 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
         switch (entry.State)
         {
             case IkvmDependencyState.New:
-                Entries.Remove(entry);
-                SelectedEntry = Entries.LastOrDefault();
+                entry.Changed -= OnEntryChanged;
+                _entries.Remove(entry);
+                SelectedEntry = _entries.LastOrDefault();
                 break;
             case IkvmDependencyState.Existing:
                 entry.State = IkvmDependencyState.Removed;
@@ -192,85 +190,41 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
                 break;
         }
 
-        RefreshDependencies();
-        Validate();
+        OnEntriesChanged();
     }
 
     /// <summary>
-    /// Rebuilds each entry's dependency options from the other entries.
+    /// Lets each provider load what its entries show that takes time to find.
     /// </summary>
-    void RefreshDependencies()
+    async Task LoadAsync(IReadOnlyList<IkvmDependencyEntry> entries)
     {
-        foreach (var entry in Entries)
+        foreach (var provider in _providers)
         {
-            entry.Dependencies.Clear();
-            foreach (var other in Entries.Where(i => i != entry && i.IsRemoved == false))
-                entry.Dependencies.Add(new DependencyOption(entry, other));
+            var mine = entries.Where(i => string.Equals(i.ItemType, provider.ItemType, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (mine.Count == 0)
+                continue;
 
-            entry.Refresh();
+            try
+            {
+                await provider.LoadAsync(Context, mine, CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                Microsoft.VisualStudio.Shell.ActivityLog.TryLogError(nameof(ManageIkvmDependenciesViewModel), $"{provider.GetType().FullName} could not load entries: {e}");
+            }
         }
-    }
-
-    /// <summary>
-    /// Finds the entry named in an entry's References metadata.
-    /// </summary>
-    IkvmDependencyEntry? FindReferenced(IkvmDependencyEntry entry, string name)
-    {
-        string fullPath;
-        try
-        {
-            fullPath = Path.GetFullPath(Path.Combine(_projectDirectory, name)).TrimEnd('\\');
-        }
-        catch (ArgumentException)
-        {
-            fullPath = name;
-        }
-
-        return Entries.FirstOrDefault(i => i != entry && (
-            string.Equals(i.Original?.Include, name, StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(i.DescribedPath.TrimEnd('\\'), fullPath, StringComparison.OrdinalIgnoreCase)));
-    }
-
-    /// <summary>
-    /// Fills in what the project's IKVM package derives for the given entries.
-    /// </summary>
-    async Task DescribeAsync(IReadOnlyCollection<IkvmDependencyEntry> entries)
-    {
-        if (entries.Count == 0)
-            return;
-
-        IReadOnlyDictionary<string, IkvmReferenceDescription> descriptions;
-        try
-        {
-            descriptions = await _describe(entries.Select(i => i.DescribedPath).ToList(), CancellationToken.None);
-        }
-        catch (Exception)
-        {
-            descriptions = new Dictionary<string, IkvmReferenceDescription>();
-        }
-
-        foreach (var entry in entries)
-            entry.Description = descriptions.TryGetValue(entry.DescribedPath, out var description) ? description : null;
-    }
-
-    /// <summary>
-    /// Gets the include an entry is written with.
-    /// </summary>
-    string GetInclude(IkvmDependencyEntry entry)
-    {
-        return entry.Original?.Include ?? IkvmDependencyEntry.ToProjectPath(_projectDirectory, entry.DescribedPath, entry.IsDirectory, UseRelativePaths);
     }
 
     /// <summary>
     /// Gets the changes needed to make the project match the dialog.
     /// </summary>
-    public IkvmReferenceChanges GetChanges()
+    public IkvmDependencyChanges GetChanges()
     {
-        var removed = new List<IkvmReferenceElement>();
-        var updated = new List<IkvmReferenceElementUpdate>();
-        var added = new List<IkvmReferenceElement>();
+        var removed = new List<IkvmDependencyElement>();
+        var updated = new List<IkvmDependencyElementUpdate>();
+        var added = new List<IkvmDependencyElement>();
 
-        foreach (var entry in Entries.Where(i => i.IsEditable))
+        foreach (var entry in _entries.Where(i => i.IsEditable))
         {
             switch (entry.State)
             {
@@ -278,27 +232,28 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
                     removed.Add(entry.Original!);
                     break;
                 case IkvmDependencyState.New:
-                    added.Add(entry.ToElement(UseRelativePaths, GetInclude));
+                    added.Add(entry.ToElement());
                     break;
                 case IkvmDependencyState.Existing:
-                    var element = entry.ToElement(UseRelativePaths, GetInclude);
+                    var element = entry.ToElement();
                     if (IsSame(entry.Original!, element) == false)
-                        updated.Add(new IkvmReferenceElementUpdate(entry.Original!, element));
+                        updated.Add(new IkvmDependencyElementUpdate(entry.Original!, element));
                     break;
             }
         }
 
-        return new IkvmReferenceChanges(removed, updated, added);
+        return new IkvmDependencyChanges(removed, updated, added);
     }
 
-    static bool IsSame(IkvmReferenceElement a, IkvmReferenceElement b)
+    static bool IsSame(IkvmDependencyElement a, IkvmDependencyElement b)
     {
-        return TargetFrameworkCondition.AreSame(a.TargetFrameworks, b.TargetFrameworks)
+        return string.Equals(a.Include, b.Include, StringComparison.Ordinal)
+            && TargetFrameworkCondition.AreSame(a.TargetFrameworks, b.TargetFrameworks)
             && a.Metadata.Count == b.Metadata.Count
             && a.Metadata.All(i => b.Metadata.Any(j => IsSame(i, j)));
     }
 
-    static bool IsSame(IkvmReferenceMetadata a, IkvmReferenceMetadata b)
+    static bool IsSame(IkvmDependencyMetadata a, IkvmDependencyMetadata b)
     {
         return string.Equals(a.Name, b.Name, StringComparison.OrdinalIgnoreCase)
             && a.Value == b.Value

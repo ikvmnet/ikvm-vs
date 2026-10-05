@@ -1,9 +1,9 @@
-namespace IKVM.VisualStudio.Vsix.UI;
+namespace IKVM.VisualStudio.ProjectSystem.UI;
 
 /// <summary>
 /// State of an entry in the Manage IKVM Dependencies dialog.
 /// </summary>
-enum IkvmDependencyState
+public enum IkvmDependencyState
 {
 
     /// <summary>

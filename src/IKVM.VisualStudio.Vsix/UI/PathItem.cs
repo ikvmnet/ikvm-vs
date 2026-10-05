@@ -1,5 +1,7 @@
 ﻿using System.IO;
 
+using IKVM.VisualStudio.ProjectSystem.UI;
+
 namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>

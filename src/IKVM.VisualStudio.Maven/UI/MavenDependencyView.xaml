@@ -1,0 +1,168 @@
+<UserControl x:Class="IKVM.VisualStudio.Maven.UI.MavenDependencyView"
+             x:ClassModifier="internal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+             xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
+             xmlns:ui="clr-namespace:IKVM.VisualStudio.ProjectSystem.UI;assembly=IKVM.VisualStudio.ProjectSystem.Abstractions"
+             xmlns:maven="clr-namespace:IKVM.VisualStudio.Maven.Imaging"
+             xmlns:local="clr-namespace:IKVM.VisualStudio.Maven.UI">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/IKVM.VisualStudio.ProjectSystem.Abstractions;component/UI/IkvmDependencyStyles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <local:ScopeNameConverter x:Key="ScopeName" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <StackPanel IsEnabled="{Binding CanEdit}">
+
+            <Border Style="{StaticResource SectionRule}" />
+            <StackPanel Style="{StaticResource SectionHeaderPanel}">
+                <imaging:CrispImage Moniker="{x:Static maven:MavenMonikers.MavenReference}" Style="{StaticResource SectionIcon}" />
+                <TextBlock Style="{StaticResource SectionHeader}" Text="Artifact" />
+            </StackPanel>
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0">
+                    <Label Content="Group" Padding="0,0,0,4" />
+                    <ui:Field>
+                        <TextBox BorderThickness="0" IsReadOnly="True" Text="{Binding GroupId, Mode=OneWay}" ToolTip="The group and artifact identify the reference. Remove it and add another to change them." />
+                    </ui:Field>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="2">
+                    <Label Content="Artifact" Padding="0,0,0,4" />
+                    <ui:Field>
+                        <TextBox BorderThickness="0" IsReadOnly="True" Text="{Binding ArtifactId, Mode=OneWay}" ToolTip="The group and artifact identify the reference. Remove it and add another to change them." />
+                    </ui:Field>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0">
+                    <Label Content="_Version" Target="{Binding ElementName=VersionBox}" Padding="0,0,0,4" />
+                    <ui:Field State="{Binding VersionFrame}" ToolTip="{Binding VersionVariations}">
+                        <Grid>
+                            <TextBox x:Name="VersionBox" BorderThickness="0" Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Style="{StaticResource Placeholder}" Text="{Binding VersionPlaceholder}" Visibility="{Binding Text.IsEmpty, ElementName=VersionBox, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </ui:Field>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="2">
+                    <Label Content="_Classifier" Target="{Binding ElementName=ClassifierBox}" Padding="0,0,0,4" />
+                    <ui:Field State="{Binding ClassifierFrame}" ToolTip="{Binding ClassifierVariations}">
+                        <Grid>
+                            <TextBox x:Name="ClassifierBox" BorderThickness="0" Text="{Binding Classifier, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Style="{StaticResource Placeholder}" Text="{Binding ClassifierPlaceholder}" Visibility="{Binding Text.IsEmpty, ElementName=ClassifierBox, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </ui:Field>
+                </StackPanel>
+
+                <StackPanel Grid.Row="4" Grid.Column="0">
+                    <Label Content="_Scope" Target="{Binding ElementName=ScopeBox}" Padding="0,0,0,4" />
+                    <ui:Field State="{Binding ScopeFrame}" ToolTip="{Binding ScopeVariations}">
+                        <ComboBox x:Name="ScopeBox" BorderThickness="0" ItemsSource="{Binding ScopeOptions}" SelectedItem="{Binding Scope}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource ScopeName}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </ui:Field>
+                </StackPanel>
+                <StackPanel Grid.Row="4" Grid.Column="2" VerticalAlignment="Bottom">
+                    <CheckBox Content="_Optional" IsChecked="{Binding Optional}" ToolTip="{Binding OptionalTip}" Margin="0,0,0,4" />
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource SectionRule}" />
+            <StackPanel Style="{StaticResource SectionHeaderPanel}">
+                <imaging:CrispImage Moniker="{x:Static catalog:KnownMonikers.Cancel}" Style="{StaticResource SectionIcon}" />
+                <TextBlock Style="{StaticResource SectionHeader}" Text="Exclusions" />
+            </StackPanel>
+            <DockPanel Margin="0,0,0,6">
+                <Button DockPanel.Dock="Right" Content="Add" Click="OnAddExclusion" MinWidth="64" Margin="6,0,0,0" />
+                <ui:Field>
+                    <Grid>
+                        <TextBox x:Name="ExclusionBox" BorderThickness="0" KeyDown="OnExclusionKeyDown" />
+                        <TextBlock Style="{StaticResource Placeholder}" Text="groupId:artifactId, or Exclude on a dependency below" Visibility="{Binding Text.IsEmpty, ElementName=ExclusionBox, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </ui:Field>
+            </DockPanel>
+            <ui:Field State="{Binding ExclusionsFrame}" Margin="0,0,0,12">
+                <ListBox BorderThickness="0" ItemsSource="{Binding ExclusionItems}" MinHeight="44" MaxHeight="120" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Exclusions">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type local:MavenExclusionItem}">
+                            <DockPanel x:Name="Row" Background="Transparent" ToolTip="{Binding ToolTip}">
+                                <Button x:Name="RemoveButton" DockPanel.Dock="Right" Style="{StaticResource RowButton}" Content="&#xE711;" Click="OnRemoveExclusion" ToolTip="Remove" AutomationProperties.Name="Remove" Visibility="Hidden" />
+                                <TextBlock x:Name="Text" Text="{Binding Exclusion}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            </DockPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                    <Setter TargetName="RemoveButton" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                    <Setter TargetName="RemoveButton" Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsPartial}" Value="True">
+                                    <Setter TargetName="Row" Property="Opacity" Value="0.6" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsValid}" Value="False">
+                                    <Setter TargetName="Text" Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </ui:Field>
+        </StackPanel>
+
+        <!-- what Maven resolved, shown even when the settings cannot be edited -->
+        <Border Style="{StaticResource SectionRule}" />
+        <StackPanel Style="{StaticResource SectionHeaderPanel}">
+            <imaging:CrispImage Moniker="{x:Static maven:MavenMonikers.MavenDependency}" Style="{StaticResource SectionIcon}" />
+            <TextBlock Style="{StaticResource SectionHeader}" Text="Resolved dependencies" />
+        </StackPanel>
+        <TextBlock Text="{Binding ResolvedNote}" Opacity="0.85" TextWrapping="Wrap" Margin="0,0,0,6" />
+        <ui:Field Margin="0,0,0,12" Visibility="{Binding HasResolvedItems, Converter={StaticResource BoolToVisibility}}">
+            <ListBox BorderThickness="0" ItemsSource="{Binding ResolvedItems}" MaxHeight="220" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Resolved dependencies">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type local:MavenResolvedItem}">
+                        <DockPanel x:Name="Row" Background="Transparent" ToolTip="{Binding ToolTip}" Margin="{Binding Indent}">
+                            <Button x:Name="ExcludeButton" DockPanel.Dock="Right" Content="Exclude" Click="OnExclude" Padding="6,0" Margin="6,1,0,1" Visibility="Hidden" IsEnabled="{Binding DataContext.CanEdit, RelativeSource={RelativeSource AncestorType=UserControl}}" ToolTip="Leave this artifact, and what only it brings in, out of the build" />
+                            <imaging:CrispImage DockPanel.Dock="Left" Moniker="{x:Static maven:MavenMonikers.MavenDependency}" Width="16" Height="16" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Coordinates}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                <Setter TargetName="ExcludeButton" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
+                                <Setter TargetName="ExcludeButton" Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPartial}" Value="True">
+                                <Setter TargetName="Row" Property="Opacity" Value="0.6" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </ui:Field>
+
+        <TextBlock TextWrapping="Wrap" Text="More settings, such as dependency overrides and aliases, are available in the Properties window." />
+    </StackPanel>
+</UserControl>

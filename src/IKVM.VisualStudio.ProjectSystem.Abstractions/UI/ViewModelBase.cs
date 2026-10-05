@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace IKVM.VisualStudio.Vsix.UI;
+namespace IKVM.VisualStudio.ProjectSystem.UI;
 
-abstract class ViewModelBase : INotifyPropertyChanged
+public abstract class ViewModelBase : INotifyPropertyChanged
 {
 
     public event PropertyChangedEventHandler? PropertyChanged;
