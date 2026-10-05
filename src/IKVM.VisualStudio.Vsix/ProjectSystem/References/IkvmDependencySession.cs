@@ -30,12 +30,13 @@ sealed class IkvmDependencySession
         IReadOnlyList<string> targetFrameworks,
         string? defaultTargetFramework,
         IReadOnlyList<IkvmDependencyEntryProvider> providers,
-        IEnumerable<IkvmDependencyElement> elements)
+        IEnumerable<IkvmDependencyElement> elements,
+        Func<string, string, Task<bool>> addPackage)
     {
         Providers = providers;
 
         // new entries apply to the target framework the session was started from, else to all
-        Context = new IkvmDependencyEntryContext(project, configuredProjects, targetFrameworks, defaultTargetFramework != null ? new[] { defaultTargetFramework } : Array.Empty<string>(), new ReadOnlyObservableCollection<IkvmDependencyEntry>(_entries));
+        Context = new IkvmDependencyEntryContext(project, configuredProjects, targetFrameworks, defaultTargetFramework != null ? new[] { defaultTargetFramework } : Array.Empty<string>(), new ReadOnlyObservableCollection<IkvmDependencyEntry>(_entries), addPackage);
         AddCommands = providers.SelectMany(i => i.GetAddCommands(Context)).ToList();
 
         foreach (var element in elements)

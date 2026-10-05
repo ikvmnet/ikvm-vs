@@ -72,6 +72,7 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" ExcludeAssets="runtime" />
+        <PackageReference Include="NuGet.VisualStudio" Version="17.14.0" ExcludeAssets="runtime" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

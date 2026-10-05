@@ -18,10 +18,11 @@ using Microsoft.VisualStudio.ProjectSystem.Properties;
 namespace IKVM.VisualStudio.Maven.UI;
 
 /// <summary>
-/// Supplies the <c>MavenReference</c> items of a project using IKVM.Maven.Sdk to the Manage IKVM Dependencies dialog.
+/// Supplies the <c>MavenReference</c> items of a project to the Manage IKVM Dependencies dialog. It applies to any
+/// project using IKVM, and adding a reference to one without IKVM.Maven.Sdk offers to add that first.
 /// </summary>
 [Export(typeof(IkvmDependencyEntryProvider))]
-[AppliesTo(MavenReferenceRules.Capability)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 [Order(900)]
 internal sealed class MavenReferenceEntryProvider : IkvmDependencyEntryProvider
 {
@@ -30,6 +31,8 @@ internal sealed class MavenReferenceEntryProvider : IkvmDependencyEntryProvider
     /// How long to wait for what Maven resolved, which needs a design-time build.
     /// </summary>
     static readonly TimeSpan ResolveTimeout = TimeSpan.FromSeconds(60);
+
+    const string SdkPackageId = "IKVM.Maven.Sdk";
 
     public override string ItemType => MavenReferenceRules.ItemType;
 
@@ -40,11 +43,17 @@ internal sealed class MavenReferenceEntryProvider : IkvmDependencyEntryProvider
 
     public override IReadOnlyList<IkvmDependencyAddCommand> GetAddCommands(IkvmDependencyEntryContext context)
     {
-        return new[] { new IkvmDependencyAddCommand("Maven...", MavenMonikers.MavenReference, "Add Maven reference", owner => Task.FromResult(Add(context, owner))) };
+        return new[] { new IkvmDependencyAddCommand("Maven...", MavenMonikers.MavenReference, "Add Maven reference", owner => AddAsync(context, owner)) };
     }
 
-    static IReadOnlyList<IkvmDependencyEntry> Add(IkvmDependencyEntryContext context, Window owner)
+    static bool HasSdk(IkvmDependencyEntryContext context) => context.Project.Capabilities.AppliesTo(MavenReferenceRules.Capability);
+
+    static async Task<IReadOnlyList<IkvmDependencyEntry>> AddAsync(IkvmDependencyEntryContext context, Window owner)
     {
+        // Maven references are resolved by IKVM.Maven.Sdk
+        if (HasSdk(context) == false && await context.AddPackageAsync(SdkPackageId, "Maven references need the IKVM.Maven.Sdk package, which this project does not use yet.") == false)
+            return Array.Empty<IkvmDependencyEntry>();
+
         var dialog = new AddMavenReferenceDialog() { Owner = owner };
         if (dialog.ShowModal() != true || MavenCoordinates.TryParseInclude(dialog.Coordinates, out var groupId, out var artifactId, out var version) == false)
             return Array.Empty<IkvmDependencyEntry>();
@@ -64,6 +73,15 @@ internal sealed class MavenReferenceEntryProvider : IkvmDependencyEntryProvider
         var maven = entries.OfType<MavenDependencyEntry>().ToList();
         if (maven.Count == 0)
             return;
+
+        // without the SDK nothing is resolved
+        if (HasSdk(context) == false)
+        {
+            foreach (var entry in maven)
+                entry.SetResolved(new Dictionary<string, MavenReference?>());
+
+            return;
+        }
 
         var references = new Dictionary<string, ImmutableArray<MavenReference>>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in context.ConfiguredProjects)
