@@ -5,25 +5,29 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 
+using IKVM.VisualStudio.ProjectSystem;
+
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ProjectSystem;
 
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
 /// <summary>
-/// Handles Remove on IKVM references. References defined by MSBuild expressions or wildcards cannot be removed here.
+/// Handles Remove on nodes of the IKVM Dependencies tree flagged <see cref="IkvmDependencyTreeFlags.Reference"/>,
+/// removing the items named by their browse objects. Items defined by MSBuild expressions or wildcards cannot be
+/// removed here.
 /// </summary>
 [ExportCommandGroup(VSConstants.CMDSETID.StandardCommandSet97_string)]
-[AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 [Order(1000)]
-internal sealed class RemoveIkvmReferenceCommandHandler : IAsyncCommandGroupHandler
+internal sealed class RemoveIkvmDependencyCommandHandler : IAsyncCommandGroupHandler
 {
 
     readonly IkvmReferenceWriter _writer;
     readonly Lazy<IkvmDependenciesTreeProvider> _treeProvider;
 
     [ImportingConstructor]
-    public RemoveIkvmReferenceCommandHandler(IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
+    public RemoveIkvmDependencyCommandHandler(IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
     {
         _writer = writer;
         _treeProvider = treeProvider;
@@ -31,20 +35,20 @@ internal sealed class RemoveIkvmReferenceCommandHandler : IAsyncCommandGroupHand
 
     public async Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
-        if (IsRemove(commandId) == false || nodes.Count == 0 || nodes.All(i => i.Flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag)) == false)
+        if (IsRemove(commandId) == false || nodes.Count == 0 || nodes.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)) == false)
             return CommandStatusResult.Unhandled;
 
-        var references = GetReferences(nodes);
-        var removable = references.Count == nodes.Count && await _writer.CanRemoveAsync(references, _treeProvider.Value.GetConfiguredProjects());
+        var items = GetItems(nodes);
+        var removable = items.Count == nodes.Count && await _writer.CanRemoveAsync(items, _treeProvider.Value.GetConfiguredProjects());
         return new CommandStatusResult(true, commandText, removable ? CommandStatus.Enabled | CommandStatus.Supported : CommandStatus.Supported);
     }
 
     public async Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
-        if (IsRemove(commandId) == false || nodes.All(i => i.Flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag)) == false)
+        if (IsRemove(commandId) == false || nodes.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)) == false)
             return false;
 
-        await _writer.RemoveAsync(GetReferences(nodes), _treeProvider.Value.GetConfiguredProjects());
+        await _writer.RemoveAsync(GetItems(nodes), _treeProvider.Value.GetConfiguredProjects());
         return true;
     }
 
@@ -54,14 +58,14 @@ internal sealed class RemoveIkvmReferenceCommandHandler : IAsyncCommandGroupHand
     }
 
     /// <summary>
-    /// Gets the references behind the given nodes.
+    /// Gets the items behind the given nodes, from the contexts of their browse objects.
     /// </summary>
-    List<IkvmReference> GetReferences(IImmutableSet<IProjectTree> nodes)
+    static List<(string ItemType, string ItemSpec)> GetItems(IImmutableSet<IProjectTree> nodes)
     {
-        var result = new List<IkvmReference>();
+        var result = new List<(string ItemType, string ItemSpec)>();
         foreach (var node in nodes)
-            if (_treeProvider.Value.TryGetReference(node, out var reference))
-                result.Add(reference!);
+            if (node.BrowseObjectProperties?.Context is { ItemType: { Length: > 0 } itemType, ItemName: { Length: > 0 } itemName })
+                result.Add((itemType, itemName));
 
         return result;
     }

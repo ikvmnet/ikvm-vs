@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using IKVM.VisualStudio.ProjectSystem;
+
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.Shell;
 
@@ -16,7 +18,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// <c>DescribeIkvmReferenceCandidates</c> target.
 /// </summary>
 [Export]
-[AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 internal sealed class IkvmReferenceDescriber
 {
 

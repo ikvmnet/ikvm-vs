@@ -1,11 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
 using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem.Properties;
 
-namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
+namespace IKVM.VisualStudio.Maven;
 
 /// <summary>
 /// A <c>MavenReference</c> item of a configured project, with the artifacts Maven resolved for the project when
@@ -15,16 +16,16 @@ internal sealed class MavenReference
 {
 
     /// <summary>
-    /// Creates the Maven references described by a rule subscription update of a configured project.
+    /// Creates the Maven references described by the rule snapshots of a configured project.
     /// </summary>
-    public static ImmutableArray<MavenReference> Create(ConfiguredProject project, IProjectSubscriptionUpdate update)
+    public static ImmutableArray<MavenReference> Create(ConfiguredProject project, IImmutableDictionary<string, IProjectRuleSnapshot> rules)
     {
-        if (update.CurrentState.TryGetValue(MavenReferenceRules.MavenReference, out var evaluated) == false)
+        if (rules.TryGetValue(MavenReferenceRules.MavenReference, out var evaluated) == false)
             return ImmutableArray<MavenReference>.Empty;
 
         // the resolved graph is shared by every reference of the project
         ImmutableDictionary<string, MavenArtifact>? graph = null;
-        if (update.CurrentState.TryGetValue(MavenReferenceRules.ResolvedMavenReference, out var resolved) && resolved.Items.Count > 0)
+        if (rules.TryGetValue(MavenReferenceRules.ResolvedMavenReference, out var resolved) && resolved.Items.Count > 0)
             graph = resolved.Items.ToImmutableDictionary(i => i.Key, i => new MavenArtifact(i.Key, i.Value), StringComparer.OrdinalIgnoreCase);
 
         return evaluated.Items.Select(i => new MavenReference(project, i.Key, i.Value, graph)).ToImmutableArray();

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+using IKVM.VisualStudio.ProjectSystem;
 using IKVM.VisualStudio.Vsix.Commands;
 using IKVM.VisualStudio.Vsix.UI;
 
@@ -21,7 +22,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// of its target framework folders.
 /// </summary>
 [ExportCommandGroup(IkvmDependenciesCommandIds.CommandSetString)]
-[AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupHandler
 {
 
@@ -55,7 +56,7 @@ internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupH
             return false;
 
         // invoked from a target framework folder: new references default to that framework
-        var targetFramework = nodes.FirstOrDefault(i => i.Flags.Contains(IkvmDependenciesTreeProvider.TargetFrameworkFlag))?.Caption;
+        var targetFramework = nodes.FirstOrDefault(i => i.Flags.Contains(IkvmDependencyTreeFlags.TargetFramework))?.Caption;
         var projectDirectory = Path.GetDirectoryName(_project.FullPath)!;
         IReadOnlyList<IkvmReferenceElement> elements;
         try

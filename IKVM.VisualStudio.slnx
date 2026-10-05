@@ -12,6 +12,8 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/IKVM.VisualStudio.Maven/IKVM.VisualStudio.Maven.csproj" />
+    <Project Path="src/IKVM.VisualStudio.ProjectSystem.Abstractions/IKVM.VisualStudio.ProjectSystem.Abstractions.csproj" />
     <Project Path="src/IKVM.VisualStudio.Vsix/IKVM.VisualStudio.Vsix.csproj">
       <Deploy />
     </Project>

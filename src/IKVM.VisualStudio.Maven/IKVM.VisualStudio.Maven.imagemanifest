@@ -1,0 +1,21 @@
+<ImageManifest xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+    <Symbols>
+        <Guid Name="MonikerGuid" Value="{0c74fd5b-929a-469f-9cde-caebe693d0e3}" />
+        <String Name="Images" Value="/IKVM.VisualStudio.Maven;Component/Images" />
+        <ID Name="MavenReference" Value="1" />
+        <ID Name="MavenReferenceWarning" Value="2" />
+        <ID Name="MavenDependency" Value="3" />
+    </Symbols>
+    <Images>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenReference)">
+            <Source Uri="$(Images)/MavenReference.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenReferenceWarning)">
+            <Source Uri="$(Images)/MavenReferenceWarning.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenDependency)">
+            <Source Uri="$(Images)/MavenDependency.xaml" />
+        </Image>
+    </Images>
+    <ImageLists />
+</ImageManifest>

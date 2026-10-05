@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>IKVM.VisualStudio.ProjectSystem</RootNamespace>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IsPackable>true</IsPackable>
+        <Description>Extension points of the IKVM Visual Studio extension, for extensions that add dependencies under its IKVM Dependencies node.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Reference Include="System.ComponentModel.Composition" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" ExcludeAssets="runtime" />
+    </ItemGroup>
+
+</Project>

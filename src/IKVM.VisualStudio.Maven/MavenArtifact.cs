@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
+namespace IKVM.VisualStudio.Maven;
 
 /// <summary>
 /// An artifact of the resolved Maven graph of a configured project.
