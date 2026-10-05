@@ -54,15 +54,15 @@ internal sealed class MavenReferenceEntryProvider : IkvmDependencyEntryProvider
         if (HasSdk(context) == false && await context.AddPackageAsync(SdkPackageId, "Maven references need the IKVM.Maven.Sdk package, which this project does not use yet.") == false)
             return Array.Empty<IkvmDependencyEntry>();
 
-        var dialog = new AddMavenReferenceDialog() { Owner = owner };
-        if (dialog.ShowModal() != true || MavenCoordinates.TryParseInclude(dialog.Coordinates, out var groupId, out var artifactId, out var version) == false)
-            return Array.Empty<IkvmDependencyEntry>();
-
         // one reference per group and artifact
-        if (context.Entries.OfType<MavenDependencyEntry>().Any(i => string.Equals(i.GroupId, groupId, StringComparison.OrdinalIgnoreCase) && string.Equals(i.ArtifactId, artifactId, StringComparison.OrdinalIgnoreCase)))
+        var existing = context.Entries.OfType<MavenDependencyEntry>().Select(i => $"{i.GroupId}:{i.ArtifactId}");
+
+        // versions come from the repositories of any target framework: they are the same in each
+        var dialog = new AddMavenReferenceDialog(context.ConfiguredProjects.Values.First(), existing) { Owner = owner };
+        if (dialog.ShowModal() != true || dialog.Selected is not { } selected)
             return Array.Empty<IkvmDependencyEntry>();
 
-        return new[] { MavenDependencyEntry.ForNew(context, groupId, artifactId, version ?? "") };
+        return new[] { MavenDependencyEntry.ForNew(context, selected.GroupId, selected.ArtifactId, dialog.Version, dialog.Scope) };
     }
 
     /// <summary>

@@ -4,39 +4,102 @@
                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                    xmlns:vsui="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
                    xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+                   xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+                   xmlns:theming="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Imaging"
                    xmlns:ui="clr-namespace:IKVM.VisualStudio.ProjectSystem.UI;assembly=IKVM.VisualStudio.ProjectSystem.Abstractions"
+                   xmlns:maven="clr-namespace:IKVM.VisualStudio.Maven.Imaging"
+                   xmlns:local="clr-namespace:IKVM.VisualStudio.Maven.UI"
+                   xmlns:root="clr-namespace:IKVM.VisualStudio.Maven"
                    vsui:ThemedDialogStyleLoader.UseDefaultThemedDialogStyles="True"
                    Foreground="{DynamicResource {x:Static vsui:ThemedDialogColors.WindowPanelTextBrushKey}}"
                    FontFamily="{DynamicResource {x:Static vsshell:VsFonts.EnvironmentFontFamilyKey}}"
                    FontSize="{DynamicResource {x:Static vsshell:VsFonts.EnvironmentFontSizeKey}}"
                    Title="Add Maven Reference"
-                   Width="480" SizeToContent="Height"
+                   Width="820" Height="560" MinWidth="640" MinHeight="420"
                    WindowStartupLocation="CenterOwner"
                    ShowInTaskbar="False"
-                   ResizeMode="NoResize">
+                   ResizeMode="CanResizeWithGrip">
 
     <vsui:DialogWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/IKVM.VisualStudio.ProjectSystem.Abstractions;component/UI/IkvmDependencyStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <local:ScopeNameConverter x:Key="ScopeName" />
         </ResourceDictionary>
     </vsui:DialogWindow.Resources>
 
-    <StackPanel Background="{DynamicResource {x:Static vsui:ThemedDialogColors.WindowPanelBrushKey}}">
-        <StackPanel Margin="16">
-            <Label Content="_Coordinates" Target="{Binding ElementName=CoordinatesBox}" Padding="0,0,0,4" />
-            <ui:Field>
-                <Grid>
-                    <TextBox x:Name="CoordinatesBox" BorderThickness="0" TextChanged="OnTextChanged" />
-                    <TextBlock Style="{StaticResource Placeholder}" Text="groupId:artifactId:version" Visibility="{Binding Text.IsEmpty, ElementName=CoordinatesBox, Converter={StaticResource BoolToVisibility}}" />
-                </Grid>
-            </ui:Field>
-            <TextBlock Margin="0,6,0,0" Opacity="0.85" TextWrapping="Wrap" Text="Such as org.apache.commons:commons-lang3:3.14.0. The version can also be a range, such as [3.0,4.0)." />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,0,16,16">
-            <Button x:Name="AddButton" Content="_Add" IsDefault="True" Click="OnAdd" MinWidth="96" Margin="0,0,8,0" IsEnabled="False" />
-            <Button Content="Cancel" IsCancel="True" MinWidth="96" />
-        </StackPanel>
-    </StackPanel>
+    <Grid Background="{DynamicResource {x:Static vsui:ThemedDialogColors.WindowPanelBrushKey}}"
+          theming:ImageThemingUtilities.ImageBackgroundColor="{DynamicResource {x:Static vsui:ThemedDialogColors.WindowPanelColorKey}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="16,16,16,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="300" />
+            </Grid.ColumnDefinitions>
+
+            <!-- what to add: found by a search, or typed -->
+            <DockPanel Grid.Column="0">
+                <ui:Field DockPanel.Dock="Top">
+                    <Grid>
+                        <TextBox x:Name="SearchBox" BorderThickness="0" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Search" />
+                        <TextBlock Style="{StaticResource Placeholder}" Text="{Binding SearchPlaceholder}" Visibility="{Binding Text.IsEmpty, ElementName=SearchBox, Converter={StaticResource BoolToVisibility}}" />
+                    </Grid>
+                </ui:Field>
+                <TextBlock DockPanel.Dock="Top" Text="{Binding SearchStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,6,0,0" />
+                <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding Selected}" Margin="0,8,0,0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Artifacts">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type root:MavenSearchResult}">
+                            <DockPanel Margin="2,3">
+                                <imaging:CrispImage DockPanel.Dock="Left" Moniker="{x:Static maven:MavenMonikers.MavenReference}" Width="16" Height="16" Margin="0,2,8,0" VerticalAlignment="Top" />
+                                <TextBlock DockPanel.Dock="Right" Text="{Binding LatestVersion}" Opacity="0.8" Margin="8,0,0,0" VerticalAlignment="Top" />
+                                <StackPanel>
+                                    <TextBlock Text="{Binding ArtifactId}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding GroupId}" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                            </DockPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <!-- the selected artifact -->
+            <StackPanel Grid.Column="2" Visibility="{Binding HasSelected, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="{Binding Selected.ArtifactId}" FontSize="{DynamicResource {x:Static vsshell:VsFonts.Environment133PercentFontSizeKey}}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Selected.GroupId}" Opacity="0.85" TextWrapping="Wrap" Margin="0,2,0,12" />
+
+                <Label Content="_Version" Target="{Binding ElementName=VersionBox}" Padding="0,0,0,4" />
+                <ui:Field>
+                    <ComboBox x:Name="VersionBox" BorderThickness="0" IsEditable="True" ItemsSource="{Binding Versions}" Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" />
+                </ui:Field>
+                <TextBlock Text="{Binding VersionsStatus}" Opacity="0.85" TextWrapping="Wrap" Margin="0,4,0,12" />
+
+                <Label Content="_Scope" Target="{Binding ElementName=ScopeBox}" Padding="0,0,0,4" />
+                <ui:Field Margin="0,0,0,12">
+                    <ComboBox x:Name="ScopeBox" BorderThickness="0" ItemsSource="{Binding ScopeOptions}" SelectedItem="{Binding Scope}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource ScopeName}}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </ui:Field>
+
+                <TextBlock Text="{Binding Problem}" Foreground="{StaticResource ErrorBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+        <DockPanel Grid.Row="1" Margin="16,12,16,16">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Content="_Add" IsDefault="True" Click="OnAdd" IsEnabled="{Binding CanAdd}" MinWidth="96" Margin="0,0,8,0" />
+                <Button Content="Cancel" IsCancel="True" MinWidth="96" />
+            </StackPanel>
+            <TextBlock Text="{Binding RepositoriesText}" Opacity="0.85" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        </DockPanel>
+    </Grid>
 </vsui:DialogWindow>

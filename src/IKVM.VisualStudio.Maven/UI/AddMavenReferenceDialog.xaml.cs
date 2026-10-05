@@ -1,36 +1,42 @@
-using System.Linq;
+using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
 
 using Microsoft.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.ProjectSystem;
 
 namespace IKVM.VisualStudio.Maven.UI;
 
 /// <summary>
-/// Asks for the coordinates of a Maven reference to add.
+/// Finds a Maven artifact to reference, with its version and scope: searching Maven Central, or from typed
+/// coordinates, with versions from the repositories of the project.
 /// </summary>
 internal partial class AddMavenReferenceDialog : DialogWindow
 {
 
-    public AddMavenReferenceDialog()
+    readonly AddMavenReferenceViewModel _model;
+
+    /// <param name="project">The configured project whose repositories are used.</param>
+    /// <param name="existing">The <c>groupId:artifactId</c> of the references already in the project.</param>
+    public AddMavenReferenceDialog(ConfiguredProject project, IEnumerable<string> existing)
     {
         InitializeComponent();
-        Loaded += (s, e) => CoordinatesBox.Focus();
+        DataContext = _model = new AddMavenReferenceViewModel(project, existing);
+        Loaded += (s, e) => SearchBox.Focus();
     }
 
     /// <summary>
-    /// Gets the coordinates typed, as <c>groupId:artifactId:version</c>.
+    /// Gets the artifact to add, once the dialog is accepted.
     /// </summary>
-    public string Coordinates => CoordinatesBox.Text.Trim();
+    public MavenSearchResult? Selected => _model.Selected;
 
-    void OnTextChanged(object sender, TextChangedEventArgs e)
-    {
-        AddButton.IsEnabled = Coordinates.Split(':') is { Length: 3 } parts && parts.All(i => i.Trim().Length > 0);
-    }
+    public string Version => _model.Version;
+
+    public string Scope => _model.Scope;
 
     void OnAdd(object sender, RoutedEventArgs e)
     {
-        DialogResult = true;
+        if (_model.CanAdd)
+            DialogResult = true;
     }
 
 }
