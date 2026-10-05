@@ -7,7 +7,7 @@ using IKVM.VisualStudio.Vsix.Imaging;
 namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>
-/// Converts whether a Java reference is a class directory into the image moniker for it.
+/// Converts whether a IKVM reference is a class directory into the image moniker for it.
 /// </summary>
 sealed class ReferenceKindMonikerConverter : IValueConverter
 {

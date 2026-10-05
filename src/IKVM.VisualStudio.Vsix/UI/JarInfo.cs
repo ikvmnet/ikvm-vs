@@ -4,7 +4,7 @@ namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>
 /// File system facts about a JAR or class directory being added. Assembly names and versions are not derived here:
-/// they come from the project's IKVM package, through <see cref="ProjectSystem.References.JavaReferenceDescriber"/>.
+/// they come from the project's IKVM package, through <see cref="ProjectSystem.References.IkvmReferenceDescriber"/>.
 /// </summary>
 internal sealed class JarInfo
 {

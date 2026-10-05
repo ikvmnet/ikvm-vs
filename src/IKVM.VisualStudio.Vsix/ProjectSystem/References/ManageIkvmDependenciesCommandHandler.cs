@@ -20,19 +20,19 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// Handles "Manage IKVM Dependencies...", from the project, the Dependencies node, the IKVM Dependencies node or one
 /// of its target framework folders.
 /// </summary>
-[ExportCommandGroup(JavaReferenceCommandIds.CommandSetString)]
+[ExportCommandGroup(IkvmDependenciesCommandIds.CommandSetString)]
 [AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
 internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupHandler
 {
 
     readonly UnconfiguredProject _project;
     readonly IProjectThreadingService _threading;
-    readonly JavaReferenceWriter _writer;
-    readonly JavaReferenceDescriber _describer;
-    readonly Lazy<JavaReferencesTreeProvider> _treeProvider;
+    readonly IkvmReferenceWriter _writer;
+    readonly IkvmReferenceDescriber _describer;
+    readonly Lazy<IkvmDependenciesTreeProvider> _treeProvider;
 
     [ImportingConstructor]
-    public ManageIkvmDependenciesCommandHandler(UnconfiguredProject project, IProjectThreadingService threading, JavaReferenceWriter writer, JavaReferenceDescriber describer, Lazy<JavaReferencesTreeProvider> treeProvider)
+    public ManageIkvmDependenciesCommandHandler(UnconfiguredProject project, IProjectThreadingService threading, IkvmReferenceWriter writer, IkvmReferenceDescriber describer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
     {
         _project = project;
         _threading = threading;
@@ -43,7 +43,7 @@ internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupH
 
     public Task<CommandStatusResult> GetCommandStatusAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, string? commandText, CommandStatus progressiveStatus)
     {
-        if (commandId != JavaReferenceCommandIds.AddJavaReference)
+        if (commandId != IkvmDependenciesCommandIds.ManageIkvmDependencies)
             return Task.FromResult(CommandStatusResult.Unhandled);
 
         return Task.FromResult(new CommandStatusResult(true, commandText, CommandStatus.Enabled | CommandStatus.Supported));
@@ -51,11 +51,11 @@ internal sealed class ManageIkvmDependenciesCommandHandler : IAsyncCommandGroupH
 
     public async Task<bool> TryHandleCommandAsync(IImmutableSet<IProjectTree> nodes, long commandId, bool focused, long commandExecuteOptions, IntPtr variantArgIn, IntPtr variantArgOut)
     {
-        if (commandId != JavaReferenceCommandIds.AddJavaReference)
+        if (commandId != IkvmDependenciesCommandIds.ManageIkvmDependencies)
             return false;
 
         // invoked from a target framework folder: new references default to that framework
-        var targetFramework = nodes.FirstOrDefault(i => i.Flags.Contains(JavaReferencesTreeProvider.TargetFrameworkFlag))?.Caption;
+        var targetFramework = nodes.FirstOrDefault(i => i.Flags.Contains(IkvmDependenciesTreeProvider.TargetFrameworkFlag))?.Caption;
         var projectDirectory = Path.GetDirectoryName(_project.FullPath)!;
         IReadOnlyList<IkvmReferenceElement> elements;
         try

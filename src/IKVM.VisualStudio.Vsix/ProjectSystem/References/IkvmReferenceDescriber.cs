@@ -17,7 +17,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// </summary>
 [Export]
 [AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
-internal sealed class JavaReferenceDescriber
+internal sealed class IkvmReferenceDescriber
 {
 
     const string TargetName = "DescribeIkvmReferenceCandidates";
@@ -26,7 +26,7 @@ internal sealed class JavaReferenceDescriber
     readonly UnconfiguredProject _project;
 
     [ImportingConstructor]
-    public JavaReferenceDescriber(UnconfiguredProject project)
+    public IkvmReferenceDescriber(UnconfiguredProject project)
     {
         _project = project;
     }
@@ -34,9 +34,9 @@ internal sealed class JavaReferenceDescriber
     /// <summary>
     /// Describes the given full paths. Paths that cannot be described are omitted.
     /// </summary>
-    public async Task<IReadOnlyDictionary<string, JavaReferenceDescription>> DescribeAsync(IReadOnlyCollection<string> paths, CancellationToken cancellationToken)
+    public async Task<IReadOnlyDictionary<string, IkvmReferenceDescription>> DescribeAsync(IReadOnlyCollection<string> paths, CancellationToken cancellationToken)
     {
-        var result = new Dictionary<string, JavaReferenceDescription>(StringComparer.OrdinalIgnoreCase);
+        var result = new Dictionary<string, IkvmReferenceDescription>(StringComparer.OrdinalIgnoreCase);
         if (paths.Count == 0)
             return result;
 
@@ -44,7 +44,7 @@ internal sealed class JavaReferenceDescriber
         var build = configuredProject?.Services.Build;
         if (build == null)
         {
-            ActivityLog.TryLogWarning(nameof(JavaReferenceDescriber), "No build service for the project.");
+            ActivityLog.TryLogWarning(nameof(IkvmReferenceDescriber), "No build service for the project.");
             return result;
         }
 
@@ -59,17 +59,17 @@ internal sealed class JavaReferenceDescriber
             var logger = new ErrorCollectingLogger();
             var buildResult = await build.BuildAsync(new[] { TargetName }, cancellationToken, true, properties, loggers: ImmutableHashSet.Create<Microsoft.Build.Framework.ILogger>(logger));
             if (logger.Errors.Count > 0)
-                ActivityLog.TryLogWarning(nameof(JavaReferenceDescriber), $"{TargetName} failed: {string.Join(" | ", logger.Errors)}");
+                ActivityLog.TryLogWarning(nameof(IkvmReferenceDescriber), $"{TargetName} failed: {string.Join(" | ", logger.Errors)}");
             if (buildResult?.MSBuildResult?.ResultsByTarget is { } resultsByTarget && resultsByTarget.TryGetValue(TargetName, out var targetResult))
             {
                 if (targetResult.ResultCode != Microsoft.Build.Execution.TargetResultCode.Success)
-                    ActivityLog.TryLogWarning(nameof(JavaReferenceDescriber), $"{TargetName} {targetResult.ResultCode}: {targetResult.Exception}");
+                    ActivityLog.TryLogWarning(nameof(IkvmReferenceDescriber), $"{TargetName} {targetResult.ResultCode}: {targetResult.Exception}");
 
                 foreach (var item in targetResult.Items)
                 {
                     var original = item.GetMetadata(IkvmReferenceRules.OriginalItemSpecMetadata);
                     var path = string.IsNullOrEmpty(original) ? item.ItemSpec : original;
-                    result[path] = new JavaReferenceDescription(
+                    result[path] = new IkvmReferenceDescription(
                         path,
                         Empty(item.GetMetadata(IkvmReferenceRules.AssemblyNameMetadata)),
                         Empty(item.GetMetadata(IkvmReferenceRules.AssemblyVersionMetadata)),
@@ -81,7 +81,7 @@ internal sealed class JavaReferenceDescriber
         catch (Exception e) when (cancellationToken.IsCancellationRequested == false)
         {
             // an older IKVM package without the target, or a failed build: no descriptions
-            ActivityLog.TryLogWarning(nameof(JavaReferenceDescriber), $"Could not describe Java reference candidates: {e}");
+            ActivityLog.TryLogWarning(nameof(IkvmReferenceDescriber), $"Could not describe IKVM reference candidates: {e}");
         }
 
         return result;

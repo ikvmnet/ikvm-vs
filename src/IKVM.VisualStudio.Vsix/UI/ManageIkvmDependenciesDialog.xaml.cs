@@ -35,7 +35,7 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
         IEnumerable<IkvmReferenceElement> elements,
         IEnumerable<string> targetFrameworks,
         string? defaultTargetFramework,
-        Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, JavaReferenceDescription>>> describe)
+        Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, IkvmReferenceDescription>>> describe)
     {
         InitializeComponent();
         _projectDirectory = projectDirectory;

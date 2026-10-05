@@ -28,7 +28,7 @@ sealed class IkvmDependencyEntry : ViewModelBase
     /// </summary>
     public static IkvmDependencyEntry FromElement(IkvmReferenceElement element, string projectDirectory, IReadOnlyList<string> targetFrameworks)
     {
-        var fullPath = JavaReferenceWriter.IsLiteral(element.Include) ? Resolve(projectDirectory, element.Include) : element.Include;
+        var fullPath = IkvmReferenceWriter.IsLiteral(element.Include) ? Resolve(projectDirectory, element.Include) : element.Include;
         var entry = new IkvmDependencyEntry(fullPath, element, IkvmDependencyState.Existing, projectDirectory, targetFrameworks, element.TargetFrameworks);
 
         foreach (var key in entry._keys)
@@ -93,7 +93,7 @@ sealed class IkvmDependencyEntry : ViewModelBase
     readonly HashSet<string> _editing = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     IkvmDependencyState _state;
     bool _allTargetFrameworks;
-    JavaReferenceDescription? _description;
+    IkvmReferenceDescription? _description;
     bool _isDescribed;
     JarInfo _info;
 
@@ -210,12 +210,6 @@ sealed class IkvmDependencyEntry : ViewModelBase
     /// Sorts referenced entries before new ones.
     /// </summary>
     public int GroupOrder => IsNew ? 1 : 0;
-
-    /// <summary>
-    /// Whether the entry applies to all target frameworks, including ones added to the project later, rather than to
-    /// a list of them.
-    /// </summary>
-    public bool AllTargetFrameworks => _allTargetFrameworks;
 
     public ObservableCollection<TargetFrameworkOption> TargetFrameworkOptions { get; } = new ObservableCollection<TargetFrameworkOption>();
 
@@ -763,7 +757,7 @@ sealed class IkvmDependencyEntry : ViewModelBase
     /// <summary>
     /// What the project's IKVM package derives for this entry, once known.
     /// </summary>
-    public JavaReferenceDescription? Description
+    public IkvmReferenceDescription? Description
     {
         get => _description;
         set

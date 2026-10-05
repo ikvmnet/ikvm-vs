@@ -17,20 +17,20 @@ using Microsoft.VisualStudio.ProjectSystem.Properties;
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
 /// <summary>
-/// Provides the "Java References" node beside Dependencies, listing <c>IkvmReference</c> items, grouped by target
+/// Provides the "IKVM Dependencies" node beside Dependencies, listing <c>IkvmReference</c> items, grouped by target
 /// framework when the project targets more than one.
 /// </summary>
 [Export(ExportContractNames.ProjectTreeProviders.PhysicalViewRootGraft, typeof(IProjectTreeProvider))]
-[Export(typeof(JavaReferencesTreeProvider))]
+[Export(typeof(IkvmDependenciesTreeProvider))]
 [AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
-internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
+internal class IkvmDependenciesTreeProvider : ProjectTreeProviderBase
 {
 
     public const string RootCaption = "IKVM Dependencies";
 
-    public static readonly ProjectTreeFlags RootFlag = ProjectTreeFlags.Create("JavaReferencesRoot");
-    public static readonly ProjectTreeFlags TargetFrameworkFlag = ProjectTreeFlags.Create("JavaReferencesTargetFramework");
-    public static readonly ProjectTreeFlags ReferenceFlag = ProjectTreeFlags.Create("JavaReference");
+    public static readonly ProjectTreeFlags RootFlag = ProjectTreeFlags.Create("IkvmDependenciesRoot");
+    public static readonly ProjectTreeFlags TargetFrameworkFlag = ProjectTreeFlags.Create("IkvmDependenciesTargetFramework");
+    public static readonly ProjectTreeFlags ReferenceFlag = ProjectTreeFlags.Create("IkvmReference");
 
     static readonly ProjectImageMoniker RootIcon = IkvmMonikers.IkvmDependencies.ToProjectSystemType();
     static readonly ProjectImageMoniker TargetFrameworkIcon = KnownMonikers.Library.ToProjectSystemType();
@@ -49,7 +49,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
     /// Initializes a new instance.
     /// </summary>
     [ImportingConstructor]
-    public JavaReferencesTreeProvider(
+    public IkvmDependenciesTreeProvider(
         IProjectThreadingService threadingService,
         UnconfiguredProject unconfiguredProject,
         IActiveConfigurationGroupService configurationGroupService) :
@@ -89,13 +89,13 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
 
     protected override ConfiguredProjectExports GetActiveConfiguredProjectExports(ConfiguredProject newActiveConfiguredProject)
     {
-        return GetActiveConfiguredProjectExports<JavaReferencesConfiguredProjectExports>(newActiveConfiguredProject);
+        return GetActiveConfiguredProjectExports<IkvmDependenciesConfiguredProjectExports>(newActiveConfiguredProject);
     }
 
     /// <summary>
-    /// Gets the Java references currently known for each configured project of the active configuration group.
+    /// Gets the IKVM references currently known for each configured project of the active configuration group.
     /// </summary>
-    public ImmutableArray<JavaReference> GetReferences()
+    public ImmutableArray<IkvmReference> GetReferences()
     {
         lock (_sync)
             return _projects.Values.SelectMany(i => i.References).ToImmutableArray();
@@ -125,7 +125,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
     /// <summary>
     /// Gets the reference shown by the given node.
     /// </summary>
-    public bool TryGetReference(IProjectTree node, out JavaReference? reference)
+    public bool TryGetReference(IProjectTree node, out IkvmReference? reference)
     {
         reference = null;
         if (node.Flags.Contains(ReferenceFlag) == false)
@@ -133,7 +133,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
 
         var targetFramework = node.Parent != null && node.Parent.Flags.Contains(TargetFrameworkFlag) ? node.Parent.Caption : null;
 
-        List<JavaReference> candidates;
+        List<IkvmReference> candidates;
         lock (_sync)
             candidates = _projects
                 .Where(i => targetFramework == null || string.Equals(GetTargetFramework(i.Key), targetFramework, StringComparison.OrdinalIgnoreCase))
@@ -171,7 +171,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
                     IkvmReferenceRules.IkvmReference,
                     IkvmReferenceRules.ResolvedIkvmReference);
 
-                _projects = _projects.Add(configuredProject, new ProjectState(link, ImmutableArray<JavaReference>.Empty));
+                _projects = _projects.Add(configuredProject, new ProjectState(link, ImmutableArray<IkvmReference>.Empty));
             }
         }
 
@@ -183,7 +183,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
     /// </summary>
     void OnProjectUpdated(ConfiguredProject configuredProject, IProjectVersionedValue<IProjectSubscriptionUpdate> update)
     {
-        var references = JavaReference.Create(configuredProject, update.Value);
+        var references = IkvmReference.Create(configuredProject, update.Value);
 
         lock (_sync)
         {
@@ -249,7 +249,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
     /// <summary>
     /// Updates the reference children of the given node, reusing existing nodes so that their state is kept.
     /// </summary>
-    async Task<IProjectTree> UpdateReferencesAsync(IProjectTree parent, IEnumerable<JavaReference> references, CancellationToken cancellationToken)
+    async Task<IProjectTree> UpdateReferencesAsync(IProjectTree parent, IEnumerable<IkvmReference> references, CancellationToken cancellationToken)
     {
         var list = references.ToList();
         var captions = GetCaptions(list);
@@ -279,7 +279,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
     /// <summary>
     /// Gets the rule shown in the Properties window for a reference.
     /// </summary>
-    async Task<IRule?> GetBrowseObjectAsync(JavaReference reference)
+    async Task<IRule?> GetBrowseObjectAsync(IkvmReference reference)
     {
         var configuredProject = reference.Project;
         var catalog = await configuredProject.Services.PropertyPagesCatalog!.GetCatalogAsync(PropertyPageContexts.BrowseObject);
@@ -294,7 +294,7 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
     /// <summary>
     /// Gets a unique caption for each reference: the file name, or the full item spec when names collide.
     /// </summary>
-    static Dictionary<JavaReference, string> GetCaptions(List<JavaReference> references)
+    static Dictionary<IkvmReference, string> GetCaptions(List<IkvmReference> references)
     {
         var names = references.ToDictionary(i => i, i => i.DisplayName);
         var duplicates = names.Values.GroupBy(i => i, StringComparer.OrdinalIgnoreCase).Where(i => i.Count() > 1).Select(i => i.Key).ToImmutableHashSet(StringComparer.OrdinalIgnoreCase);
@@ -319,14 +319,14 @@ internal class JavaReferencesTreeProvider : ProjectTreeProviderBase
         return parent;
     }
 
-    sealed record ProjectState(IDisposable Link, ImmutableArray<JavaReference> References);
+    sealed record ProjectState(IDisposable Link, ImmutableArray<IkvmReference> References);
 
     [Export]
-    protected class JavaReferencesConfiguredProjectExports : ConfiguredProjectExports
+    protected class IkvmDependenciesConfiguredProjectExports : ConfiguredProjectExports
     {
 
         [ImportingConstructor]
-        public JavaReferencesConfiguredProjectExports(ConfiguredProject configuredProject) :
+        public IkvmDependenciesConfiguredProjectExports(ConfiguredProject configuredProject) :
             base(configuredProject)
         {
 

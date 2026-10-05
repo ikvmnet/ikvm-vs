@@ -11,12 +11,12 @@ using Microsoft.VisualStudio.ProjectSystem.VS;
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
 /// <summary>
-/// Supplies the context menus for nodes of the Java References tree.
+/// Supplies the context menus for nodes of the IKVM Dependencies tree.
 /// </summary>
 [Export(typeof(IProjectItemContextMenuProvider))]
 [AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
 [Order(1000)]
-internal sealed class JavaReferencesContextMenuProvider : IProjectItemContextMenuProvider
+internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextMenuProvider
 {
 
     public bool TryGetContextMenu(IProjectTree projectItem, out Guid menuCommandGuid, out int menuCommandId)
@@ -29,12 +29,12 @@ internal sealed class JavaReferencesContextMenuProvider : IProjectItemContextMen
         menuCommandGuid = Guid.Empty;
         menuCommandId = 0;
 
-        // only a selection consisting entirely of Java references gets the reference menu
+        // only a selection consisting entirely of IKVM references gets the reference menu
         var items = projectItems.ToList();
-        if (items.Count > 0 && items.All(i => i.Flags.Contains(JavaReferencesTreeProvider.ReferenceFlag)))
+        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag)))
         {
-            menuCommandGuid = JavaReferenceCommandIds.CommandSet;
-            menuCommandId = JavaReferenceCommandIds.JavaReferenceMenu;
+            menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
+            menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
             return true;
         }
 
@@ -43,17 +43,17 @@ internal sealed class JavaReferencesContextMenuProvider : IProjectItemContextMen
 
     static bool TryGetMenu(ProjectTreeFlags flags, out Guid menuCommandGuid, out int menuCommandId)
     {
-        menuCommandGuid = JavaReferenceCommandIds.CommandSet;
+        menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
 
-        if (flags.Contains(JavaReferencesTreeProvider.RootFlag) || flags.Contains(JavaReferencesTreeProvider.TargetFrameworkFlag))
+        if (flags.Contains(IkvmDependenciesTreeProvider.RootFlag) || flags.Contains(IkvmDependenciesTreeProvider.TargetFrameworkFlag))
         {
-            menuCommandId = JavaReferenceCommandIds.JavaReferencesRootMenu;
+            menuCommandId = IkvmDependenciesCommandIds.IkvmDependenciesRootMenu;
             return true;
         }
 
-        if (flags.Contains(JavaReferencesTreeProvider.ReferenceFlag))
+        if (flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag))
         {
-            menuCommandId = JavaReferenceCommandIds.JavaReferenceMenu;
+            menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
             return true;
         }
 

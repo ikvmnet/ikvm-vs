@@ -10,27 +10,27 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// <summary>
 /// An <c>IkvmReference</c> item of a configured project, with its design-time resolution results when available.
 /// </summary>
-internal sealed class JavaReference
+internal sealed class IkvmReference
 {
 
     /// <summary>
     /// Creates the references described by a rule subscription update of a configured project.
     /// </summary>
-    public static ImmutableArray<JavaReference> Create(ConfiguredProject project, IProjectSubscriptionUpdate update)
+    public static ImmutableArray<IkvmReference> Create(ConfiguredProject project, IProjectSubscriptionUpdate update)
     {
         if (update.CurrentState.TryGetValue(IkvmReferenceRules.IkvmReference, out var evaluated) == false)
-            return ImmutableArray<JavaReference>.Empty;
+            return ImmutableArray<IkvmReference>.Empty;
 
         update.CurrentState.TryGetValue(IkvmReferenceRules.ResolvedIkvmReference, out var resolved);
 
-        var builder = ImmutableArray.CreateBuilder<JavaReference>();
+        var builder = ImmutableArray.CreateBuilder<IkvmReference>();
         foreach (var item in evaluated.Items)
         {
             IImmutableDictionary<string, string>? resolvedProperties = null;
             if (resolved != null)
                 resolvedProperties = resolved.Items.FirstOrDefault(i => string.Equals(GetOriginalItemSpec(i.Key, i.Value), item.Key, StringComparison.OrdinalIgnoreCase)).Value;
 
-            builder.Add(new JavaReference(project, item.Key, item.Value, resolvedProperties));
+            builder.Add(new IkvmReference(project, item.Key, item.Value, resolvedProperties));
         }
 
         return builder.ToImmutable();
@@ -44,7 +44,7 @@ internal sealed class JavaReference
     /// <summary>
     /// Initializes a new instance.
     /// </summary>
-    public JavaReference(ConfiguredProject project, string itemSpec, IImmutableDictionary<string, string> properties, IImmutableDictionary<string, string>? resolvedProperties)
+    public IkvmReference(ConfiguredProject project, string itemSpec, IImmutableDictionary<string, string> properties, IImmutableDictionary<string, string>? resolvedProperties)
     {
         Project = project ?? throw new ArgumentNullException(nameof(project));
         ItemSpec = itemSpec ?? throw new ArgumentNullException(nameof(itemSpec));

@@ -15,14 +15,14 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// </summary>
 [Export]
 [AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
-internal sealed class JavaReferenceWriter
+internal sealed class IkvmReferenceWriter
 {
 
     readonly UnconfiguredProject _project;
     readonly IProjectLockService _lockService;
 
     [ImportingConstructor]
-    public JavaReferenceWriter(UnconfiguredProject project, IProjectLockService lockService)
+    public IkvmReferenceWriter(UnconfiguredProject project, IProjectLockService lockService)
     {
         _project = project;
         _lockService = lockService;
@@ -211,7 +211,7 @@ internal sealed class JavaReferenceWriter
     /// <summary>
     /// Gets whether each of the given references is defined by an editable element, and so can be removed.
     /// </summary>
-    public async Task<bool> CanRemoveAsync(IReadOnlyCollection<JavaReference> references, IReadOnlyCollection<ConfiguredProject> configuredProjects)
+    public async Task<bool> CanRemoveAsync(IReadOnlyCollection<IkvmReference> references, IReadOnlyCollection<ConfiguredProject> configuredProjects)
     {
         if (references.Count == 0)
             return false;
@@ -223,7 +223,7 @@ internal sealed class JavaReferenceWriter
     /// <summary>
     /// Removes the editable elements behind the given references.
     /// </summary>
-    public async Task RemoveAsync(IReadOnlyCollection<JavaReference> references, IReadOnlyCollection<ConfiguredProject> configuredProjects)
+    public async Task RemoveAsync(IReadOnlyCollection<IkvmReference> references, IReadOnlyCollection<ConfiguredProject> configuredProjects)
     {
         var elements = await ReadAsync(configuredProjects);
         var removed = elements.Where(e => e.IsEditable && references.Any(r => string.Equals(e.Include, r.ItemSpec, StringComparison.OrdinalIgnoreCase))).ToList();

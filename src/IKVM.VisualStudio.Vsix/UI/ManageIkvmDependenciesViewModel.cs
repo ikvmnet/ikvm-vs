@@ -19,7 +19,7 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
     readonly string _projectDirectory;
     readonly IReadOnlyList<string> _targetFrameworks;
     readonly string? _defaultTargetFramework;
-    readonly Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, JavaReferenceDescription>>> _describe;
+    readonly Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, IkvmReferenceDescription>>> _describe;
     IkvmDependencyEntry? _selectedEntry;
     bool _useRelativePaths = true;
 
@@ -28,7 +28,7 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
         IEnumerable<IkvmReferenceElement> elements,
         IEnumerable<string> targetFrameworks,
         string? defaultTargetFramework,
-        Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, JavaReferenceDescription>>> describe)
+        Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, IkvmReferenceDescription>>> describe)
     {
         _projectDirectory = projectDirectory;
         _describe = describe;
@@ -239,14 +239,14 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
         if (entries.Count == 0)
             return;
 
-        IReadOnlyDictionary<string, JavaReferenceDescription> descriptions;
+        IReadOnlyDictionary<string, IkvmReferenceDescription> descriptions;
         try
         {
             descriptions = await _describe(entries.Select(i => i.DescribedPath).ToList(), CancellationToken.None);
         }
         catch (Exception)
         {
-            descriptions = new Dictionary<string, JavaReferenceDescription>();
+            descriptions = new Dictionary<string, IkvmReferenceDescription>();
         }
 
         foreach (var entry in entries)
