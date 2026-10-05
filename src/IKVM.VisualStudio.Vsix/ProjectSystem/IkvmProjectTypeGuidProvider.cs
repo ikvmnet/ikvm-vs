@@ -3,25 +3,22 @@ using System.ComponentModel.Composition;
 
 using Microsoft.VisualStudio.ProjectSystem;
 
-namespace IKVM.VisualStudio.Vsix.ProjectSystem
+namespace IKVM.VisualStudio.Vsix.ProjectSystem;
+
+[Export(typeof(IItemTypeGuidProvider))]
+[AppliesTo(IkvmProjectCapabilities.AppliesTo)]
+internal class IkvmProjectTypeGuidProvider : IItemTypeGuidProvider
 {
 
-    [Export(typeof(IItemTypeGuidProvider))]
-    [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
-    internal class IkvmProjectTypeGuidProvider : IItemTypeGuidProvider
+    [ImportingConstructor]
+    public IkvmProjectTypeGuidProvider()
     {
 
-        [ImportingConstructor]
-        public IkvmProjectTypeGuidProvider()
-        {
+    }
 
-        }
-
-        public Guid ProjectTypeGuid
-        {
-            get { return ProjectType.IkvmGuid; }
-        }
-
+    public Guid ProjectTypeGuid
+    {
+        get { return ProjectType.IkvmGuid; }
     }
 
 }

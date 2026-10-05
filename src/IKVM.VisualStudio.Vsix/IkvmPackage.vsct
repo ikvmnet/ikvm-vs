@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <Extern href="stdidcmd.h" />
+    <Extern href="vsshlids.h" />
+
+    <Commands package="guidIkvmPackage">
+
+        <Menus>
+            <!-- context menu of the Java References node and its target framework folders -->
+            <Menu guid="guidJavaReferencesCmdSet" id="JavaReferencesRootMenu" type="Context">
+                <Strings>
+                    <ButtonText>IKVM Dependencies</ButtonText>
+                </Strings>
+            </Menu>
+
+            <!-- context menu of a Java reference -->
+            <Menu guid="guidJavaReferencesCmdSet" id="JavaReferenceMenu" type="Context">
+                <Strings>
+                    <ButtonText>IKVM Dependency</ButtonText>
+                </Strings>
+            </Menu>
+        </Menus>
+
+        <Groups>
+            <Group guid="guidJavaReferencesCmdSet" id="JavaReferencesRootGroup" priority="0x0100">
+                <Parent guid="guidJavaReferencesCmdSet" id="JavaReferencesRootMenu" />
+            </Group>
+            <Group guid="guidJavaReferencesCmdSet" id="JavaReferenceGroup" priority="0x0100">
+                <Parent guid="guidJavaReferencesCmdSet" id="JavaReferenceMenu" />
+            </Group>
+            <Group guid="guidJavaReferencesCmdSet" id="JavaReferencePropertiesGroup" priority="0x0F00">
+                <Parent guid="guidJavaReferencesCmdSet" id="JavaReferenceMenu" />
+            </Group>
+            <Group guid="guidJavaReferencesCmdSet" id="DependenciesAddGroup" priority="0x0110">
+                <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_REFERENCEROOT" />
+            </Group>
+        </Groups>
+
+        <Buttons>
+            <Button guid="guidJavaReferencesCmdSet" id="cmdidAddJavaReference" priority="0x0100" type="Button">
+                <Parent guid="guidJavaReferencesCmdSet" id="JavaReferencesRootGroup" />
+                <CommandFlag>DynamicVisibility</CommandFlag>
+                <CommandFlag>DefaultInvisible</CommandFlag>
+                <Strings>
+                    <ButtonText>Manage IKVM Dependencies...</ButtonText>
+                </Strings>
+            </Button>
+        </Buttons>
+
+    </Commands>
+
+    <CommandPlacements>
+        <CommandPlacement guid="guidJavaReferencesCmdSet" id="cmdidAddJavaReference" priority="0x0100">
+            <Parent guid="guidJavaReferencesCmdSet" id="DependenciesAddGroup" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidJavaReferencesCmdSet" id="cmdidAddJavaReference" priority="0x0110">
+            <Parent guid="guidSHLMainMenu" id="IDG_VS_PROJ_REFERENCE" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidJavaReferencesCmdSet" id="cmdidAddJavaReference" priority="0x0110">
+            <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_ADD_REFERENCES" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidVSStd97" id="cmdidRemove" priority="0x0100">
+            <Parent guid="guidJavaReferencesCmdSet" id="JavaReferenceGroup" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidVSStd97" id="cmdidPropSheetOrProperties" priority="0x0100">
+            <Parent guid="guidJavaReferencesCmdSet" id="JavaReferencePropertiesGroup" />
+        </CommandPlacement>
+    </CommandPlacements>
+
+    <KeyBindings>
+        <KeyBinding guid="guidJavaReferencesCmdSet" id="cmdidAddJavaReference" editor="guidVSStd97" key1="J" mod1="Control Alt" />
+    </KeyBindings>
+
+    <Symbols>
+        <GuidSymbol name="guidIkvmPackage" value="{c3f18b47-662b-4785-a2bf-5fd7bc8c6f69}" />
+
+        <GuidSymbol name="guidJavaReferencesCmdSet" value="{80eaf98f-5624-42e8-8c16-81fe7a56751e}">
+            <IDSymbol name="JavaReferencesRootMenu" value="0x1000" />
+            <IDSymbol name="JavaReferenceMenu" value="0x1001" />
+            <IDSymbol name="JavaReferencesRootGroup" value="0x1100" />
+            <IDSymbol name="JavaReferenceGroup" value="0x1101" />
+            <IDSymbol name="JavaReferencePropertiesGroup" value="0x1102" />
+            <IDSymbol name="DependenciesAddGroup" value="0x1103" />
+            <IDSymbol name="cmdidAddJavaReference" value="0x0100" />
+        </GuidSymbol>
+    </Symbols>
+
+</CommandTable>

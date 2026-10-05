@@ -1,0 +1,15 @@
+<!-- Derived from JetBrains IntelliJ Platform icons, licensed under the Apache License 2.0. -->
+<Viewbox Width="16" Height="16" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <Canvas Width="16" Height="16">
+        <Canvas Width="16" Height="16">
+            <Canvas.Clip><CombinedGeometry GeometryCombineMode="Exclude"><CombinedGeometry.Geometry1><RectangleGeometry Rect="0,0,16,16" /></CombinedGeometry.Geometry1><CombinedGeometry.Geometry2><EllipseGeometry Center="12,12" RadiusX="5.5" RadiusY="5.5" /></CombinedGeometry.Geometry2></CombinedGeometry></Canvas.Clip>
+            <Path Data="F1 M8.10584 4.34613L8.25344 4.5H8.46667H13C13.8284 4.5 14.5 5.17157 14.5 6V12.1333C14.5 12.9529 13.932 13.5 13.3667 13.5H2.63333C2.06804 13.5 1.5 12.9529 1.5 12.1333V3.86667C1.5 3.04707 2.06804 2.5 2.63333 2.5H6.1217C6.25792 2.5 6.38824 2.55557 6.48253 2.65387L8.10584 4.34613Z" Fill="#EBECF0" Stroke="#6C707E" StrokeThickness="1" />
+        </Canvas>
+        <Canvas Canvas.Left="8" Canvas.Top="8" Width="16" Height="16">
+            <Canvas.RenderTransform><ScaleTransform ScaleX="0.5" ScaleY="0.5" /></Canvas.RenderTransform>
+            <Path Data="F1 M7.56602 1.76749C7.75797 1.43159 8.24232 1.43159 8.43426 1.7675L14.711 12.7519C14.9014 13.0853 14.6607 13.5 14.2768 13.5H1.7232C1.33928 13.5 1.0986 13.0853 1.28908 12.7519L7.56602 1.76749Z" Fill="#FFFAEB" Stroke="#C27D04" StrokeThickness="1" />
+            <Path Data="F1 M7.9999 5.00159C8.33127 5.00159 8.5999 5.27022 8.5999 5.60159L8.5999 9.00002C8.5999 9.3314 8.33127 9.60002 7.9999 9.60002C7.66853 9.60002 7.3999 9.3314 7.3999 9.00002L7.3999 5.60159C7.3999 5.27022 7.66853 5.00159 7.9999 5.00159Z" Fill="#C27D04" />
+            <Path Data="F1 M8.8002 11.2C8.8002 11.6419 8.44202 12 8.0002 12C7.55837 12 7.2002 11.6419 7.2002 11.2C7.2002 10.7582 7.55837 10.4 8.0002 10.4C8.44202 10.4 8.8002 10.7582 8.8002 11.2Z" Fill="#C27D04" />
+        </Canvas>
+    </Canvas>
+</Viewbox>

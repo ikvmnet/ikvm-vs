@@ -1,0 +1,4 @@
+IKVM Extension for Visual Studio includes icons derived from the JetBrains IntelliJ Platform
+(https://github.com/JetBrains/intellij-community), Copyright 2000-2022 JetBrains s.r.o. and contributors,
+licensed under the Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0).
+The icons were converted from SVG to XAML and combined with state badges.
