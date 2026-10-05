@@ -49,7 +49,7 @@ internal sealed class IkvmPackageInstaller
             if (_project.Services.HostObject is not IVsHierarchy hierarchy || ErrorHandler.Failed(hierarchy.GetProperty((uint)VSConstants.VSITEMID.Root, (int)__VSHPROPID.VSHPROPID_ExtObject, out var extObject)) || extObject is not EnvDTE.Project dteProject)
                 throw new InvalidOperationException("The project cannot take NuGet packages.");
 
-            var componentModel = (IComponentModel)await AsyncServiceProvider.GlobalProvider.GetServiceAsync(typeof(SComponentModel));
+            var componentModel = (IComponentModel?)await AsyncServiceProvider.GlobalProvider.GetServiceAsync(typeof(SComponentModel)) ?? throw new InvalidOperationException("No component model.");
             var installer = componentModel.GetService<IVsPackageInstaller2>();
 
             await TaskScheduler.Default;

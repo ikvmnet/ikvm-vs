@@ -31,5 +31,7 @@
 		<Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="IKVM.VisualStudio.ProjectSystem.Abstractions" Path="|IKVM.VisualStudio.ProjectSystem.Abstractions|" AssemblyName="|IKVM.VisualStudio.ProjectSystem.Abstractions;AssemblyName|" />
 		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="IKVM.VisualStudio.Maven" Path="|IKVM.VisualStudio.Maven|" />
 		<Asset Type="Microsoft.VisualStudio.ImageManifest" d:Source="File" Path="IKVM.VisualStudio.Maven.imagemanifest" />
+		<Asset Type="Microsoft.ServiceHub.Service" d:Source="File" Path="Host\IKVM.VisualStudio.Host.Maven.servicehub.service.json" />
+		<Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="Host\IKVM.VisualStudio.Host.pkgdef" />
 	</Assets>
 </PackageManifest>

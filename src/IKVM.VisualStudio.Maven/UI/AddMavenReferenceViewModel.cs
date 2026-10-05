@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
+using IKVM.VisualStudio.Host.Maven.Contracts;
 using IKVM.VisualStudio.ProjectSystem.UI;
 
 using Microsoft.VisualStudio.ProjectSystem;
@@ -21,8 +22,14 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
 
     static readonly TimeSpan SearchDelay = TimeSpan.FromMilliseconds(400);
 
+    /// <summary>
+    /// How often to check on indexes being downloaded or updated.
+    /// </summary>
+    static readonly TimeSpan IndexPollInterval = TimeSpan.FromSeconds(2);
+
     readonly ConfiguredProject _project;
     readonly ISet<string> _existing;
+    readonly CancellationTokenSource _closed = new CancellationTokenSource();
     IReadOnlyList<MavenRepository> _repositories = Array.Empty<MavenRepository>();
     CancellationTokenSource? _search;
     CancellationTokenSource? _versions;
@@ -46,21 +53,68 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
     {
         _repositories = await MavenProjectQueries.GetRepositoriesAsync(_project);
         OnPropertyChanged(nameof(RepositoriesText));
-        OnPropertyChanged(nameof(CanSearch));
-        OnPropertyChanged(nameof(SearchPlaceholder));
+
+        // how each repository is searched, until the indexes being downloaded or updated are
+        try
+        {
+            while (true)
+            {
+                var statuses = await MavenServiceClient.GetSearchStatusAsync(_project, _closed.Token);
+                _canSearch = statuses.Any(i => i.Method != MavenServiceSearchMethod.None);
+                IndexStatus = string.Join(Environment.NewLine, statuses.Where(i => i.Method == MavenServiceSearchMethod.Index && (i.IsUpdating || i.IsReady == false)).Select(i => $"{i.RepositoryId}: {i.Message}"));
+                OnPropertyChanged(nameof(CanSearch));
+                OnPropertyChanged(nameof(SearchPlaceholder));
+
+                if (statuses.Any(i => i.IsUpdating) == false)
+                    break;
+
+                await Task.Delay(IndexPollInterval, _closed.Token);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // the dialog closed
+        }
+    }
+
+    /// <summary>
+    /// Stops checking on indexes, once the dialog closes.
+    /// </summary>
+    public void Close()
+    {
+        _closed.Cancel();
     }
 
     /// <summary>
     /// Where versions come from.
     /// </summary>
-    public string RepositoriesText => _repositories.Count == 0 ? "" : "Versions from " + string.Join(", ", _repositories.Select(i => i.Id)) + ".";
+    public string RepositoriesText => _repositories.Count == 0 ? "The project has no Maven repositories." : "Versions from " + string.Join(", ", _repositories.Select(i => i.Id)) + ".";
 
     /// <summary>
-    /// Whether the project uses Maven Central, the only repository that can be searched.
+    /// Whether any repository of the project can be searched: through its search service, or its index.
     /// </summary>
-    public bool CanSearch => _repositories.Any(i => i.IsCentral);
+    public bool CanSearch => _canSearch;
 
-    public string SearchPlaceholder => CanSearch ? "Search Maven Central, or type groupId:artifactId" : "Type groupId:artifactId";
+    bool _canSearch;
+
+    public string SearchPlaceholder => CanSearch ? "Search, or type groupId:artifactId" : "Type groupId:artifactId";
+
+    /// <summary>
+    /// What is happening to the indexes of the repositories searched through them, until they are ready.
+    /// </summary>
+    public string? IndexStatus
+    {
+        get => _indexStatus;
+        private set
+        {
+            if (Set(ref _indexStatus, string.IsNullOrEmpty(value) ? null : value))
+                OnPropertyChanged(nameof(HasIndexStatus));
+        }
+    }
+
+    public bool HasIndexStatus => _indexStatus != null;
+
+    string? _indexStatus;
 
     // search
 
@@ -86,7 +140,7 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Typed coordinates come first, then, after a pause in typing, what Maven Central finds.
+    /// Typed coordinates come first, then, after a pause in typing, what a search of the repositories finds.
     /// </summary>
     async Task SearchAsync(string text)
     {
@@ -108,13 +162,25 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
         try
         {
             await Task.Delay(SearchDelay, cts.Token);
-            SearchStatus = "Searching Maven Central...";
+            SearchStatus = "Searching...";
 
-            var found = await MavenCentralSearch.SearchAsync(text, cts.Token);
+            // each repository adds what it finds as it completes; what is selected stays selected
+            await MavenServiceClient.SearchAsync(_project, text, 40, found =>
+            {
+                if (cts.IsCancellationRequested)
+                    return;
+
+                var selected = Selected;
+                Results.Clear();
+                if (typed != null)
+                    Results.Add(typed);
+
+                foreach (var result in found.Where(i => typed == null || string.Equals(i.Coordinates, typed.Coordinates, StringComparison.OrdinalIgnoreCase) == false))
+                    Results.Add(selected != null && string.Equals(result.Coordinates, selected.Coordinates, StringComparison.OrdinalIgnoreCase) ? selected : result);
+
+                SelectFirst();
+            }, cts.Token);
             cts.Token.ThrowIfCancellationRequested();
-
-            foreach (var result in found.Where(i => typed == null || string.Equals(i.Coordinates, typed.Coordinates, StringComparison.OrdinalIgnoreCase) == false))
-                Results.Add(result);
 
             SearchStatus = Results.Count == 0 ? "Nothing found." : null;
             SelectFirst();
@@ -125,7 +191,7 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
         }
         catch (Exception e)
         {
-            SearchStatus = $"Could not search Maven Central: {e.Message}";
+            SearchStatus = $"Could not search: {e.Message}";
         }
     }
 
@@ -191,7 +257,7 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Lists the versions of the selected artifact through the project's IKVM.Maven.Sdk, choosing the newest release,
+    /// Lists the versions of the selected artifact with Maven Resolver, choosing the newest release,
     /// or the version typed.
     /// </summary>
     async Task LoadVersionsAsync(MavenSearchResult? selected)
@@ -208,7 +274,7 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
         }
 
         VersionsStatus = "Finding versions...";
-        var versions = await MavenProjectQueries.GetVersionsAsync(_project, selected.GroupId, selected.ArtifactId, cts.Token);
+        var versions = await MavenServiceClient.GetVersionsAsync(_project, selected.GroupId, selected.ArtifactId, cts.Token);
         if (cts.IsCancellationRequested)
             return;
 
@@ -218,7 +284,7 @@ sealed class AddMavenReferenceViewModel : ViewModelBase
         if (selected.LatestVersion.Length == 0 && _typedVersion == null)
             Version = versions.FirstOrDefault(IsRelease) ?? versions.FirstOrDefault() ?? "";
 
-        VersionsStatus = versions.Count == 0 ? "No versions found in the repositories of the project. Type one, or build the project once IKVM.Maven.Sdk is restored." : $"{versions.Count} versions.";
+        VersionsStatus = versions.Count == 0 ? "No versions found in the repositories of the project. Type one." : $"{versions.Count} versions.";
     }
 
     /// <summary>

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <!-- loaded by the ServiceHub host as a plugin: its dependencies, IKVM included, go beside it -->
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <Description>The services of the IKVM Visual Studio extension that need IKVM, hosted by ServiceHub in a process of their own: Maven, through Maven Resolver and Maven Indexer.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="IKVM.VisualStudio.Host.Maven.servicehub.service.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="IKVM.VisualStudio.Host.pkgdef" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.16.1" />
+        <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.1" />
+        <!-- provided by the ServiceHub host, which hands the service its own copies -->
+        <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.8.55" ExcludeAssets="runtime" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <MavenReference Include="org.apache.maven:maven-resolver-provider:3.9.11" />
+        <MavenReference Include="org.apache.maven:maven-settings-builder:3.9.11" />
+        <MavenReference Include="org.apache.maven.resolver:maven-resolver-connector-basic:1.9.24" />
+        <MavenReference Include="org.apache.maven.resolver:maven-resolver-transport-file:1.9.24" />
+        <MavenReference Include="org.apache.maven.resolver:maven-resolver-transport-http:1.9.24" />
+        <!-- the search API of Maven Indexer, its backend for Maven Central, and its backend over the indexes that
+             repositories publish; 6.2 is the last line built entirely for Java 8 -->
+        <MavenReference Include="org.apache.maven.indexer:search-backend-smo:6.2.2" />
+        <MavenReference Include="org.apache.maven.indexer:search-backend-indexer:6.2.2" />
+    </ItemGroup>
+
+</Project>

@@ -29,7 +29,9 @@
 ### Maven
 - **Maven references** — in projects using [IKVM.Maven.Sdk](https://github.com/ikvmnet/ikvm-maven), `MavenReference` items appear under IKVM Dependencies by their coordinates, each with the tree of artifacts Maven resolved for it, their JARs in the local Maven repository, and the dependencies left out because another version won a conflict
 - **Edit** version, classifier, scope, optional and exclusions in Manage IKVM Dependencies, per target framework like other references, and exclude a resolved dependency with one click
-- **Add Maven Reference** — search Maven Central or type `groupId:artifactId`; versions come from the project's own repositories through Maven Resolver. Adding one to a project without IKVM.Maven.Sdk offers to add the package
+- **Add Maven Reference** — search the project's repositories or type `groupId:artifactId`; versions come from the project's own repositories through Maven Resolver. Adding one to a project without IKVM.Maven.Sdk offers to add the package
+- **Search** — each of the project's repositories, after the mirrors in `settings.xml`, is searched the best way it allows: through its Nexus 3 or Artifactory search API when it has one, through the search service of Maven Central for Central, or else through the index it publishes in `.index`, downloaded and kept up to date in the background in `%LOCALAPPDATA%\IKVM\MavenIndex`. Results arrive as each repository answers. All requests go through Maven Resolver, with the proxies and credentials of `settings.xml`
+- **Out of process** — Maven runs in Java, through IKVM, in the IKVM host: a ServiceHub process of the extension's own, apart from Visual Studio and from the hosts of other extensions
 
 ### Extending IKVM Dependencies
 Other extensions can add their own kinds of dependencies, as the Maven support does, by referencing `IKVM.VisualStudio.ProjectSystem.Abstractions` and exporting:
