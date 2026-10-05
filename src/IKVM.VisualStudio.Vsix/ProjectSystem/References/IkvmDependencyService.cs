@@ -25,10 +25,12 @@ internal sealed class IkvmDependencyService
     readonly IProjectThreadingService _threading;
     readonly IkvmReferenceWriter _writer;
     readonly Lazy<IkvmDependenciesTreeProvider> _treeProvider;
+    readonly IkvmPackageInstaller _installer;
 
     [ImportingConstructor]
-    public IkvmDependencyService(UnconfiguredProject project, IProjectThreadingService threading, IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider)
+    public IkvmDependencyService(UnconfiguredProject project, IProjectThreadingService threading, IkvmReferenceWriter writer, Lazy<IkvmDependenciesTreeProvider> treeProvider, IkvmPackageInstaller installer)
     {
+        _installer = installer;
         Project = project;
         _threading = threading;
         _writer = writer;
@@ -91,7 +93,7 @@ internal sealed class IkvmDependencyService
         var providers = GetEntryProviders();
         var elements = await ReadAsync(providers);
         await _threading.SwitchToUIThread();
-        return new IkvmDependencySession(Project, GetConfiguredProjects(), GetTargetFrameworks(), targetFramework, providers, elements);
+        return new IkvmDependencySession(Project, GetConfiguredProjects(), GetTargetFrameworks(), targetFramework, providers, elements, _installer.AddPackageAsync);
     }
 
     /// <summary>
@@ -99,7 +101,7 @@ internal sealed class IkvmDependencyService
     /// </summary>
     public IReadOnlyList<string> GetAddCommandDescriptions()
     {
-        var session = new IkvmDependencySession(Project, GetConfiguredProjects(), GetTargetFrameworks(), null, GetEntryProviders(), Array.Empty<IkvmDependencyElement>());
+        var session = new IkvmDependencySession(Project, GetConfiguredProjects(), GetTargetFrameworks(), null, GetEntryProviders(), Array.Empty<IkvmDependencyElement>(), _installer.AddPackageAsync);
         return session.AddCommands.Select(i => i.Description).ToList();
     }
 
