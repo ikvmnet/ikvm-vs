@@ -54,11 +54,14 @@ sealed class MavenDependencyEntry : IkvmDependencyEntry<MavenDependencyValues>
     /// <summary>
     /// Creates an entry for a reference being added.
     /// </summary>
-    public static MavenDependencyEntry ForNew(IkvmDependencyEntryContext context, string groupId, string artifactId, string version)
+    public static MavenDependencyEntry ForNew(IkvmDependencyEntryContext context, string groupId, string artifactId, string version, string scope = "")
     {
         var entry = new MavenDependencyEntry(context, null, groupId, artifactId);
         foreach (var key in entry.Keys)
+        {
             entry.GetValues(key).Version = version;
+            entry.GetValues(key).Scope = scope;
+        }
 
         entry.Refresh();
         return entry;
