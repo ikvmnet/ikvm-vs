@@ -13,6 +13,9 @@
         <ID Name="ClassFile" Value="9" />
         <ID Name="JavaSource" Value="10" />
         <ID Name="JavaPackage" Value="11" />
+        <ID Name="MavenReference" Value="12" />
+        <ID Name="MavenReferenceWarning" Value="13" />
+        <ID Name="MavenDependency" Value="14" />
     </Symbols>
     <Images>
         <Image Guid="$(MonikerGuid)" ID="$(ProjectIcon)">
@@ -53,6 +56,15 @@
         </Image>
         <Image Guid="$(MonikerGuid)" ID="$(JavaPackage)">
             <Source Uri="$(Images)/JavaPackage.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenReference)">
+            <Source Uri="$(Images)/MavenReference.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenReferenceWarning)">
+            <Source Uri="$(Images)/MavenReferenceWarning.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(MavenDependency)">
+            <Source Uri="$(Images)/MavenDependency.xaml" />
         </Image>
     </Images>
     <ImageLists />
