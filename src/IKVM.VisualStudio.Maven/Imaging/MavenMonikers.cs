@@ -20,4 +20,6 @@ internal static class MavenMonikers
 
     public static ImageMoniker MavenDependency => Get(3);
 
+    public static ImageMoniker MavenOmitted => Get(4);
+
 }

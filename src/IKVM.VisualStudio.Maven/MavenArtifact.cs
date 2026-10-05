@@ -49,6 +49,12 @@ internal sealed class MavenArtifact
     public IEnumerable<string> Compile => Get(MavenReferenceRules.ResolvedCompileMetadata).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0);
 
     /// <summary>
+    /// Direct dependencies of the artifact left out because another version of them won a conflict, as
+    /// <c>groupId:artifactId[:classifier]:version</c>.
+    /// </summary>
+    public IEnumerable<string> Omitted => Get(MavenReferenceRules.ResolvedOmittedMetadata).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0);
+
+    /// <summary>
     /// The artifact's coordinates, as Maven writes them: <c>groupId:artifactId[:classifier]:version</c>.
     /// </summary>
     public string Coordinates => MavenCoordinates.Format(GroupId, ArtifactId, Classifier, Version);
