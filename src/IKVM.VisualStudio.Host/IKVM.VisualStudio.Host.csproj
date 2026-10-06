@@ -14,8 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.16.1" />
-        <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.1" />
+        <PackageReference Include="IKVM" Version="8.16.2" />
+        <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.2" />
         <!-- provided by the ServiceHub host, which hands the service its own copies -->
         <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.8.55" ExcludeAssets="runtime" PrivateAssets="all" />
     </ItemGroup>
