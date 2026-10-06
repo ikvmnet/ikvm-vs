@@ -4,6 +4,8 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading.Tasks;
 
+using IKVM.VisualStudio.ProjectSystem;
+
 using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
 using Microsoft.VisualStudio.ProjectSystem;
@@ -14,7 +16,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// Reads and changes the <c>IkvmReference</c> elements of the project file.
 /// </summary>
 [Export]
-[AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 internal sealed class IkvmReferenceWriter
 {
 
@@ -45,21 +47,23 @@ internal sealed class IkvmReferenceWriter
     }
 
     /// <summary>
-    /// Reads the project's <c>IkvmReference</c> items, with how MSBuild evaluates them for each of the given configured
-    /// projects (one per target framework). Items written in the project file are editable when the UI understands
-    /// their element; items imported from other files are read-only.
+    /// Reads the project's items of the given types, by default <c>IkvmReference</c>, with how MSBuild evaluates them
+    /// for each of the given configured projects (one per target framework). Items written in the project file are
+    /// editable when the UI understands their element; items imported from other files are read-only.
     /// </summary>
-    public async Task<IReadOnlyList<IkvmReferenceElement>> ReadAsync(IReadOnlyCollection<ConfiguredProject>? configuredProjects = null)
+    public async Task<IReadOnlyList<IkvmDependencyElement>> ReadAsync(IReadOnlyCollection<ConfiguredProject>? configuredProjects = null, IReadOnlyCollection<string>? itemTypes = null)
     {
+        itemTypes ??= new[] { IkvmReferenceRules.ItemType };
+
         var suggested = await _project.GetSuggestedConfiguredProjectAsync();
         if (suggested == null)
-            return Array.Empty<IkvmReferenceElement>();
+            return Array.Empty<IkvmDependencyElement>();
 
         var projects = configuredProjects is { Count: > 0 } ? configuredProjects : new[] { suggested };
 
         try
         {
-            return await ReadCoreAsync(projects);
+            return await ReadCoreAsync(projects, itemTypes);
         }
         catch (NotSupportedException)
         {
@@ -72,11 +76,11 @@ internal sealed class IkvmReferenceWriter
                     await access.GetProjectAsync(configuredProject);
             });
 
-            return await ReadCoreAsync(projects);
+            return await ReadCoreAsync(projects, itemTypes);
         }
     }
 
-    async Task<IReadOnlyList<IkvmReferenceElement>> ReadCoreAsync(IReadOnlyCollection<ConfiguredProject> projects)
+    async Task<IReadOnlyList<IkvmDependencyElement>> ReadCoreAsync(IReadOnlyCollection<ConfiguredProject> projects, IReadOnlyCollection<string> itemTypes)
     {
         return await _lockService.ReadLockAsync(async access =>
         {
@@ -85,8 +89,9 @@ internal sealed class IkvmReferenceWriter
             {
                 var project = await access.GetProjectAsync(configuredProject);
                 configuredProject.ProjectConfiguration.Dimensions.TryGetValue("TargetFramework", out var targetFramework);
-                foreach (var item in project.GetItems(IkvmReferenceRules.ItemType))
-                    evaluated.Add((item, targetFramework ?? ""));
+                foreach (var itemType in itemTypes)
+                    foreach (var item in project.GetItems(itemType))
+                        evaluated.Add((item, targetFramework ?? ""));
             }
 
             // one entry per item: per element, or per evaluated include of an element that produces several items
@@ -95,7 +100,7 @@ internal sealed class IkvmReferenceWriter
             string GetLocation(ProjectItem item) => elements.Get(item.Xml);
 
             var multiple = new HashSet<string>(evaluated.GroupBy(i => (Location: GetLocation(i.Item), i.TargetFramework)).Where(i => i.Count() > 1).Select(i => i.Key.Location));
-            var result = new List<IkvmReferenceElement>();
+            var result = new List<IkvmDependencyElement>();
             foreach (var group in evaluated.GroupBy(i => multiple.Contains(GetLocation(i.Item)) ? GetLocation(i.Item) + "|" + i.Item.EvaluatedInclude : GetLocation(i.Item)))
             {
                 var first = group.First().Item;
@@ -115,7 +120,7 @@ internal sealed class IkvmReferenceWriter
                     targetFrameworks.Clear();
 
                 var include = multiple.Contains(GetLocation(first)) ? first.EvaluatedInclude : first.UnevaluatedInclude;
-                result.Add(new IkvmReferenceElement(include, targetFrameworks, element?.Metadata ?? ToMetadata(first.Xml, out _), false, first.IsImported ? first.Xml.ContainingProject.FullPath : null) { Evaluations = evaluations });
+                result.Add(new IkvmDependencyElement(first.ItemType, include, targetFrameworks, element?.Metadata ?? ToMetadata(first.Xml, out _), false, first.IsImported ? first.Xml.ContainingProject.FullPath : null) { Evaluations = evaluations });
             }
 
             // the project's own references first, then those imported into it
@@ -124,9 +129,9 @@ internal sealed class IkvmReferenceWriter
     }
 
 
-    static IkvmReferenceEvaluation ToEvaluation(ProjectItem item) => new(item.EvaluatedInclude, item.DirectMetadata.ToDictionary(i => i.Name, i => i.EvaluatedValue));
+    static IkvmDependencyEvaluation ToEvaluation(ProjectItem item) => new(item.EvaluatedInclude, item.DirectMetadata.ToDictionary(i => i.Name, i => i.EvaluatedValue));
 
-    static IkvmReferenceElement ToElement(ProjectItemElement item)
+    static IkvmDependencyElement ToElement(ProjectItemElement item)
     {
         var metadata = ToMetadata(item, out var isMetadataSupported);
         var isConditionSupported = TargetFrameworkCondition.TryParse(GetGroupCondition(item), out var targetFrameworks);
@@ -136,24 +141,24 @@ internal sealed class IkvmReferenceWriter
             && IsLiteral(item.Include)
             && metadata.All(i => IsLiteral(i.Value, isList: true));
 
-        return new IkvmReferenceElement(item.Include, targetFrameworks, metadata, isEditable);
+        return new IkvmDependencyElement(item.ItemType, item.Include, targetFrameworks, metadata, isEditable);
     }
 
     /// <summary>
     /// Reads the metadata elements of an element; <paramref name="isSupported"/> is <c>false</c> if any has a condition
     /// other than one selecting target frameworks.
     /// </summary>
-    static IReadOnlyList<IkvmReferenceMetadata> ToMetadata(ProjectItemElement item, out bool isSupported)
+    static IReadOnlyList<IkvmDependencyMetadata> ToMetadata(ProjectItemElement item, out bool isSupported)
     {
         isSupported = true;
-        var result = new List<IkvmReferenceMetadata>();
+        var result = new List<IkvmDependencyMetadata>();
 
         foreach (var metadata in item.Metadata)
         {
             if (TargetFrameworkCondition.TryParse(metadata.Condition, out var targetFrameworks) == false)
                 isSupported = false;
 
-            result.Add(new IkvmReferenceMetadata(metadata.Name, ProjectCollection.Unescape(metadata.Value), targetFrameworks));
+            result.Add(new IkvmDependencyMetadata(metadata.Name, ProjectCollection.Unescape(metadata.Value), targetFrameworks));
         }
 
         return result;
@@ -167,7 +172,7 @@ internal sealed class IkvmReferenceWriter
     /// <summary>
     /// Applies the given changes to the project file and saves it.
     /// </summary>
-    public async Task ApplyAsync(IkvmReferenceChanges changes)
+    public async Task ApplyAsync(IkvmDependencyChanges changes)
     {
         if (changes.IsEmpty)
             return;
@@ -198,6 +203,10 @@ internal sealed class IkvmReferenceWriter
                     continue;
                 }
 
+                // the include changes when an identity moves between the include and metadata
+                if (string.Equals(update.Original.Include, update.Updated.Include, StringComparison.Ordinal) == false)
+                    item.Include = ProjectCollection.Escape(update.Updated.Include);
+
                 SetMetadata(item, update.Updated.Metadata);
             }
 
@@ -209,34 +218,39 @@ internal sealed class IkvmReferenceWriter
     }
 
     /// <summary>
-    /// Gets whether each of the given references is defined by an editable element, and so can be removed.
+    /// Gets whether each of the given items is defined by an editable element, and so can be removed.
     /// </summary>
-    public async Task<bool> CanRemoveAsync(IReadOnlyCollection<IkvmReference> references, IReadOnlyCollection<ConfiguredProject> configuredProjects)
+    public async Task<bool> CanRemoveAsync(IReadOnlyCollection<(string ItemType, string ItemSpec)> items, IReadOnlyCollection<ConfiguredProject> configuredProjects)
     {
-        if (references.Count == 0)
+        if (items.Count == 0)
             return false;
 
-        var elements = await ReadAsync(configuredProjects);
-        return references.All(r => elements.Any(e => e.IsEditable && string.Equals(e.Include, r.ItemSpec, StringComparison.OrdinalIgnoreCase)));
+        var elements = await ReadAsync(configuredProjects, items.Select(i => i.ItemType).Distinct().ToList());
+        return items.All(r => elements.Any(e => e.IsEditable && IsElementOf(e, r)));
     }
 
     /// <summary>
-    /// Removes the editable elements behind the given references.
+    /// Removes the editable elements behind the given items.
     /// </summary>
-    public async Task RemoveAsync(IReadOnlyCollection<IkvmReference> references, IReadOnlyCollection<ConfiguredProject> configuredProjects)
+    public async Task RemoveAsync(IReadOnlyCollection<(string ItemType, string ItemSpec)> items, IReadOnlyCollection<ConfiguredProject> configuredProjects)
     {
-        var elements = await ReadAsync(configuredProjects);
-        var removed = elements.Where(e => e.IsEditable && references.Any(r => string.Equals(e.Include, r.ItemSpec, StringComparison.OrdinalIgnoreCase))).ToList();
-        await ApplyAsync(new IkvmReferenceChanges(removed, Array.Empty<IkvmReferenceElementUpdate>(), Array.Empty<IkvmReferenceElement>()));
+        var elements = await ReadAsync(configuredProjects, items.Select(i => i.ItemType).Distinct().ToList());
+        var removed = elements.Where(e => e.IsEditable && items.Any(r => IsElementOf(e, r))).ToList();
+        await ApplyAsync(new IkvmDependencyChanges(removed, Array.Empty<IkvmDependencyElementUpdate>(), Array.Empty<IkvmDependencyElement>()));
+    }
+
+    static bool IsElementOf(IkvmDependencyElement element, (string ItemType, string ItemSpec) item)
+    {
+        return element.ItemType == item.ItemType && string.Equals(element.Include, item.ItemSpec, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
     /// Finds the element in the project file matching the given element as read earlier.
     /// </summary>
-    static ProjectItemElement? FindElement(ProjectRootElement xml, IkvmReferenceElement element)
+    static ProjectItemElement? FindElement(ProjectRootElement xml, IkvmDependencyElement element)
     {
         return xml.Items.FirstOrDefault(i =>
-            i.ItemType == IkvmReferenceRules.ItemType &&
+            i.ItemType == element.ItemType &&
             string.Equals(i.Include, element.Include, StringComparison.OrdinalIgnoreCase) &&
             TargetFrameworkCondition.TryParse(GetGroupCondition(i), out var targetFrameworks) &&
             TargetFrameworkCondition.AreSame(targetFrameworks, element.TargetFrameworks));
@@ -252,9 +266,9 @@ internal sealed class IkvmReferenceWriter
             itemGroup.Parent.RemoveChild(itemGroup);
     }
 
-    static void AddItem(ProjectRootElement xml, IkvmReferenceElement element)
+    static void AddItem(ProjectRootElement xml, IkvmDependencyElement element)
     {
-        var item = GetItemGroup(xml, element.TargetFrameworks).AddItem(IkvmReferenceRules.ItemType, ProjectCollection.Escape(element.Include));
+        var item = GetItemGroup(xml, element.ItemType, element.TargetFrameworks).AddItem(element.ItemType, ProjectCollection.Escape(element.Include));
         SetMetadata(item, element.Metadata);
     }
 
@@ -262,7 +276,7 @@ internal sealed class IkvmReferenceWriter
     /// Makes the metadata written on the element match the given metadata: values for all target frameworks as
     /// attributes, values limited to some as conditioned child elements. Empty values are left out.
     /// </summary>
-    static void SetMetadata(ProjectItemElement item, IReadOnlyList<IkvmReferenceMetadata> metadata)
+    static void SetMetadata(ProjectItemElement item, IReadOnlyList<IkvmDependencyMetadata> metadata)
     {
         var values = metadata.Where(i => string.IsNullOrEmpty(i.Value) == false).OrderBy(i => i.TargetFrameworks.Count > 0).ToList();
 
@@ -280,14 +294,14 @@ internal sealed class IkvmReferenceWriter
     }
 
     /// <summary>
-    /// Finds an item group holding references with the condition for the target frameworks, else adds one.
+    /// Finds an item group holding items of the type with the condition for the target frameworks, else adds one.
     /// </summary>
-    static ProjectItemGroupElement GetItemGroup(ProjectRootElement xml, IReadOnlyList<string> targetFrameworks)
+    static ProjectItemGroupElement GetItemGroup(ProjectRootElement xml, string itemType, IReadOnlyList<string> targetFrameworks)
     {
         var existing = xml.ItemGroups.FirstOrDefault(g =>
             TargetFrameworkCondition.TryParse(g.Condition, out var names) &&
             TargetFrameworkCondition.AreSame(names, targetFrameworks) &&
-            g.Items.Any(i => i.ItemType == IkvmReferenceRules.ItemType));
+            g.Items.Any(i => i.ItemType == itemType));
         if (existing != null)
             return existing;
 

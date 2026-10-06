@@ -1,0 +1,6 @@
+<Viewbox Width="16" Height="16" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+    <Canvas Width="16" Height="16">
+        <Rectangle Canvas.Left="2.5" Canvas.Top="2.5" Width="11" Height="11" RadiusX="1.5" RadiusY="1.5" Fill="#FDEDE1" Stroke="#D86613" StrokeThickness="1" />
+        <Path Data="M5.5,10.5 L5.5,5.5 L8,8.5 L10.5,5.5 L10.5,10.5" Stroke="#D86613" StrokeThickness="1.2" StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+    </Canvas>
+</Viewbox>

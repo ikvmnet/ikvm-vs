@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 
 using Microsoft.VisualStudio.ProjectSystem;
+using Microsoft.VisualStudio.ProjectSystem.Properties;
 
 namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
@@ -14,14 +15,14 @@ internal sealed class IkvmReference
 {
 
     /// <summary>
-    /// Creates the references described by a rule subscription update of a configured project.
+    /// Creates the references described by the rule snapshots of a configured project.
     /// </summary>
-    public static ImmutableArray<IkvmReference> Create(ConfiguredProject project, IProjectSubscriptionUpdate update)
+    public static ImmutableArray<IkvmReference> Create(ConfiguredProject project, IImmutableDictionary<string, IProjectRuleSnapshot> rules)
     {
-        if (update.CurrentState.TryGetValue(IkvmReferenceRules.IkvmReference, out var evaluated) == false)
+        if (rules.TryGetValue(IkvmReferenceRules.IkvmReference, out var evaluated) == false)
             return ImmutableArray<IkvmReference>.Empty;
 
-        update.CurrentState.TryGetValue(IkvmReferenceRules.ResolvedIkvmReference, out var resolved);
+        rules.TryGetValue(IkvmReferenceRules.ResolvedIkvmReference, out var resolved);
 
         var builder = ImmutableArray.CreateBuilder<IkvmReference>();
         foreach (var item in evaluated.Items)

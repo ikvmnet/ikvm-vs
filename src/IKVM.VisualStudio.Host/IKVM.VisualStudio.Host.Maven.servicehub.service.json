@@ -1,0 +1,8 @@
+{
+  "host": "dotnet",
+  "hostGroupAllowed": true,
+  "entryPoint": {
+    "assemblyPath": "IKVM.VisualStudio.Host.dll",
+    "fullClassName": "IKVM.VisualStudio.Host.Maven.MavenServiceFactory"
+  }
+}

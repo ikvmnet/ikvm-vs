@@ -72,10 +72,16 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" ExcludeAssets="runtime" />
+        <PackageReference Include="NuGet.VisualStudio" Version="17.14.0" ExcludeAssets="runtime" />
         <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.Sdk.Tools" Version="17.9.380">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\IKVM.VisualStudio.ProjectSystem.Abstractions\IKVM.VisualStudio.ProjectSystem.Abstractions.csproj" />
+        <ProjectReference Include="..\IKVM.VisualStudio.Maven\IKVM.VisualStudio.Maven.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -91,6 +97,14 @@
             <Generator>ResXFileCodeGenerator</Generator>
             <LastGenOutput>VSPackage.Designer.cs</LastGenOutput>
         </EmbeddedResource>
+    </ItemGroup>
+
+    <!-- the IKVM host, in which ServiceHub runs the services that need IKVM in a process of their own on .NET, published into the Host folder -->
+    <ItemGroup>
+        <PublishProjectReference Include="..\IKVM.VisualStudio.Host\IKVM.VisualStudio.Host.csproj">
+            <PublishTargetPath>Host</PublishTargetPath>
+            <PublishItemGroup>VSIXSourceItem</PublishItemGroup>
+        </PublishProjectReference>
     </ItemGroup>
 
     <Target Name="GetVsixVersion" Returns="$(FileVersion)" />

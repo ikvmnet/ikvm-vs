@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 
-using IKVM.VisualStudio.Vsix.Commands;
+using IKVM.VisualStudio.ProjectSystem;
 
 using Microsoft.VisualStudio.ProjectSystem;
 using Microsoft.VisualStudio.ProjectSystem.VS;
@@ -14,7 +14,7 @@ namespace IKVM.VisualStudio.Vsix.ProjectSystem.References;
 /// Supplies the context menus for nodes of the IKVM Dependencies tree.
 /// </summary>
 [Export(typeof(IProjectItemContextMenuProvider))]
-[AppliesTo(IkvmReferenceCapabilities.IkvmReferences)]
+[AppliesTo(IkvmDependencyCapabilities.IkvmReferences)]
 [Order(1000)]
 internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextMenuProvider
 {
@@ -29,12 +29,19 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
         menuCommandGuid = Guid.Empty;
         menuCommandId = 0;
 
-        // only a selection consisting entirely of IKVM references gets the reference menu
+        // only a selection consisting entirely of references, or of JAR files, gets their menu
         var items = projectItems.ToList();
-        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag)))
+        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.Reference)))
         {
-            menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
-            menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
+            menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
+            menuCommandId = IkvmDependencyCommandIds.IkvmReferenceMenu;
+            return true;
+        }
+
+        if (items.Count > 0 && items.All(i => i.Flags.Contains(IkvmDependencyTreeFlags.JarFile)))
+        {
+            menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
+            menuCommandId = IkvmDependencyCommandIds.IkvmJarFileMenu;
             return true;
         }
 
@@ -43,17 +50,23 @@ internal sealed class IkvmDependenciesContextMenuProvider : IProjectItemContextM
 
     static bool TryGetMenu(ProjectTreeFlags flags, out Guid menuCommandGuid, out int menuCommandId)
     {
-        menuCommandGuid = IkvmDependenciesCommandIds.CommandSet;
+        menuCommandGuid = IkvmDependencyCommandIds.CommandSet;
 
-        if (flags.Contains(IkvmDependenciesTreeProvider.RootFlag) || flags.Contains(IkvmDependenciesTreeProvider.TargetFrameworkFlag))
+        if (flags.Contains(IkvmDependencyTreeFlags.Root) || flags.Contains(IkvmDependencyTreeFlags.TargetFramework))
         {
-            menuCommandId = IkvmDependenciesCommandIds.IkvmDependenciesRootMenu;
+            menuCommandId = IkvmDependencyCommandIds.IkvmDependenciesRootMenu;
             return true;
         }
 
-        if (flags.Contains(IkvmDependenciesTreeProvider.ReferenceFlag))
+        if (flags.Contains(IkvmDependencyTreeFlags.Reference))
         {
-            menuCommandId = IkvmDependenciesCommandIds.IkvmReferenceMenu;
+            menuCommandId = IkvmDependencyCommandIds.IkvmReferenceMenu;
+            return true;
+        }
+
+        if (flags.Contains(IkvmDependencyTreeFlags.JarFile))
+        {
+            menuCommandId = IkvmDependencyCommandIds.IkvmJarFileMenu;
             return true;
         }
 

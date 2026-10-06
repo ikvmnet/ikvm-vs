@@ -1,70 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Media;
 using System.Windows.Input;
 
+using IKVM.VisualStudio.ProjectSystem.UI;
 using IKVM.VisualStudio.Vsix.ProjectSystem.References;
 
+using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.PlatformUI;
-using Microsoft.Win32;
 
 namespace IKVM.VisualStudio.Vsix.UI;
 
 /// <summary>
-/// Edits a project's IKVM dependencies: the references already in it and new ones, saved together.
+/// Edits the IKVM dependencies of a project: the items already in it and new ones, saved together.
 /// </summary>
 internal partial class ManageIkvmDependenciesDialog : DialogWindow
 {
 
     readonly ManageIkvmDependenciesViewModel _model;
-    readonly string _projectDirectory;
     IkvmDependencyEntry? _pressedEntry;
     Point _pressedAt;
 
-    public ManageIkvmDependenciesDialog(
-        string projectDirectory,
-        IEnumerable<IkvmReferenceElement> elements,
-        IEnumerable<string> targetFrameworks,
-        string? defaultTargetFramework,
-        Func<IReadOnlyCollection<string>, CancellationToken, Task<IReadOnlyDictionary<string, IkvmReferenceDescription>>> describe)
+    public ManageIkvmDependenciesDialog(IkvmDependencySession session)
     {
         InitializeComponent();
-        _projectDirectory = projectDirectory;
-        DataContext = _model = new ManageIkvmDependenciesViewModel(projectDirectory, elements, targetFrameworks, defaultTargetFramework, describe);
+        DataContext = _model = new ManageIkvmDependenciesViewModel(session);
 
-        // existing references first, then new ones
-        // the ordered lists: reordered by dragging, and taking drops at a position
-        new ListReorder(ClassList, CanEditSelected, GetDroppedFiles, (dropped, index) =>
-        {
-            if (dropped is PathItem item)
-                _model.SelectedEntry?.MoveClass(item.Path, index);
-            else if (dropped is string[] paths)
-                _model.SelectedEntry?.AddClasses(paths, index);
-        });
-        new ListReorder(SourceList, CanEditSelected, GetDroppedFiles, (dropped, index) =>
-        {
-            if (dropped is PathItem item)
-                _model.SelectedEntry?.MoveSource(item.Path, index);
-            else if (dropped is string[] paths)
-                _model.SelectedEntry?.AddSources(paths, index);
-        });
-        new ListReorder(DependencyList, CanEditSelected, GetDroppedReference, (dropped, index) =>
-        {
-            if (dropped is DependencyOption option)
-                _model.SelectedEntry?.MoveReference(option.Target, index);
-            else if (dropped is IkvmDependencyEntry target)
-                _model.SelectedEntry?.MoveReference(target, index);
-        });
-
+        // existing entries first, then new ones
         var view = CollectionViewSource.GetDefaultView(_model.Entries);
         view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(IkvmDependencyEntry.GroupName)));
         view.SortDescriptions.Add(new SortDescription(nameof(IkvmDependencyEntry.GroupOrder), ListSortDirection.Ascending));
@@ -73,20 +39,12 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
     /// <summary>
     /// Gets the changes to save.
     /// </summary>
-    public IkvmReferenceChanges GetChanges() => _model.GetChanges();
+    public IkvmDependencyChanges GetChanges() => _model.GetChanges();
 
-    void OnAddJars(object sender, RoutedEventArgs e)
+    async void OnAdd(object sender, RoutedEventArgs e)
     {
-        var paths = PickFiles("Add JAR Files", "Java archives (*.jar)|*.jar|All files (*.*)|*.*");
-        if (paths != null)
-            _model.AddPaths(paths);
-    }
-
-    void OnAddFolder(object sender, RoutedEventArgs e)
-    {
-        var path = PickFolder("Select a folder of .class files");
-        if (path != null)
-            _model.AddPaths(new[] { path });
+        if (sender is FrameworkElement { DataContext: IkvmDependencyAddCommand command })
+            await _model.AddAsync(command, this);
     }
 
     void OnRemoveItem(object sender, RoutedEventArgs e)
@@ -104,6 +62,39 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
         }
     }
 
+    /// <summary>
+    /// Shows the context menu of an entry: the items of the entry, then those of the dialog.
+    /// </summary>
+    void OnEntryContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        if (e.OriginalSource is not DependencyObject source || ListReorder.FindAncestor<ListBoxItem>(source) is not { DataContext: IkvmDependencyEntry entry })
+        {
+            e.Handled = true;
+            return;
+        }
+
+        _model.SelectedEntry = entry;
+
+        var menu = EntryList.ContextMenu;
+        menu.Items.Clear();
+        foreach (var menuItem in entry.GetMenuItems())
+        {
+            var control = new MenuItem() { Header = menuItem.Text, IsEnabled = menuItem.IsEnabled };
+            if (menuItem.Icon.Guid != Guid.Empty)
+                control.Icon = new CrispImage() { Moniker = menuItem.Icon, Width = 16, Height = 16 };
+
+            control.Click += (s, a) => menuItem.Execute();
+            menu.Items.Add(control);
+        }
+
+        if (menu.Items.Count > 0)
+            menu.Items.Add(new Separator());
+
+        var remove = new MenuItem() { Header = entry.IsRemoved ? "_Undo Remove" : "_Remove", IsEnabled = entry.IsEditable, InputGestureText = "Del" };
+        remove.Click += (s, a) => _model.ToggleRemove(entry);
+        menu.Items.Add(remove);
+    }
+
     void OnChipUsedClick(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: TargetFrameworkChip chip })
@@ -116,79 +107,8 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
             chip.ToggleEditing();
     }
 
-    void OnAddDependency(object sender, RoutedEventArgs e)
-    {
-        if (_model.SelectedEntry is not { } entry || sender is not FrameworkElement button)
-            return;
-
-        var menu = new ContextMenu() { PlacementTarget = button, Placement = PlacementMode.Bottom };
-        foreach (var option in entry.AddableDependencies)
-        {
-            var item = new MenuItem() { Header = option, HeaderTemplate = (DataTemplate)FindResource("DependencyMenuHeader") };
-            item.Click += (s, a) => option.IsChecked = true;
-            menu.Items.Add(item);
-        }
-
-        if (menu.Items.Count == 0)
-            menu.Items.Add(new MenuItem() { Header = "No other references", IsEnabled = false });
-
-        menu.IsOpen = true;
-    }
-
-    bool CanEditSelected() => _model.SelectedEntry is { CanEdit: true };
-
-    /// <summary>
-    /// Gets files dropped from elsewhere, for Classes and Sources.
-    /// </summary>
-    static object? GetDroppedFiles(IDataObject data)
-    {
-        return data.GetData(DataFormats.FileDrop) is string[] { Length: > 0 } paths ? paths : null;
-    }
-
-    /// <summary>
-    /// Gets a reference dragged from the list, for "Depends on", if the selected entry can depend on it.
-    /// </summary>
-    object? GetDroppedReference(IDataObject data)
-    {
-        return data.GetData(typeof(IkvmDependencyEntry)) is IkvmDependencyEntry target && _model.SelectedEntry is { } entry && entry.Dependencies.Any(i => i.Target == target) ? target : null;
-    }
-
-    void OnRemoveClass(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { DataContext: PathItem item })
-            _model.SelectedEntry?.RemoveClass(item.Path);
-    }
-
-    void OnRemoveSource(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { DataContext: PathItem item })
-            _model.SelectedEntry?.RemoveSource(item.Path);
-    }
-
-    void OnRemoveDependency(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { DataContext: DependencyOption option })
-            option.IsChecked = false;
-    }
-
-    void OnAddClasses(object sender, RoutedEventArgs e)
-    {
-        if (_model.SelectedEntry is not { } entry)
-            return;
-
-        entry.AddClasses(PickFiles("Add to Compile", "Java archives (*.jar)|*.jar|All files (*.*)|*.*") ?? Enumerable.Empty<string>());
-    }
-
-    void OnAddSources(object sender, RoutedEventArgs e)
-    {
-        if (_model.SelectedEntry is not { } entry)
-            return;
-
-        entry.AddSources(PickFiles("Add Sources", "Source archives (*.jar;*.zip)|*.jar;*.zip|All files (*.*)|*.*") ?? Enumerable.Empty<string>());
-    }
-
-    // entries in the list are selected when the mouse is released, so that dragging one into "Depends on" leaves the
-    // selection, and the details shown, as they are
+    // entries in the list are selected when the mouse is released, so that dragging one into a view, such as
+    // "Depends on", leaves the selection, and the details shown, as they are
 
     void OnEntryListMouseDown(object sender, MouseButtonEventArgs e)
     {
@@ -235,7 +155,7 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
     void OnDrop(object sender, DragEventArgs e)
     {
         if (e.Data.GetData(DataFormats.FileDrop) is string[] paths)
-            _model.AddPaths(paths.Where(i => Directory.Exists(i) || string.Equals(Path.GetExtension(i), ".jar", StringComparison.OrdinalIgnoreCase)));
+            _model.AddPaths(paths);
     }
 
     void OnSave(object sender, RoutedEventArgs e)
@@ -244,18 +164,6 @@ internal partial class ManageIkvmDependenciesDialog : DialogWindow
             return;
 
         DialogResult = true;
-    }
-
-    string[]? PickFiles(string title, string filter)
-    {
-        var dialog = new OpenFileDialog() { Title = title, Filter = filter, Multiselect = true, InitialDirectory = _projectDirectory };
-        return dialog.ShowDialog(this) == true ? dialog.FileNames : null;
-    }
-
-    string? PickFolder(string description)
-    {
-        using var dialog = new System.Windows.Forms.FolderBrowserDialog() { Description = description, SelectedPath = _projectDirectory, ShowNewFolderButton = false };
-        return dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK ? dialog.SelectedPath : null;
     }
 
 }

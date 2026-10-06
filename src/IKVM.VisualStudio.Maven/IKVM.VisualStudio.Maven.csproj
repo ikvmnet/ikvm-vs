@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+        <Description>Maven support for the IKVM Visual Studio extension, built on its public extension points.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="$(MSBuildProjectName).imagemanifest" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="System.ComponentModel.Composition" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="runtime" />
+        <PackageReference Include="Microsoft.VisualStudio.ProjectSystem.SDK" Version="17.9.380" ExcludeAssets="runtime" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- the contract of the Maven service, shared with it -->
+        <Compile Include="..\IKVM.VisualStudio.Host\Contracts\*.cs" Link="Host\%(Filename)%(Extension)" />
+        <Compile Include="..\IKVM.VisualStudio.Host\Maven\Contracts\*.cs" Link="Host\Maven\%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\IKVM.VisualStudio.ProjectSystem.Abstractions\IKVM.VisualStudio.ProjectSystem.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
