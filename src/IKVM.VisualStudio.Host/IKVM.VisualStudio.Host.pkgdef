@@ -1,11 +1,11 @@
 [$RootKey$\BrokeredServices\IKVM.VisualStudio.Host.Maven\1.0]
-@="c3f18b47-662b-4785-a2bf-5fd7bc8c6f69"
+@="11AD60FC-6D87-4674-8F88-9ABE79176CBE"
 "IsServiceHub"=dword:00000001
 "ServiceLocation"="$PackageFolder$"
 "audience"=dword:00000003
 
 [$RootKey$\BrokeredServices\IKVM.VisualStudio.Host.JavaLanguageServer\1.0]
-@="99412850-d6b6-4c19-a791-07af2e1707ff"
+@="11AD60FC-6D87-4674-8F88-9ABE79176CBE"
 "IsServiceHub"=dword:00000001
 "ServiceLocation"="$PackageFolder$"
-"audience"=dword:10000003
+"audience"=dword:00000003

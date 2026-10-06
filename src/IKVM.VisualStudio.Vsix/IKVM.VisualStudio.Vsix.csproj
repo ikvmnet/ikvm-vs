@@ -99,24 +99,17 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <!-- the contract of the Java language server, which the language client requests -->
+    <ItemGroup>
+        <Compile Include="..\IKVM.VisualStudio.Host\LanguageServer\Contracts\*.cs" Link="Host\LanguageServer\%(Filename)%(Extension)" />
+    </ItemGroup>
+
     <!-- the IKVM host, in which ServiceHub runs the services that need IKVM in a process of their own on .NET, published into the Host folder -->
     <ItemGroup>
         <PublishProjectReference Include="..\IKVM.VisualStudio.Host\IKVM.VisualStudio.Host.csproj">
             <PublishTargetPath>Host</PublishTargetPath>
             <PublishItemGroup>VSIXSourceItem</PublishItemGroup>
         </PublishProjectReference>
-    </ItemGroup>
-
-    <!--
-        The VisualStudio.Extensibility parts, published into the Extensibility folder, and their metadata, which Visual
-        Studio reads from the root of the VSIX.
-    -->
-    <ItemGroup>
-        <PublishProjectReference Include="..\IKVM.VisualStudio.Extensibility\IKVM.VisualStudio.Extensibility.csproj">
-            <PublishTargetPath>Extensibility</PublishTargetPath>
-            <PublishItemGroup>VSIXSourceItem</PublishItemGroup>
-        </PublishProjectReference>
-        <VSIXSourceItem Include="..\IKVM.VisualStudio.Extensibility\obj\$(Configuration)\net8.0\vsix\.vsextension\extension.json" VSIXSubPath=".vsextension" />
     </ItemGroup>
 
     <Target Name="GetVsixVersion" Returns="$(FileVersion)" />

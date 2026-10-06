@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
 	<Metadata>
 		<Identity Id="IKVM.VisualStudio.8bf8ccd4-363a-4a23-a857-b038314c2c9e" Version="|%CurrentProject%;GetVsixVersion|" Language="en-US" Publisher="IKVM" />
@@ -9,7 +9,7 @@
 		<Icon>Images\ikvm.png</Icon>
 		<Tags>ikvm;java;jvm;dotnet;interop;cross-platform</Tags>
 	</Metadata>
-	<Installation ExtensionType="VSSDK+VisualStudio.Extensibility" InstalledByMsi="false" AllUsers="false">
+	<Installation InstalledByMsi="false" AllUsers="false">
 		<InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.14,)">
 			<ProductArchitecture>amd64</ProductArchitecture>
 		</InstallationTarget>
