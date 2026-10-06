@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <Description>The VisualStudio.Extensibility parts of the IKVM Visual Studio extension. Visual Studio runs them in the extension host it shares between extensions, so they reference nothing of IKVM: they hand their work to the IKVM host.</Description>
+        <!-- the language server provider API of VisualStudio.Extensibility is still a preview -->
+        <NoWarn>$(NoWarn);VSEXTPREVIEW_LSP</NoWarn>
+        <!-- these parts ship in the extension's VSIX, not one of their own -->
+        <CreateVsixContainer>false</CreateVsixContainer>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.14.40608" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.14.40608" PrivateAssets="all" />
+    </ItemGroup>
+
+    <!-- how to reach the services of the IKVM host -->
+    <ItemGroup>
+        <Compile Include="..\IKVM.VisualStudio.Host\Contracts\*.cs" Link="Host\%(Filename)%(Extension)" />
+        <Compile Include="..\IKVM.VisualStudio.Host\LanguageServer\Contracts\*.cs" Link="Host\LanguageServer\%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <!--
+        The VisualStudio.Extensibility assemblies an out-of-process extension carries: the extension host provides the
+        others, StreamJsonRpc and the contracts among them.
+    -->
+    <Target Name="PublishExtensibilityAssemblies" AfterTargets="ComputeResolvedFilesToPublishList">
+        <ItemGroup>
+            <ResolvedFileToPublish Include="@(ReferenceCopyLocalPaths)" Condition=" '%(Filename)%(Extension)' == 'Microsoft.VisualStudio.Extensibility.dll' Or '%(Filename)%(Extension)' == 'Microsoft.VisualStudio.Extensibility.Framework.dll' Or '%(Filename)%(Extension)' == 'Microsoft.VisualStudio.Extensibility.Contracts.dll' ">
+                <RelativePath>%(Filename)%(Extension)</RelativePath>
+                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+            </ResolvedFileToPublish>
+        </ItemGroup>
+    </Target>
+
+    <!-- the metadata of these parts, as the extension's VSIX ships it: from the folder of the VSIX they're published into -->
+    <Target Name="WriteVsixExtensionJson" AfterTargets="Build" Condition="Exists('$(IntermediateOutputPath)extension.json')">
+        <PropertyGroup>
+            <_VsixExtensionJson>$([System.IO.File]::ReadAllText('$(IntermediateOutputPath)extension.json'))</_VsixExtensionJson>
+            <_VsixExtensionJson>$(_VsixExtensionJson.Replace('"serviceBaseDirectory": ".",', '"serviceBaseDirectory": "Extensibility",'))</_VsixExtensionJson>
+        </PropertyGroup>
+        <WriteLinesToFile File="$(IntermediateOutputPath)vsix\.vsextension\extension.json" Lines="$([MSBuild]::Escape($(_VsixExtensionJson)))" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    </Target>
+
+</Project>

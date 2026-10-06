@@ -3,3 +3,9 @@
 "IsServiceHub"=dword:00000001
 "ServiceLocation"="$PackageFolder$"
 "audience"=dword:00000003
+
+[$RootKey$\BrokeredServices\IKVM.VisualStudio.Host.JavaLanguageServer\1.0]
+@="99412850-d6b6-4c19-a791-07af2e1707ff"
+"IsServiceHub"=dword:00000001
+"ServiceLocation"="$PackageFolder$"
+"audience"=dword:10000003

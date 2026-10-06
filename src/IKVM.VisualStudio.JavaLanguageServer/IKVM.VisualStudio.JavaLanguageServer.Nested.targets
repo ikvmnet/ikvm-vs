@@ -1,0 +1,28 @@
+<Project>
+
+    <!--
+        org.eclipse.jdt.debug carries its classes in jars inside it, on its Bundle-ClassPath: IKVM.Maven.Sdk compiles only
+        the classes of the jar itself, so the nested jars are extracted and compiled into the same assembly.
+    -->
+    <Target Name="AddNestedJars" AfterTargets="_GetMavenIkvmReferenceItems" BeforeTargets="_UpdateIkvmReferenceItemsMetadata">
+        <!-- set here rather than at evaluation, where the intermediate output path is not set yet -->
+        <PropertyGroup>
+            <_JdtDebugItem>maven$org.eclipse.jdt:org.eclipse.jdt.debug:3.15.100</_JdtDebugItem>
+            <_JdtDebugNested>$(IntermediateOutputPath)nested\org.eclipse.jdt.debug\</_JdtDebugNested>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <_JdtDebug Include="@(IkvmReferenceItem)" Condition=" '%(Identity)' == '$(_JdtDebugItem)' " />
+        </ItemGroup>
+
+        <Unzip SourceFiles="%(_JdtDebug.Compile)" DestinationFolder="$(_JdtDebugNested)" SkipUnchangedFiles="true" />
+
+        <ItemGroup>
+            <IkvmReferenceItem Condition=" '%(Identity)' == '$(_JdtDebugItem)' ">
+                <Compile>%(Compile);$(_JdtDebugNested)jdi.jar;$(_JdtDebugNested)jdimodel.jar</Compile>
+                <IkvmIdentity></IkvmIdentity>
+            </IkvmReferenceItem>
+        </ItemGroup>
+    </Target>
+
+</Project>

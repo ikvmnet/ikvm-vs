@@ -1,0 +1,19 @@
+<Project>
+
+    <!--
+        JDT compiles against the class library of a JRE, as class files: IKVM's class library is that of JDK 8, so the
+        rt.jar of a JDK 8 goes beside the assembly.
+    -->
+    <Target Name="AddJdkRuntimeJar" BeforeTargets="AssignTargetPaths">
+        <FindJdk Family="8">
+            <Output TaskParameter="JdkPath" PropertyName="JdkPath" />
+        </FindJdk>
+        <Error Condition=" '$(JdkPath)' == '' " Text="Failed to locate JDK. The Java language server requires JDK version 8 available on the system to build." />
+        <Error Condition="!Exists('$(JdkPath)\jre\lib\rt.jar')" Text="rt.jar could not be located at '$(JdkPath)\jre\lib\rt.jar'." />
+
+        <ItemGroup>
+            <None Include="$(JdkPath)\jre\lib\rt.jar" Link="jdk\rt.jar" CopyToOutputDirectory="PreserveNewest" />
+        </ItemGroup>
+    </Target>
+
+</Project>
