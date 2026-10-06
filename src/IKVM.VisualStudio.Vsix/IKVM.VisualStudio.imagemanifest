@@ -3,6 +3,16 @@
         <Guid Name="MonikerGuid" Value="{d53d7256-d44d-4245-bdd2-bfd22943659c}" />
         <String Name="Images" Value="/IKVM.VisualStudio.Vsix;Component/Images" />
         <ID Name="ProjectIcon" Value="1" />
+        <ID Name="IkvmDependencies" Value="2" />
+        <ID Name="JarFile" Value="3" />
+        <ID Name="JarFileWarning" Value="4" />
+        <ID Name="JarFilePending" Value="5" />
+        <ID Name="ClassFolder" Value="6" />
+        <ID Name="ClassFolderWarning" Value="7" />
+        <ID Name="JavaClass" Value="8" />
+        <ID Name="ClassFile" Value="9" />
+        <ID Name="JavaSource" Value="10" />
+        <ID Name="JavaPackage" Value="11" />
     </Symbols>
     <Images>
         <Image Guid="$(MonikerGuid)" ID="$(ProjectIcon)">
@@ -13,6 +23,36 @@
                 <Size Value="32" />
             </Source>
             <Source Uri="$(Images)/ikvm.png" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(IkvmDependencies)">
+            <Source Uri="$(Images)/IkvmDependencies.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(JarFile)">
+            <Source Uri="$(Images)/JarFile.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(JarFileWarning)">
+            <Source Uri="$(Images)/JarFileWarning.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(JarFilePending)">
+            <Source Uri="$(Images)/JarFilePending.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(ClassFolder)">
+            <Source Uri="$(Images)/ClassFolder.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(ClassFolderWarning)">
+            <Source Uri="$(Images)/ClassFolderWarning.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(JavaClass)">
+            <Source Uri="$(Images)/JavaClass.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(ClassFile)">
+            <Source Uri="$(Images)/ClassFile.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(JavaSource)">
+            <Source Uri="$(Images)/JavaSource.xaml" />
+        </Image>
+        <Image Guid="$(MonikerGuid)" ID="$(JavaPackage)">
+            <Source Uri="$(Images)/JavaPackage.xaml" />
         </Image>
     </Images>
     <ImageLists />

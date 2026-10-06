@@ -4,25 +4,22 @@ using IKVM.VisualStudio.Vsix.Imaging;
 
 using Microsoft.VisualStudio.ProjectSystem;
 
-namespace IKVM.VisualStudio.Vsix.ProjectSystem
+namespace IKVM.VisualStudio.Vsix.ProjectSystem;
+
+[Export(typeof(IProjectTreePropertiesProvider))]
+[AppliesTo(IkvmProjectCapabilities.AppliesTo)]
+[Order(1000)]
+internal class IkvmProjectIconProvider : IProjectTreePropertiesProvider
 {
 
-    [Export(typeof(IProjectTreePropertiesProvider))]
-    [AppliesTo(IkvmProjectCapabilities.AppliesTo)]
-    [Order(1000)]
-    internal class IkvmProjectIconProvider : IProjectTreePropertiesProvider
+    public void CalculatePropertyValues(IProjectTreeCustomizablePropertyContext propertyContext, IProjectTreeCustomizablePropertyValues propertyValues)
     {
-
-        public void CalculatePropertyValues(IProjectTreeCustomizablePropertyContext propertyContext, IProjectTreeCustomizablePropertyValues propertyValues)
+        if (propertyValues.Flags.Contains(ProjectTreeFlags.ProjectRoot))
         {
-            if (propertyValues.Flags.Contains(ProjectTreeFlags.ProjectRoot))
-            {
-                var projectMoniker = IkvmMonikers.ProjectIcon.ToProjectSystemType();
-                propertyValues.Icon = projectMoniker;
-                propertyValues.ExpandedIcon = projectMoniker;
-            }
+            var projectMoniker = IkvmMonikers.ProjectIcon.ToProjectSystemType();
+            propertyValues.Icon = projectMoniker;
+            propertyValues.ExpandedIcon = projectMoniker;
         }
-
     }
 
 }

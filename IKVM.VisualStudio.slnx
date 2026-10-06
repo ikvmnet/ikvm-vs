@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitattributes" />
+    <File Path=".github/workflows/IKVM.VisualStudio.yml" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="GitVersion.yml" />
+    <File Path="global.json" />
+    <File Path="IKVM.VisualStudio.dist.msbuildproj" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/IKVM.VisualStudio.Vsix/IKVM.VisualStudio.Vsix.csproj">
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/src/dist/">
+    <Project Path="src/dist-tests/dist-tests.csproj" />
+    <Project Path="src/dist-vsix/dist-vsix.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <Extern href="stdidcmd.h" />
+    <Extern href="vsshlids.h" />
+
+    <Commands package="guidIkvmPackage">
+
+        <Menus>
+            <!-- context menu of the IKVM Dependencies node and its target framework folders -->
+            <Menu guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesRootMenu" type="Context">
+                <Strings>
+                    <ButtonText>IKVM Dependencies</ButtonText>
+                </Strings>
+            </Menu>
+
+            <!-- context menu of a IKVM reference -->
+            <Menu guid="guidIkvmDependenciesCmdSet" id="IkvmReferenceMenu" type="Context">
+                <Strings>
+                    <ButtonText>IKVM Dependency</ButtonText>
+                </Strings>
+            </Menu>
+        </Menus>
+
+        <Groups>
+            <Group guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesRootGroup" priority="0x0100">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesRootMenu" />
+            </Group>
+            <Group guid="guidIkvmDependenciesCmdSet" id="IkvmReferenceGroup" priority="0x0100">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmReferenceMenu" />
+            </Group>
+            <Group guid="guidIkvmDependenciesCmdSet" id="IkvmReferencePropertiesGroup" priority="0x0F00">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmReferenceMenu" />
+            </Group>
+            <Group guid="guidIkvmDependenciesCmdSet" id="DependenciesAddGroup" priority="0x0110">
+                <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_REFERENCEROOT" />
+            </Group>
+        </Groups>
+
+        <Buttons>
+            <Button guid="guidIkvmDependenciesCmdSet" id="cmdidManageIkvmDependencies" priority="0x0100" type="Button">
+                <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmDependenciesRootGroup" />
+                <CommandFlag>DynamicVisibility</CommandFlag>
+                <CommandFlag>DefaultInvisible</CommandFlag>
+                <Strings>
+                    <ButtonText>Manage IKVM Dependencies...</ButtonText>
+                </Strings>
+            </Button>
+        </Buttons>
+
+    </Commands>
+
+    <CommandPlacements>
+        <CommandPlacement guid="guidIkvmDependenciesCmdSet" id="cmdidManageIkvmDependencies" priority="0x0100">
+            <Parent guid="guidIkvmDependenciesCmdSet" id="DependenciesAddGroup" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidIkvmDependenciesCmdSet" id="cmdidManageIkvmDependencies" priority="0x0110">
+            <Parent guid="guidSHLMainMenu" id="IDG_VS_PROJ_REFERENCE" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidIkvmDependenciesCmdSet" id="cmdidManageIkvmDependencies" priority="0x0110">
+            <Parent guid="guidSHLMainMenu" id="IDG_VS_CTXT_PROJECT_ADD_REFERENCES" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidVSStd97" id="cmdidRemove" priority="0x0100">
+            <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmReferenceGroup" />
+        </CommandPlacement>
+        <CommandPlacement guid="guidVSStd97" id="cmdidPropSheetOrProperties" priority="0x0100">
+            <Parent guid="guidIkvmDependenciesCmdSet" id="IkvmReferencePropertiesGroup" />
+        </CommandPlacement>
+    </CommandPlacements>
+
+    <KeyBindings>
+        <KeyBinding guid="guidIkvmDependenciesCmdSet" id="cmdidManageIkvmDependencies" editor="guidVSStd97" key1="J" mod1="Control Alt" />
+    </KeyBindings>
+
+    <Symbols>
+        <GuidSymbol name="guidIkvmPackage" value="{c3f18b47-662b-4785-a2bf-5fd7bc8c6f69}" />
+
+        <GuidSymbol name="guidIkvmDependenciesCmdSet" value="{80eaf98f-5624-42e8-8c16-81fe7a56751e}">
+            <IDSymbol name="IkvmDependenciesRootMenu" value="0x1000" />
+            <IDSymbol name="IkvmReferenceMenu" value="0x1001" />
+            <IDSymbol name="IkvmDependenciesRootGroup" value="0x1100" />
+            <IDSymbol name="IkvmReferenceGroup" value="0x1101" />
+            <IDSymbol name="IkvmReferencePropertiesGroup" value="0x1102" />
+            <IDSymbol name="DependenciesAddGroup" value="0x1103" />
+            <IDSymbol name="cmdidManageIkvmDependencies" value="0x0100" />
+        </GuidSymbol>
+    </Symbols>
+
+</CommandTable>
