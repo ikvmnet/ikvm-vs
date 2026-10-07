@@ -12,8 +12,10 @@ sealed class ErrorCollectingLogger : ILogger
 
     readonly List<string> _errors = new List<string>();
 
+    /// <inheritdoc />
     public LoggerVerbosity Verbosity { get; set; } = LoggerVerbosity.Quiet;
 
+    /// <inheritdoc />
     public string? Parameters { get; set; }
 
     /// <summary>
@@ -28,6 +30,9 @@ sealed class ErrorCollectingLogger : ILogger
         }
     }
 
+    /// <summary>
+    /// Subscribes to the build's errors, recording each as its code and message.
+    /// </summary>
     public void Initialize(IEventSource eventSource)
     {
         eventSource.ErrorRaised += (sender, e) =>
@@ -37,6 +42,7 @@ sealed class ErrorCollectingLogger : ILogger
         };
     }
 
+    /// <inheritdoc />
     public void Shutdown()
     {
 

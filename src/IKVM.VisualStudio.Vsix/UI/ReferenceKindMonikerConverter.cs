@@ -12,11 +12,17 @@ namespace IKVM.VisualStudio.Vsix.UI;
 sealed class ReferenceKindMonikerConverter : IValueConverter
 {
 
+    /// <summary>
+    /// Returns the class folder moniker when <paramref name="value"/> is <c>true</c>, else the JAR file moniker.
+    /// </summary>
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         return value is true ? IkvmMonikers.ClassFolder : IkvmMonikers.JarFile;
     }
 
+    /// <summary>
+    /// Not supported: the conversion is one way.
+    /// </summary>
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         throw new NotSupportedException();

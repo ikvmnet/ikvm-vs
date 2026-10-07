@@ -24,6 +24,17 @@ sealed class IkvmDependencySession
     readonly ObservableCollection<IkvmDependencyEntry> _entries = new ObservableCollection<IkvmDependencyEntry>();
     bool _validating;
 
+    /// <summary>
+    /// Initializes a new instance, creating an entry for each element whose item type has a provider. New entries
+    /// apply to <paramref name="defaultTargetFramework"/>, or to all target frameworks when it is <c>null</c>.
+    /// </summary>
+    /// <param name="project">The project whose dependencies are edited.</param>
+    /// <param name="configuredProjects">The configured project of each target framework, by its name.</param>
+    /// <param name="targetFrameworks">The target frameworks of the project.</param>
+    /// <param name="defaultTargetFramework">The target framework new entries apply to, or <c>null</c> for all.</param>
+    /// <param name="providers">The providers of the item types that can be edited.</param>
+    /// <param name="elements">The dependency items of the project file.</param>
+    /// <param name="addPackage">Offers to add a NuGet package to the project, given its ID and why it is needed.</param>
     public IkvmDependencySession(
         UnconfiguredProject project,
         IReadOnlyDictionary<string, ConfiguredProject> configuredProjects,
@@ -54,8 +65,14 @@ sealed class IkvmDependencySession
     /// </summary>
     public IkvmDependencyEntryContext Context { get; }
 
+    /// <summary>
+    /// The entries: the project's existing items, plus those added and those marked for removal.
+    /// </summary>
     public ObservableCollection<IkvmDependencyEntry> Entries => _entries;
 
+    /// <summary>
+    /// The entry providers that apply to the project, one per item type.
+    /// </summary>
     public IReadOnlyList<IkvmDependencyEntryProvider> Providers { get; }
 
     /// <summary>
@@ -63,6 +80,9 @@ sealed class IkvmDependencySession
     /// </summary>
     public IReadOnlyList<IkvmDependencyAddCommand> AddCommands { get; }
 
+    /// <summary>
+    /// Gets the provider of the given item type, if any.
+    /// </summary>
     IkvmDependencyEntryProvider? GetProvider(string itemType) => Providers.FirstOrDefault(i => string.Equals(i.ItemType, itemType, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
@@ -70,6 +90,9 @@ sealed class IkvmDependencySession
     /// </summary>
     public event EventHandler? Validated;
 
+    /// <summary>
+    /// Revalidates all entries when any one changes.
+    /// </summary>
     void OnEntryChanged(object? sender, EventArgs e) => Validate();
 
     /// <summary>
@@ -133,6 +156,9 @@ sealed class IkvmDependencySession
         return added;
     }
 
+    /// <summary>
+    /// Adds entries, watching them for changes, and tells all entries the set changed.
+    /// </summary>
     void Add(IReadOnlyList<IkvmDependencyEntry> added)
     {
         if (added.Count == 0)
@@ -224,6 +250,9 @@ sealed class IkvmDependencySession
         return new IkvmDependencyChanges(removed, updated, added);
     }
 
+    /// <summary>
+    /// Gets whether two elements have the same include, target frameworks and metadata, in any order.
+    /// </summary>
     static bool IsSame(IkvmDependencyElement a, IkvmDependencyElement b)
     {
         return string.Equals(a.Include, b.Include, StringComparison.Ordinal)
@@ -232,6 +261,9 @@ sealed class IkvmDependencySession
             && a.Metadata.All(i => b.Metadata.Any(j => IsSame(i, j)));
     }
 
+    /// <summary>
+    /// Gets whether two metadata have the same name, ignoring case, value and target frameworks.
+    /// </summary>
     static bool IsSame(IkvmDependencyMetadata a, IkvmDependencyMetadata b)
     {
         return string.Equals(a.Name, b.Name, StringComparison.OrdinalIgnoreCase)

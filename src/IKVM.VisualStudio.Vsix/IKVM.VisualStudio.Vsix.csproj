@@ -99,6 +99,11 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <!-- the contract of the Java language server, which the language client requests -->
+    <ItemGroup>
+        <Compile Include="..\IKVM.VisualStudio.Host\LanguageServer\Contracts\*.cs" Link="Host\LanguageServer\%(Filename)%(Extension)" />
+    </ItemGroup>
+
     <!-- the IKVM host, in which ServiceHub runs the services that need IKVM in a process of their own on .NET, published into the Host folder -->
     <ItemGroup>
         <PublishProjectReference Include="..\IKVM.VisualStudio.Host\IKVM.VisualStudio.Host.csproj">

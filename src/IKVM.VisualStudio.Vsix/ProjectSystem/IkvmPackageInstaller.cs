@@ -24,6 +24,9 @@ internal sealed class IkvmPackageInstaller
     readonly UnconfiguredProject _project;
     readonly IProjectThreadingService _threading;
 
+    /// <summary>
+    /// Creates an installer for the given project.
+    /// </summary>
     [ImportingConstructor]
     public IkvmPackageInstaller(UnconfiguredProject project, IProjectThreadingService threading)
     {

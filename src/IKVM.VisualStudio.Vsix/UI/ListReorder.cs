@@ -48,6 +48,9 @@ sealed class ListReorder
         list.KeyDown += OnKeyDown;
     }
 
+    /// <summary>
+    /// Remembers the movable item pressed, and where, as a possible start of a drag; presses on buttons are ignored.
+    /// </summary>
     void OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         _pressed = null;
@@ -58,6 +61,9 @@ sealed class ListReorder
         }
     }
 
+    /// <summary>
+    /// Starts dragging the pressed item once the mouse has moved far enough with the button held.
+    /// </summary>
     void OnMouseMove(object sender, MouseEventArgs e)
     {
         if (_pressed is not { } item || e.LeftButton != MouseButtonState.Pressed || _canEdit() == false)
@@ -119,12 +125,18 @@ sealed class ListReorder
         return index;
     }
 
+    /// <summary>
+    /// Removes the drop marker from every item.
+    /// </summary>
     void ClearMarkers()
     {
         foreach (var item in _list.Items.OfType<IReorderableItem>())
             item.IsDropBefore = item.IsDropAfter = false;
     }
 
+    /// <summary>
+    /// Shows whether the dragged data can be dropped, and with what effect, and marks where it would land.
+    /// </summary>
     void OnDragOver(object sender, DragEventArgs e)
     {
         if (GetDropped(e.Data, out var isOwn) != null)
@@ -140,6 +152,9 @@ sealed class ListReorder
         e.Handled = true;
     }
 
+    /// <summary>
+    /// Moves or adds the dropped data at the position it landed.
+    /// </summary>
     void OnDrop(object sender, DragEventArgs e)
     {
         if (GetDropped(e.Data, out var isOwn) is { } dropped)
@@ -157,6 +172,9 @@ sealed class ListReorder
         e.Handled = true;
     }
 
+    /// <summary>
+    /// Moves the selected item up or down one place on Alt+Up or Alt+Down, staying behind items that cannot move.
+    /// </summary>
     void OnKeyDown(object sender, KeyEventArgs e)
     {
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
@@ -191,6 +209,9 @@ sealed class ListReorder
         }
     }
 
+    /// <summary>
+    /// Finds the element, or the nearest of its visual or logical parents, that is a <typeparamref name="T"/>.
+    /// </summary>
     public static T? FindAncestor<T>(DependencyObject element) where T : DependencyObject
     {
         for (var i = element; i != null; i = i is Visual ? VisualTreeHelper.GetParent(i) : LogicalTreeHelper.GetParent(i))

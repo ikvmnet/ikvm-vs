@@ -25,9 +25,9 @@ public interface IMavenService
 
     /// <summary>
     /// Searches the given repositories that can be searched for artifacts matching some text: words in their
-    /// coordinates, or <c>groupId:artifactId</c>. Each time the search of a repository completes, yields everything
-    /// found so far, merged, so that slow repositories do not hold up the others. Fails only when every search does.
+    /// coordinates, or <c>groupId:artifactId</c>. Each time the search of a repository completes or fails, yields
+    /// that, with everything found so far, merged, so that slow repositories do not hold up the others.
     /// </summary>
-    IAsyncEnumerable<MavenServiceSearchResult[]> SearchAsync(MavenServiceRepository[] repositories, string text, int count, CancellationToken cancellationToken);
+    IAsyncEnumerable<MavenServiceSearchUpdate> SearchAsync(MavenServiceRepository[] repositories, string text, int count, CancellationToken cancellationToken);
 
 }

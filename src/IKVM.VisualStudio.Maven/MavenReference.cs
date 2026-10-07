@@ -74,8 +74,14 @@ internal sealed class MavenReference
     /// </summary>
     public ImmutableDictionary<string, MavenArtifact>? Graph { get; }
 
+    /// <summary>
+    /// Group ID of the reference, from its metadata, else from its include.
+    /// </summary>
     public string GroupId { get; }
 
+    /// <summary>
+    /// Artifact ID of the reference, from its metadata, else from its include.
+    /// </summary>
     public string ArtifactId { get; }
 
     /// <summary>
@@ -83,6 +89,9 @@ internal sealed class MavenReference
     /// </summary>
     public string Version { get; }
 
+    /// <summary>
+    /// The classifier asked for, or empty for none.
+    /// </summary>
     public string Classifier { get; }
 
     /// <summary>
@@ -90,6 +99,9 @@ internal sealed class MavenReference
     /// </summary>
     public MavenArtifact? Artifact { get; }
 
+    /// <summary>
+    /// Whether Maven resolved an artifact for the reference.
+    /// </summary>
     public bool IsResolved => Artifact != null;
 
     /// <summary>
@@ -110,6 +122,9 @@ internal sealed class MavenReference
                 yield return dependency;
     }
 
+    /// <summary>
+    /// Gets a metadata value of the item, or empty when it has none.
+    /// </summary>
     string Get(string name) => Properties.TryGetValue(name, out var value) ? value ?? "" : "";
 
 }

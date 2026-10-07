@@ -19,6 +19,10 @@ namespace IKVM.VisualStudio.Host.Maven;
 sealed class MavenService : IMavenService
 {
 
+    /// <summary>
+    /// Resolves the version range <c>[0,)</c> of the artifact on a thread pool thread, and returns its versions
+    /// newest first.
+    /// </summary>
     public Task<string[]> GetVersionsAsync(MavenServiceRepository[] repositories, string groupId, string artifactId, CancellationToken cancellationToken)
     {
         return Task.Run(() =>
@@ -38,12 +42,14 @@ sealed class MavenService : IMavenService
         }, cancellationToken);
     }
 
+    /// <inheritdoc />
     public Task<MavenServiceSearchStatus[]> GetSearchStatusAsync(MavenServiceRepository[] repositories, CancellationToken cancellationToken)
     {
         return MavenSearches.GetStatusAsync(new MavenEnvironment(repositories ?? Array.Empty<MavenServiceRepository>()), cancellationToken);
     }
 
-    public IAsyncEnumerable<MavenServiceSearchResult[]> SearchAsync(MavenServiceRepository[] repositories, string text, int count, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public IAsyncEnumerable<MavenServiceSearchUpdate> SearchAsync(MavenServiceRepository[] repositories, string text, int count, CancellationToken cancellationToken)
     {
         return MavenSearches.SearchAsync(new MavenEnvironment(repositories ?? Array.Empty<MavenServiceRepository>()), text ?? "", Math.Max(1, count), cancellationToken);
     }

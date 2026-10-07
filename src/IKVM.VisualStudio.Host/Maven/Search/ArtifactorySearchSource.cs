@@ -25,6 +25,12 @@ sealed class ArtifactorySearchSource : MavenSearchSource
     readonly RemoteRepository _api;
     readonly IReadOnlyList<string> _repositories;
 
+    /// <summary>
+    /// Initializes a new instance that searches the given repositories of Artifactory through its API.
+    /// </summary>
+    /// <param name="http">The transports.</param>
+    /// <param name="api">The root of the server, where its API is.</param>
+    /// <param name="repositories">The keys of the repositories searched: the members of a virtual repository, or the repository itself.</param>
     ArtifactorySearchSource(MavenHttp http, RemoteRepository api, IReadOnlyList<string> repositories)
     {
         _http = http;
@@ -32,6 +38,7 @@ sealed class ArtifactorySearchSource : MavenSearchSource
         _repositories = repositories;
     }
 
+    /// <inheritdoc />
     public override string Name => "Artifactory";
 
     /// <summary>
@@ -75,6 +82,10 @@ sealed class ArtifactorySearchSource : MavenSearchSource
         return new[] { key };
     }
 
+    /// <summary>
+    /// Searches with GAVC searches: for coordinates, artifacts of the group whose ID contains the artifact ID; for
+    /// words, artifacts whose ID contains the text, and then groups whose ID does, when that found too few.
+    /// </summary>
     public override IReadOnlyList<MavenServiceSearchResult> Search(MavenSearchText text, int count)
     {
         var repos = "&repos=" + string.Join(",", _repositories.Select(Uri.EscapeDataString));

@@ -15,6 +15,9 @@ namespace IKVM.VisualStudio.Vsix.UI;
 internal partial class JarDependencyView : UserControl
 {
 
+    /// <summary>
+    /// Creates the view and makes its Compile, Sources and "Depends on" lists reorderable and drop targets.
+    /// </summary>
     public JarDependencyView()
     {
         InitializeComponent();
@@ -43,8 +46,14 @@ internal partial class JarDependencyView : UserControl
         });
     }
 
+    /// <summary>
+    /// The entry shown, if any.
+    /// </summary>
     JarDependencyEntry? Entry => DataContext as JarDependencyEntry;
 
+    /// <summary>
+    /// Whether the entry shown can be changed now.
+    /// </summary>
     bool CanEdit() => Entry is { CanEdit: true };
 
     /// <summary>
@@ -63,6 +72,9 @@ internal partial class JarDependencyView : UserControl
         return data.GetData(typeof(IkvmDependencyEntry)) is JarDependencyEntry target && Entry is { } entry && entry.Dependencies.Any(i => i.Target == target) ? target : null;
     }
 
+    /// <summary>
+    /// Opens a menu under the button of the entries that can be added to "Depends on".
+    /// </summary>
     void OnAddDependency(object sender, RoutedEventArgs e)
     {
         if (Entry is not { } entry || sender is not FrameworkElement button)
@@ -82,36 +94,55 @@ internal partial class JarDependencyView : UserControl
         menu.IsOpen = true;
     }
 
+    /// <summary>
+    /// Removes the clicked path from Compile.
+    /// </summary>
     void OnRemoveClass(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: PathItem item })
             Entry?.RemoveClass(item.Path);
     }
 
+    /// <summary>
+    /// Removes the clicked path from Sources.
+    /// </summary>
     void OnRemoveSource(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: PathItem item })
             Entry?.RemoveSource(item.Path);
     }
 
+    /// <summary>
+    /// Removes the clicked entry from "Depends on".
+    /// </summary>
     void OnRemoveDependency(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: DependencyOption option })
             option.IsChecked = false;
     }
 
+    /// <summary>
+    /// Asks for JARs and adds them to the end of Compile.
+    /// </summary>
     void OnAddClasses(object sender, RoutedEventArgs e)
     {
         if (Entry is { } entry && PickFiles("Add to Compile", "Java archives (*.jar)|*.jar|All files (*.*)|*.*") is { } paths)
             entry.AddClasses(paths);
     }
 
+    /// <summary>
+    /// Asks for source archives and adds them to the end of Sources.
+    /// </summary>
     void OnAddSources(object sender, RoutedEventArgs e)
     {
         if (Entry is { } entry && PickFiles("Add Sources", "Source archives (*.jar;*.zip)|*.jar;*.zip|All files (*.*)|*.*") is { } paths)
             entry.AddSources(paths);
     }
 
+    /// <summary>
+    /// Shows an open file dialog, starting in the project directory, and returns the files picked, or
+    /// <c>null</c> when cancelled.
+    /// </summary>
     string[]? PickFiles(string title, string filter)
     {
         var dialog = new OpenFileDialog() { Title = title, Filter = filter, Multiselect = true, InitialDirectory = Entry?.Context.ProjectDirectory };

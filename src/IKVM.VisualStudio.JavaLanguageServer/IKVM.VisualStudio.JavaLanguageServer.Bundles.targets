@@ -1,0 +1,134 @@
+<Project>
+
+    <!--
+        The references between the bundles, which ikvmc needs to compile each of them: Eclipse POMs leave out the
+        dependencies their OSGi manifests import by package, so these come from the manifests (Require-Bundle,
+        Import-Package and Fragment-Host), closed transitively, as ikvmc, like the C# compiler, needs every assembly whose
+        types a referenced type exposes. The cached identity of each item is cleared so IKVM.Maven.Sdk recomputes it.
+    -->
+    <Target Name="AddBundleReferences" AfterTargets="_GetMavenIkvmReferenceItems" BeforeTargets="_UpdateIkvmReferenceItemsMetadata">
+        <ItemGroup>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.filebuffers:3.6.1000' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.net:1.3.900' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.equinox.security:1.3.500;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.core.variables:3.4.800' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.debug.core:3.15.100' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.core.variables:3.4.800;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.equinox.security:1.3.500' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.jdt:org.eclipse.jdt.core:3.22.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.jdt:org.eclipse.jdt.core.manipulation:1.14.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.jdt:org.eclipse.jdt.core:3.22.0;maven$org.eclipse.jdt:org.eclipse.jdt.debug:3.15.100;maven$org.eclipse.jdt:org.eclipse.jdt.launching:3.17.100;maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filebuffers:3.6.1000;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.core.variables:3.4.800;maven$org.eclipse.platform:org.eclipse.debug.core:3.15.100;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.ltk.core.refactoring:3.11.0;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.jdt:org.eclipse.jdt.debug:3.15.100' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.jdt:org.eclipse.jdt.core:3.22.0;maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.core.variables:3.4.800;maven$org.eclipse.platform:org.eclipse.debug.core:3.15.100;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.jdt:org.eclipse.jdt.launching:3.17.100' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.jdt:org.eclipse.jdt.core:3.22.0;maven$org.eclipse.jdt:org.eclipse.jdt.debug:3.15.100;maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.core.variables:3.4.800;maven$org.eclipse.platform:org.eclipse.debug.core:3.15.100;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.jdt.ls:org.eclipse.jdt.ls.core:0.57.0.20200619102332' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$com.google.code.gson:gson:2.8.9;maven$com.google.guava:guava:27.1-jre;maven$log4j:log4j:1.2.17;maven$org.apache.commons:commons-lang3:3.1;maven$org.eclipse.jdt:org.eclipse.jdt.core.manipulation:1.14.0;maven$org.eclipse.jdt:org.eclipse.jdt.core:3.22.0;maven$org.eclipse.jdt:org.eclipse.jdt.debug:3.15.100;maven$org.eclipse.jdt:org.eclipse.jdt.launching:3.17.100;maven$org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.9.0;maven$org.eclipse.lsp4j:org.eclipse.lsp4j:0.9.0;maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filebuffers:3.6.1000;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.net:1.3.900;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.core.variables:3.4.800;maven$org.eclipse.platform:org.eclipse.debug.core:3.15.100;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.equinox.security:1.3.500;maven$org.eclipse.platform:org.eclipse.ltk.core.refactoring:3.11.0;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200;maven$org.eclipse.xtend:org.eclipse.xtend.lib.macro:2.22.0;maven$org.eclipse.xtend:org.eclipse.xtend.lib:2.22.0;maven$org.eclipse.xtext:org.eclipse.xtext.xbase.lib:2.22.0;maven$org.jsoup:jsoup:1.9.2;maven$com.kotcrab.remark:remark:1.2.0</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.lsp4j:org.eclipse.lsp4j:0.9.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$com.google.code.gson:gson:2.8.9;maven$com.google.guava:guava:27.1-jre;maven$org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.9.0;maven$org.eclipse.xtext:org.eclipse.xtext.xbase.lib:2.22.0</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.9.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$com.google.code.gson:gson:2.8.9</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.ltk.core.refactoring:3.11.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.expressions:3.6.800;maven$org.eclipse.platform:org.eclipse.core.filebuffers:3.6.1000;maven$org.eclipse.platform:org.eclipse.core.filesystem:1.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.resources:3.13.700;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300;maven$org.eclipse.platform:org.eclipse.text:3.10.200</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.platform:org.eclipse.text:3.10.200' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$org.eclipse.platform:org.eclipse.core.commands:3.9.700;maven$org.eclipse.platform:org.eclipse.core.contenttype:3.7.700;maven$org.eclipse.platform:org.eclipse.core.jobs:3.10.800;maven$org.eclipse.platform:org.eclipse.core.runtime:3.18.0;maven$org.eclipse.platform:org.eclipse.equinox.app:1.4.500;maven$org.eclipse.platform:org.eclipse.equinox.common:3.12.0;maven$org.eclipse.platform:org.eclipse.equinox.preferences:3.8.0;maven$org.eclipse.platform:org.eclipse.equinox.registry:3.8.800;maven$org.eclipse.platform:org.eclipse.osgi.services:3.8.0;maven$org.eclipse.platform:org.eclipse.osgi.util:3.5.300;maven$org.eclipse.platform:org.eclipse.osgi:3.16.300</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.xtend:org.eclipse.xtend.lib:2.22.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$com.google.guava:guava:27.1-jre;maven$org.eclipse.xtend:org.eclipse.xtend.lib.macro:2.22.0;maven$org.eclipse.xtext:org.eclipse.xtext.xbase.lib:2.22.0</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.xtend:org.eclipse.xtend.lib.macro:2.22.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$com.google.guava:guava:27.1-jre;maven$org.eclipse.xtext:org.eclipse.xtext.xbase.lib:2.22.0</References>
+            </IkvmReferenceItem>
+            <IkvmReferenceItem Condition=" '%(Identity)' == 'maven$org.eclipse.xtext:org.eclipse.xtext.xbase.lib:2.22.0' ">
+                <IkvmIdentity></IkvmIdentity>
+                <References>%(References);maven$com.google.guava:guava:27.1-jre</References>
+            </IkvmReferenceItem>
+        </ItemGroup>
+    </Target>
+
+</Project>

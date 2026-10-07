@@ -19,6 +19,10 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
     readonly IkvmDependencySession _session;
     IkvmDependencyEntry? _selectedEntry;
 
+    /// <summary>
+    /// Creates the state for a session, selecting the first entry and starting to load what the entries show that
+    /// takes time to find.
+    /// </summary>
     public ManageIkvmDependenciesViewModel(IkvmDependencySession session)
     {
         _session = session;
@@ -28,6 +32,9 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
         _ = _session.LoadAsync(Entries.ToList());
     }
 
+    /// <summary>
+    /// The entries of the dialog: those already in the project and those being added.
+    /// </summary>
     public ObservableCollection<IkvmDependencyEntry> Entries => _session.Entries;
 
     /// <summary>
@@ -45,12 +52,18 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
     /// </summary>
     public bool HasTargetFrameworks => _session.Context.TargetFrameworks.Count > 1;
 
+    /// <summary>
+    /// The entry whose details are shown.
+    /// </summary>
     public IkvmDependencyEntry? SelectedEntry
     {
         get => _selectedEntry;
         set => Set(ref _selectedEntry, value);
     }
 
+    /// <summary>
+    /// Whether paths of new entries are written relative to the project, as the user chose.
+    /// </summary>
     public bool UseRelativePaths
     {
         get => _session.Context.UseRelativePaths;
@@ -77,6 +90,9 @@ sealed class ManageIkvmDependenciesViewModel : ViewModelBase
         Select(_session.AddPaths(paths));
     }
 
+    /// <summary>
+    /// Selects the last of the entries just added and starts loading what they show that takes time to find.
+    /// </summary>
     void Select(IReadOnlyList<IkvmDependencyEntry> added)
     {
         if (added.Count == 0)

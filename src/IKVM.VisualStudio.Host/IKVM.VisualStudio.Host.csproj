@@ -5,19 +5,24 @@
         <Nullable>enable</Nullable>
         <!-- loaded by the ServiceHub host as a plugin: its dependencies, IKVM included, go beside it -->
         <EnableDynamicLoading>true</EnableDynamicLoading>
-        <Description>The services of the IKVM Visual Studio extension that need IKVM, hosted by ServiceHub in a process of their own: Maven, through Maven Resolver and Maven Indexer.</Description>
+        <Description>The services of the IKVM Visual Studio extension that need IKVM, hosted by ServiceHub in a process of their own: Maven, through Maven Resolver and Maven Indexer; and the Java language server, Eclipse JDT LS.</Description>
     </PropertyGroup>
 
     <ItemGroup>
         <None Include="IKVM.VisualStudio.Host.Maven.servicehub.service.json" CopyToOutputDirectory="PreserveNewest" />
+        <None Include="IKVM.VisualStudio.Host.JavaLanguageServer.servicehub.service.json" CopyToOutputDirectory="PreserveNewest" />
         <None Include="IKVM.VisualStudio.Host.pkgdef" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.16.1" />
-        <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.1" />
+        <PackageReference Include="IKVM" Version="8.16.2" />
+        <PackageReference Include="IKVM.Maven.Sdk" Version="1.12.2" />
         <!-- provided by the ServiceHub host, which hands the service its own copies -->
         <PackageReference Include="Microsoft.ServiceHub.Framework" Version="4.8.55" ExcludeAssets="runtime" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\IKVM.VisualStudio.JavaLanguageServer\IKVM.VisualStudio.JavaLanguageServer.ikvmproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -31,5 +36,7 @@
         <MavenReference Include="org.apache.maven.indexer:search-backend-smo:6.2.2" />
         <MavenReference Include="org.apache.maven.indexer:search-backend-indexer:6.2.2" />
     </ItemGroup>
+
+    <Import Project="..\IKVM.VisualStudio.JavaLanguageServer\IKVM.VisualStudio.JavaLanguageServer.Maven.targets" />
 
 </Project>

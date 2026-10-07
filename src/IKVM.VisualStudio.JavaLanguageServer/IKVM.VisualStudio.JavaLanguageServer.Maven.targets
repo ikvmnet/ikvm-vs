@@ -1,0 +1,16 @@
+<Project>
+
+    <!--
+        What resolving and compiling the Maven references of the Java language server takes, in any project that does:
+        IKVM.Maven.Sdk resolves Maven references in the project at the top of the project references, so the host
+        resolves and compiles those of the language server too.
+    -->
+    <PropertyGroup>
+        <!-- JDT LS releases, which are not published to Maven Central -->
+        <MavenAdditionalRepositories>$(MavenAdditionalRepositories);jdtls=https://repo.eclipse.org/content/repositories/jdtls-releases/</MavenAdditionalRepositories>
+    </PropertyGroup>
+
+    <Import Project="IKVM.VisualStudio.JavaLanguageServer.Bundles.targets" />
+    <Import Project="IKVM.VisualStudio.JavaLanguageServer.Nested.targets" />
+
+</Project>

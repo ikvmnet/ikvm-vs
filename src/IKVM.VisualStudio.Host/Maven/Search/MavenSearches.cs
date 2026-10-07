@@ -62,6 +62,7 @@ static class MavenSearches
                 index.GetSource();
                 status.IsReady = index.IsReady;
                 status.IsUpdating = index.IsUpdating;
+                status.Progress = index.Progress;
                 status.Message = index.Message;
             }
 
@@ -70,59 +71,53 @@ static class MavenSearches
     }
 
     /// <summary>
-    /// Searches each repository that can be searched, yielding what they found so far, merged, as each completes.
-    /// Fails only when every search does.
+    /// Searches each repository that can be searched, yielding each as it completes or fails, with what all of them
+    /// found so far, merged.
     /// </summary>
-    public static async IAsyncEnumerable<MavenServiceSearchResult[]> SearchAsync(MavenEnvironment maven, string text, int count, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public static async IAsyncEnumerable<MavenServiceSearchUpdate> SearchAsync(MavenEnvironment maven, string text, int count, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var (http, repositories, searches) = await ProbeAsync(maven, cancellationToken);
         var query = MavenSearchText.Parse(text);
 
-        var sources = new List<MavenSearchSource>();
+        var sources = new List<(string RepositoryId, MavenSearchSource Source)>();
         for (var i = 0; i < repositories.Count; i++)
         {
             if (searches[i].Server is MavenSearchSource server)
-                sources.Add(server);
+                sources.Add((repositories[i].getId(), server));
 
             if (searches[i].Index is MavenIndex index)
             {
                 index.Update(http, repositories[i]);
                 if (index.GetSource() is MavenSearchSource source)
-                    sources.Add(source);
+                    sources.Add((repositories[i].getId(), source));
             }
         }
 
-        if (sources.Count == 0)
-        {
-            yield return Array.Empty<MavenServiceSearchResult>();
-            yield break;
-        }
-
-        var pending = sources.Select(i => Task.Run(() => i.Search(query, count), cancellationToken)).ToList();
+        var pending = sources.ToDictionary(i => Task.Run(() => i.Source.Search(query, count), cancellationToken), i => i.RepositoryId);
         var results = new MavenSearchResults();
-        var completed = false;
-        Exception? failure = null;
 
         while (pending.Count > 0)
         {
-            var task = await Task.WhenAny(pending).WaitAsync(cancellationToken);
+            var task = await Task.WhenAny(pending.Keys).WaitAsync(cancellationToken);
+            var update = new MavenServiceSearchUpdate() { RepositoryId = pending[task] };
             pending.Remove(task);
 
-            if (task.Status != TaskStatus.RanToCompletion)
+            try
             {
-                failure ??= task.Exception?.InnerException;
-                continue;
+                var found = await task;
+                update.Count = found.Count;
+                foreach (var result in found)
+                    results.Add(result.GroupId, result.ArtifactId, result.LatestVersion);
+            }
+            catch (Exception e)
+            {
+                update.IsFailed = true;
+                update.Message = e.Message;
             }
 
-            completed = true;
-            foreach (var result in task.Result)
-                results.Add(result.GroupId, result.ArtifactId, result.LatestVersion);
-
-            yield return results.ToList(query, count).ToArray();
+            update.Results = results.ToList(query, count).ToArray();
+            yield return update;
         }
-
-        if (completed == false && failure != null)
-            throw failure;
     }
 
     /// <summary>
@@ -132,21 +127,22 @@ static class MavenSearches
     {
         var http = new MavenHttp(maven, maven.CreateSession());
         var repositories = maven.GetEffectiveRepositories(http.Session);
-        var searches = await Task.WhenAll(repositories.Select(i => GetSearch(http, i))).WaitAsync(cancellationToken);
+        var searches = await Task.WhenAll(repositories.Select(i => GetSearchAsync(http, i))).WaitAsync(cancellationToken);
         return (http, repositories, searches);
     }
 
     /// <summary>
     /// Gets how a repository is searched, probing it unless it was probed recently.
     /// </summary>
-    static Task<MavenRepositorySearch> GetSearch(MavenHttp http, RemoteRepository repository)
+    static async Task<MavenRepositorySearch> GetSearchAsync(MavenHttp http, RemoteRepository repository)
     {
         var key = repository.getId() + " " + repository.getUrl();
         while (true)
         {
             var task = Probes.GetOrAdd(key, _ => Task.Run(() => Probe(http, repository)));
-            if (task.IsCompletedSuccessfully == false || task.Result.Expires > DateTime.UtcNow)
-                return task;
+            var search = await task;
+            if (search.Expires > DateTime.UtcNow)
+                return search;
 
             Probes.TryRemove(new KeyValuePair<string, Task<MavenRepositorySearch>>(key, task));
         }

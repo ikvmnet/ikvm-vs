@@ -37,6 +37,10 @@ internal sealed class IkvmReference
         return builder.ToImmutable();
     }
 
+    /// <summary>
+    /// Gets the include of the evaluated item a resolved item came from: its <c>OriginalItemSpec</c> metadata when set,
+    /// else its own item spec.
+    /// </summary>
     static string GetOriginalItemSpec(string itemSpec, IImmutableDictionary<string, string> properties)
     {
         return properties.TryGetValue(IkvmReferenceRules.OriginalItemSpecMetadata, out var original) && string.IsNullOrEmpty(original) == false ? original : itemSpec;

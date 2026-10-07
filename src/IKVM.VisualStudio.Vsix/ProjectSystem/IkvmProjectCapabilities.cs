@@ -1,5 +1,8 @@
 namespace IKVM.VisualStudio.Vsix.ProjectSystem;
 
+/// <summary>
+/// Project capabilities that identify IKVM projects and that the IKVM project type declares up front.
+/// </summary>
 static class IkvmProjectCapabilities
 {
 

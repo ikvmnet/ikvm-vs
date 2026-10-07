@@ -8,6 +8,9 @@ namespace IKVM.VisualStudio.Maven.UI;
 sealed class MavenResolvedItem
 {
 
+    /// <summary>
+    /// Initializes a new instance.
+    /// </summary>
     public MavenResolvedItem(MavenArtifact artifact, int depth, string? partialNote, bool isRoot)
     {
         Artifact = artifact;
@@ -16,8 +19,14 @@ sealed class MavenResolvedItem
         IsRoot = isRoot;
     }
 
+    /// <summary>
+    /// The resolved artifact.
+    /// </summary>
     public MavenArtifact Artifact { get; }
 
+    /// <summary>
+    /// The artifact's coordinates, which the list shows for it.
+    /// </summary>
     public string Coordinates => Artifact.Coordinates;
 
     /// <summary>
@@ -25,6 +34,9 @@ sealed class MavenResolvedItem
     /// </summary>
     public int Depth { get; }
 
+    /// <summary>
+    /// The margin the list indents the artifact by, to show its depth in the graph.
+    /// </summary>
     public Thickness Indent => new Thickness((Depth - 1) * 16, 0, 0, 0);
 
     /// <summary>
@@ -37,8 +49,16 @@ sealed class MavenResolvedItem
     /// </summary>
     public string? PartialNote { get; }
 
+    /// <summary>
+    /// Whether the artifact is resolved for only some of the target frameworks being edited, which the list shows it
+    /// differently for.
+    /// </summary>
     public bool IsPartial => PartialNote != null;
 
+    /// <summary>
+    /// The tooltip of the artifact in the list: its coordinates, and the target frameworks it is resolved for when
+    /// that is only some.
+    /// </summary>
     public string ToolTip => PartialNote != null ? $"{Coordinates}\n{PartialNote}" : Coordinates;
 
     /// <summary>

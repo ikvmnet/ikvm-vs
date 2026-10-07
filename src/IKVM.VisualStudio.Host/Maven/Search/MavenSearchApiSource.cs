@@ -19,6 +19,9 @@ sealed class MavenSearchApiSource : MavenSearchSource
     readonly SearchBackend _backend;
     readonly int _recordsPerArtifact;
 
+    /// <summary>
+    /// Searches through a backend of the search API, shown by a name.
+    /// </summary>
     /// <param name="name">What searches the repository, as it is shown.</param>
     /// <param name="backend">The backend.</param>
     /// <param name="recordsPerArtifact">How many records to ask for for each artifact wanted: an index has a record
@@ -30,8 +33,12 @@ sealed class MavenSearchApiSource : MavenSearchSource
         _recordsPerArtifact = recordsPerArtifact;
     }
 
+    /// <inheritdoc />
     public override string Name { get; }
 
+    /// <summary>
+    /// Searches the backend for enough records to find the artifacts wanted, and collects the artifact of each.
+    /// </summary>
     public override IReadOnlyList<MavenServiceSearchResult> Search(MavenSearchText text, int count)
     {
         var response = _backend.search(new SearchRequest(new Paging(Math.Max(1, count * _recordsPerArtifact)), ToQuery(text)));

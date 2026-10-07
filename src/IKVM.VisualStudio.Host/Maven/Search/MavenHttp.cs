@@ -18,12 +18,19 @@ sealed class MavenHttp
     readonly MavenEnvironment _maven;
     readonly RepositorySystemSession _session;
 
+    /// <summary>
+    /// Initializes a new instance that makes requests with the transports of the given environment, and the proxies
+    /// of the given session.
+    /// </summary>
     public MavenHttp(MavenEnvironment maven, RepositorySystemSession session)
     {
         _maven = maven;
         _session = session;
     }
 
+    /// <summary>
+    /// The session requests are made in, with the proxies, mirrors and credentials of the settings.
+    /// </summary>
     public RepositorySystemSession Session => _session;
 
     /// <summary>
@@ -70,6 +77,10 @@ sealed class MavenHttp
             throw new java.io.FileNotFoundException(location);
     }
 
+    /// <summary>
+    /// Makes a GET request for a URL relative to a repository with a new transporter, which is closed afterwards,
+    /// and returns what <paramref name="get"/> returns, or the default when the URL does not exist.
+    /// </summary>
     T? Invoke<T>(RemoteRepository repository, string location, Func<Transporter, GetTask, T> get)
     {
         var transporter = _maven.TransporterProvider.newTransporter(_session, repository);
